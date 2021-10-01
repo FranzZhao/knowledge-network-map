@@ -44,6 +44,11 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         width: theme.spacing(4),
         height: theme.spacing(4),
         transition: 'margin 100ms',
+        // paddingLeft: 24,
+        // paddingRight: 16,
+    },
+    logoLess600: {
+        marginLeft: -6,
     },
     title: {
         flexGrow: 1,
@@ -86,7 +91,7 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         },
         '&::-webkit-scrollbar-thumb': {
             background: '#cecdcdb8',
-            borderRadius: '2px',
+            borderRadius: '6px',
         },
     },
     drawerContainerClose: {
@@ -131,8 +136,12 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         paddingLeft: 25,
         letterSpacing: '2px',
     },
+    menuMainIcon: {
+        minWidth: 35,
+    },
     menuIcon: {
-        minWidth: 35
+        minWidth: 35,
+        color: '#000000',
     },
     bottomNavLight: {
         overflow: 'hidden',
@@ -166,6 +175,7 @@ export const LeftDrawer = () => {
     // drawer open state
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:950px)');
+    const matches600 = useMediaQuery('(min-width:600px)');
 
     // open drawer
     const handleDrawerOpen = () => {
@@ -173,7 +183,6 @@ export const LeftDrawer = () => {
     };
 
     useEffect(() => {
-        console.log(!matches);
         if (!matches) {
             setOpen(false);
         } else {
@@ -199,6 +208,7 @@ export const LeftDrawer = () => {
                 <Avatar alt="Logo" src={logo} className={clsx({
                     [classes.logo]: open,
                     [classes.logoSingle]: !open,
+                    [classes.logoLess600]: !matches600,
                 })} />
                 <Typography className={clsx(classes.title, {
                     [classes.hide]: !open
@@ -231,7 +241,7 @@ export const LeftDrawer = () => {
                 {/* Project Nav Menu*/}
                 <Tooltip title={open ? "" : "所有地图"} arrow placement="right">
                     <ListItem button key={'home'} className={classes.menuList} selected={true}>
-                        <ListItemIcon className={classes.menuIcon} key={`all-list-icon`}>
+                        <ListItemIcon className={classes.menuMainIcon} key={`all-list-icon`}>
                             <ArtTrackIcon />
                         </ListItemIcon>
                         <ListItemText primary={'所有地图'} key={`all-list-tet`} className={clsx({ [classes.hide]: !open })} />
@@ -239,7 +249,7 @@ export const LeftDrawer = () => {
                 </Tooltip>
                 <Tooltip title={open ? "" : "笔记检索"} arrow placement="right">
                     <ListItem button key={'search'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`search-icon`}>
+                        <ListItemIcon className={classes.menuMainIcon} key={`search-icon`}>
                             <SearchIcon />
                         </ListItemIcon>
                         <ListItemText primary={'笔记检索'} key={`search-text`} className={clsx({ [classes.hide]: !open })} />

@@ -200,6 +200,33 @@ export const PageTabs = () => {
                     openTab={(event) => {}}
                     closeTab={(event) => {}}
                 />
+                <SingleTab
+                    key={'所有地图'}
+                    title={'所有地图'}
+                    router={'/'}
+                    icon={<FaceIcon />}
+                    isActive={false}
+                    openTab={(event) => {}}
+                    closeTab={(event) => {}}
+                />
+                <SingleTab
+                    key={'学习科学地图'}
+                    title={'学习科学地图'}
+                    router={'/'}
+                    icon={'🎶'}
+                    isActive={false}
+                    openTab={(event) => {}}
+                    closeTab={(event) => {}}
+                />
+                <SingleTab
+                    key={'元认知地图'}
+                    title={'元认知地图'}
+                    router={'/'}
+                    icon={'🪶'}
+                    isActive={false}
+                    openTab={(event) => {}}
+                    closeTab={(event) => {}}
+                />
             </ButtonGroup>
             <div
                 className={clsx(classes.tabUpDown, styles["tab-up"])}

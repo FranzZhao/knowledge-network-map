@@ -19,22 +19,17 @@ export const MainLayout: React.FC = () => {
 
     return (
         <Grid container>
-            <LeftDrawer />
-            <div>
+            <Grid item>
+                <LeftDrawer />
+            </Grid>
+            <Grid item>
                 <PageTabs />
                 <div className={classes.mainContent}>
-                    <div style={{
-                        lineHeight: '600px',
-                        marginLeft: 350,
-                        // textAlign: 'center',
-                        fontSize: 40,
-                        color: '#c2c2c2',
-                        letterSpacing: '10px',
-                    }}>
-                        欢迎使用知识网络笔记工具
+                    <div style={{textAlign: 'center'}}>
+                        欢迎使用知识地图网络
                     </div>
                 </div>
-            </div>
+            </Grid>
         </Grid>
     )
 }
