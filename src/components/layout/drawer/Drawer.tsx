@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // improt MD style
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -18,12 +18,10 @@ import { List, ListItem, ListItemIcon, ListItemText, ListSubheader, Typography }
 // import MD icons
 import MenuIcon from '@material-ui/icons/Menu';
 import ArtTrackIcon from '@material-ui/icons/ArtTrack';
-import ChromeReaderModeIcon from '@material-ui/icons/ChromeReaderMode';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import HomeIcon from '@material-ui/icons/Home';
 import SearchIcon from '@material-ui/icons/Search';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 
@@ -31,7 +29,7 @@ import Brightness4Icon from '@material-ui/icons/Brightness4';
 const drawerWidth = 240;
 const useStyle = makeStyles((theme: Theme) => createStyles({
     toolbarHeader: {
-        // minHeight: '58px !important',
+        minHeight: '56px !important',
         backgroundColor: theme.palette.primary.dark,
         color: theme.palette.common.white,
     },
@@ -91,12 +89,15 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
             borderRadius: '2px',
         },
     },
+    drawerContainerClose: {
+        marginBottom: 0,
+    },
     hide: {
         display: 'none',
     },
     toolbar: {
         backgroundImage: `url(${userBackground})`,
-        minHeight: '145px !important',
+        minHeight: '135px !important',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
@@ -114,7 +115,7 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         marginTop: 5,
     },
     userHeader: {
-        marginTop: 30,
+        marginTop: 25,
         marginRight: 110,
         width: theme.spacing(6),
         height: theme.spacing(6),
@@ -164,12 +165,21 @@ export const LeftDrawer = () => {
     const classes = useStyle();
     // drawer open state
     const [open, setOpen] = useState(true);
-    const matches = useMediaQuery('(min-width:440px)');
+    const matches = useMediaQuery('(min-width:950px)');
 
     // open drawer
     const handleDrawerOpen = () => {
         setOpen(!open);
     };
+
+    useEffect(() => {
+        console.log(!matches);
+        if (!matches) {
+            setOpen(false);
+        } else {
+            setOpen(true);
+        }
+    }, [matches]);
 
     return (
         <Drawer
@@ -196,7 +206,9 @@ export const LeftDrawer = () => {
                     知识网络地图
                 </Typography>
             </Toolbar>
-            <div className={classes.drawerContainer}>
+            <div className={clsx(classes.drawerContainer, {
+                [classes.drawerContainerClose]: !open
+            })}>
                 {/* user info */}
                 <div className={classes.toolbar}>
                     <Avatar
@@ -217,18 +229,24 @@ export const LeftDrawer = () => {
                     Franz Zhao
                 </div>
                 {/* Project Nav Menu*/}
-                <ListItem button key={'home'} className={classes.menuList}>
-                    <ListItemIcon className={classes.menuIcon} key={`all-list-icon`}>
-                        <ArtTrackIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={'所有地图'} key={`all-list-tet`} className={clsx({ [classes.hide]: !open })} />
-                </ListItem>
-                <ListItem button key={'search'} className={classes.menuList}>
-                    <ListItemIcon className={classes.menuIcon} key={`search-icon`}>
-                        <SearchIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={'笔记检索'} key={`search-text`} className={clsx({ [classes.hide]: !open })} />
-                </ListItem>
+                <Tooltip title={open ? "" : "所有地图"} arrow placement="right">
+                    <ListItem button key={'home'} className={classes.menuList} selected={true}>
+                        <ListItemIcon className={classes.menuIcon} key={`all-list-icon`}>
+                            <ArtTrackIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'所有地图'} key={`all-list-tet`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "笔记检索"} arrow placement="right">
+                    <ListItem button key={'search'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`search-icon`}>
+                            <SearchIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'笔记检索'} key={`search-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                {/* 知识地图列表 */}
+                <Divider className={clsx({ [classes.hide]: open })} />
                 <List
                     className={clsx(classes.listSubTitle, {
                         [classes.hide]: !open,
@@ -236,32 +254,78 @@ export const LeftDrawer = () => {
                     subheader={<ListSubheader>知识地图</ListSubheader>}
                     key={`knm-list`}
                 />
-                <Tooltip title={open?"":"学习科学地图"} arrow placement="right">
-                    <ListItem button key={'knm1'} className={classes.menuList}>
+                <Tooltip title={open ? "" : "学习科学地图"} arrow placement="right">
+                    <ListItem button key={'knm1'} className={classes.menuList} selected={false}>
                         <ListItemIcon className={classes.menuIcon} key={`knm1-icon`}>
                             📚
                         </ListItemIcon>
                         <ListItemText primary={'学习科学地图'} key={`knm1-text`} className={clsx({ [classes.hide]: !open })} />
                     </ListItem>
                 </Tooltip>
-                <ListItem button key={'knm2'} className={classes.menuList}>
-                    <ListItemIcon className={classes.menuIcon} key={`knm2-icon`}>
-                        🧩
-                    </ListItemIcon>
-                    <ListItemText primary={'学习设计地图'} key={`knm2-text`} className={clsx({ [classes.hide]: !open })} />
-                </ListItem>
-                <ListItem button key={'knm3'} className={classes.menuList}>
-                    <ListItemIcon className={classes.menuIcon} key={`knm3-icon`}>
-                        🎶
-                    </ListItemIcon>
-                    <ListItemText primary={'复杂系统科学地图'} key={`knm3-text`} className={clsx({ [classes.hide]: !open })} />
-                </ListItem>
-                <ListItem button key={'knm4'} className={classes.menuList}>
-                    <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                        🪶
-                    </ListItemIcon>
-                    <ListItemText primary={'元认知地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                </ListItem>
+                <Tooltip title={open ? "" : "学习设计地图"} arrow placement="right">
+                    <ListItem button key={'knm2'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm2-icon`}>
+                            🧩
+                        </ListItemIcon>
+                        <ListItemText primary={'学习设计地图'} key={`knm2-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "元认知地图"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            🪶
+                        </ListItemIcon>
+                        <ListItemText primary={'元认知地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "知识建构地图"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            🎁
+                        </ListItemIcon>
+                        <ListItemText primary={'知识建构地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "认识论信念地图"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            🎨
+                        </ListItemIcon>
+                        <ListItemText primary={'认识论信念地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "情境认知理论"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            🎯
+                        </ListItemIcon>
+                        <ListItemText primary={'情境认知理论'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "建构主义理论"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            🎗️
+                        </ListItemIcon>
+                        <ListItemText primary={'建构主义理论'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "认知加工主义"} arrow placement="right">
+                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
+                            📕
+                        </ListItemIcon>
+                        <ListItemText primary={'认知加工主义'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
+                <Tooltip title={open ? "" : "复杂系统科学地图"} arrow placement="right">
+                    <ListItem button key={'knm3'} className={classes.menuList} selected={false}>
+                        <ListItemIcon className={classes.menuIcon} key={`knm3-icon`}>
+                            🎶
+                        </ListItemIcon>
+                        <ListItemText primary={'复杂系统科学地图'} key={`knm3-text`} className={clsx({ [classes.hide]: !open })} />
+                    </ListItem>
+                </Tooltip>
             </div>
             <BottomNavigation
                 showLabels
