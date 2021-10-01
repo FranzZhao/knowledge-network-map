@@ -1,0 +1,32 @@
+{
+    "specification_name": "学生课堂学习规范",
+    "specification_description": "学生的课堂学习",
+    "data_clssystem": [
+        {
+            "clssystemname": "布鲁姆认知领域分类",
+            "clsname": "知道",
+            "cls_rules_description": "这是对知道的描述...",
+            "data": [
+                {
+                    "behavioraldatasheetname": "学生课堂互动行为数据表",
+                    "behavioraldataname": "观看视频, 提出问题"
+                },
+                {
+                    "behavioraldatasheetname": "教师板书行为数据表",
+                    "behavioraldataname": "浏览资源"
+                }
+            ]
+        },
+        {
+            "clssystemname": "加涅学习结果分类",
+            "clsname": "综合",
+            "cls_rules_description": "这是对综合的描述...",
+            "data": [
+                {
+                    "behavioraldatasheetname": "学生课堂互动行为数据表",
+                    "behavioraldataname": "制作作品"
+                }
+            ]
+        }
+    ]
+}
