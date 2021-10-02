@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useDebugValue } from 'react';
+import React, { useState, useEffect } from 'react';
 // improt MD style
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -27,7 +27,11 @@ import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { activateLeftDrawerNavItem } from '../../../redux/openPageTabs/slice';
+import {
+    openItemToPageTab,
+} from '../../../redux/openPageTabs/slice';
+// import Router
+import { useHistory } from 'react-router-dom';
 
 // Current Page Style
 const drawerWidth = 240;
@@ -176,9 +180,12 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
 export const LeftDrawer = () => {
     // style
     const classes = useStyle();
+    // router
+    const history = useHistory();
     // redux
     const dispatch = useDispatch();
     const currentActivatedNavItem = useSelector(state => state.openPage.leftDrawerActivatedItem);
+    const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
     // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:950px)');
@@ -199,8 +206,12 @@ export const LeftDrawer = () => {
     }, [matches]);
 
     // click nav item: Activate Left Drawer Nav Item
-    const handleClickNavItem = (title: string) => {
-        dispatch(activateLeftDrawerNavItem(title));
+    const handleClickNavItem = (title: string, router: string) => {
+        // dispatch(activateLeftDrawerNavItem(title));
+        dispatch(openItemToPageTab({
+            openItemName: title, alreadyOpenedTabs: alreadyOpenedTabs
+        }));
+        history.push(router);
     };
 
     return (
@@ -261,8 +272,8 @@ export const LeftDrawer = () => {
                                         button
                                         key={`${item.id}-item`}
                                         className={classes.menuList}
-                                        selected={currentActivatedNavItem.title === item.title? true : false}
-                                        onClick={()=>handleClickNavItem(item.title)}
+                                        selected={currentActivatedNavItem.title === item.title ? true : false}
+                                        onClick={() => handleClickNavItem(item.title, item.router)}
                                     >
                                         <ListItemIcon className={classes.menuMainIcon} key={`${item.id}-icon`}>
                                             {item.icon}
@@ -288,12 +299,12 @@ export const LeftDrawer = () => {
                         if (item.type === 'UserKNMNavItems') {
                             return (
                                 <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
-                                    <ListItem 
-                                        button 
-                                        key={`${item.id}-item`} 
-                                        className={classes.menuList} 
-                                        selected={currentActivatedNavItem.title === item.title? true : false}
-                                        onClick={()=>handleClickNavItem(item.title)}
+                                    <ListItem
+                                        button
+                                        key={`${item.id}-item`}
+                                        className={classes.menuList}
+                                        selected={currentActivatedNavItem.title === item.title ? true : false}
+                                        onClick={() => handleClickNavItem(item.title, item.router)}
                                     >
                                         <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
                                             {item.icon}
