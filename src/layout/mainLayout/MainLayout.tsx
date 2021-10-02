@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const MainLayout: React.FC = () => {
+export const MainLayout: React.FC = ({ children }) => {
     const classes = useStyles();
 
     return (
@@ -25,9 +25,7 @@ export const MainLayout: React.FC = () => {
             <Grid item>
                 <PageTabs />
                 <div className={classes.mainContent}>
-                    <div style={{textAlign: 'center'}}>
-                        欢迎使用知识地图网络
-                    </div>
+                    {children}
                 </div>
             </Grid>
         </Grid>

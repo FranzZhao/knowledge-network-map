@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useDebugValue } from 'react';
 // improt MD style
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -17,13 +17,17 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { List, ListItem, ListItemIcon, ListItemText, ListSubheader, Typography } from '@material-ui/core';
 // import MD icons
 import MenuIcon from '@material-ui/icons/Menu';
-import ArtTrackIcon from '@material-ui/icons/ArtTrack';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import SearchIcon from '@material-ui/icons/Search';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
+// import MockData
+import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
+// import Redux
+import { useSelector } from '../../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { activateLeftDrawerNavItem } from '../../../redux/openPageTabs/slice';
 
 // Current Page Style
 const drawerWidth = 240;
@@ -172,7 +176,10 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
 export const LeftDrawer = () => {
     // style
     const classes = useStyle();
-    // drawer open state
+    // redux
+    const dispatch = useDispatch();
+    const currentActivatedNavItem = useSelector(state => state.openPage.leftDrawerActivatedItem);
+    // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:950px)');
     const matches600 = useMediaQuery('(min-width:600px)');
@@ -182,6 +189,7 @@ export const LeftDrawer = () => {
         setOpen(!open);
     };
 
+    // listener of Media Query
     useEffect(() => {
         if (!matches) {
             setOpen(false);
@@ -189,6 +197,11 @@ export const LeftDrawer = () => {
             setOpen(true);
         }
     }, [matches]);
+
+    // click nav item: Activate Left Drawer Nav Item
+    const handleClickNavItem = (title: string) => {
+        dispatch(activateLeftDrawerNavItem(title));
+    };
 
     return (
         <Drawer
@@ -239,23 +252,29 @@ export const LeftDrawer = () => {
                     Franz Zhao
                 </div>
                 {/* Project Nav Menu*/}
-                <Tooltip title={open ? "" : "所有地图"} arrow placement="right">
-                    <ListItem button key={'home'} className={classes.menuList} selected={true}>
-                        <ListItemIcon className={classes.menuMainIcon} key={`all-list-icon`}>
-                            <ArtTrackIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={'所有地图'} key={`all-list-tet`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "笔记检索"} arrow placement="right">
-                    <ListItem button key={'search'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuMainIcon} key={`search-icon`}>
-                            <SearchIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={'笔记检索'} key={`search-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                {/* 知识地图列表 */}
+                {
+                    DefaultNavItems.map((item) => {
+                        if (item.type === 'SystemNavItems') {
+                            return (
+                                <Tooltip title={open ? "" : item.title} arrow placement="right" key={`${item.id}-tooltip`}>
+                                    <ListItem
+                                        button
+                                        key={`${item.id}-item`}
+                                        className={classes.menuList}
+                                        selected={currentActivatedNavItem.title === item.title? true : false}
+                                        onClick={()=>handleClickNavItem(item.title)}
+                                    >
+                                        <ListItemIcon className={classes.menuMainIcon} key={`${item.id}-icon`}>
+                                            {item.icon}
+                                        </ListItemIcon>
+                                        <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
+                                    </ListItem>
+                                </Tooltip>
+                            );
+                        }
+                    })
+                }
+                {/* KNM list */}
                 <Divider className={clsx({ [classes.hide]: open })} />
                 <List
                     className={clsx(classes.listSubTitle, {
@@ -264,79 +283,30 @@ export const LeftDrawer = () => {
                     subheader={<ListSubheader>知识地图</ListSubheader>}
                     key={`knm-list`}
                 />
-                <Tooltip title={open ? "" : "学习科学地图"} arrow placement="right">
-                    <ListItem button key={'knm1'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm1-icon`}>
-                            📚
-                        </ListItemIcon>
-                        <ListItemText primary={'学习科学地图'} key={`knm1-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "学习设计地图"} arrow placement="right">
-                    <ListItem button key={'knm2'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm2-icon`}>
-                            🧩
-                        </ListItemIcon>
-                        <ListItemText primary={'学习设计地图'} key={`knm2-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "元认知地图"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            🪶
-                        </ListItemIcon>
-                        <ListItemText primary={'元认知地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "知识建构地图"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            🎁
-                        </ListItemIcon>
-                        <ListItemText primary={'知识建构地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "认识论信念地图"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            🎨
-                        </ListItemIcon>
-                        <ListItemText primary={'认识论信念地图'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "情境认知理论"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            🎯
-                        </ListItemIcon>
-                        <ListItemText primary={'情境认知理论'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "建构主义理论"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            🎗️
-                        </ListItemIcon>
-                        <ListItemText primary={'建构主义理论'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "认知加工主义"} arrow placement="right">
-                    <ListItem button key={'knm4'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm4-icon`}>
-                            📕
-                        </ListItemIcon>
-                        <ListItemText primary={'认知加工主义'} key={`knm4-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
-                <Tooltip title={open ? "" : "复杂系统科学地图"} arrow placement="right">
-                    <ListItem button key={'knm3'} className={classes.menuList} selected={false}>
-                        <ListItemIcon className={classes.menuIcon} key={`knm3-icon`}>
-                            🎶
-                        </ListItemIcon>
-                        <ListItemText primary={'复杂系统科学地图'} key={`knm3-text`} className={clsx({ [classes.hide]: !open })} />
-                    </ListItem>
-                </Tooltip>
+                {
+                    DefaultNavItems.map((item) => {
+                        if (item.type === 'UserKNMNavItems') {
+                            return (
+                                <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
+                                    <ListItem 
+                                        button 
+                                        key={`${item.id}-item`} 
+                                        className={classes.menuList} 
+                                        selected={currentActivatedNavItem.title === item.title? true : false}
+                                        onClick={()=>handleClickNavItem(item.title)}
+                                    >
+                                        <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
+                                            {item.icon}
+                                        </ListItemIcon>
+                                        <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
+                                    </ListItem>
+                                </Tooltip>
+                            );
+                        }
+                    })
+                }
             </div>
+            {/* Bottom Button: Setting & LightOrDark & Logout */}
             <BottomNavigation
                 showLabels
                 className={clsx(classes.bottomNavLight, {

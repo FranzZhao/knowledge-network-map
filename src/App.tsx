@@ -1,8 +1,35 @@
 import React from 'react';
-import {MainLayout} from './layout';
+// import React-Router-DOM
+import {
+    BrowserRouter,
+    Route,
+    Switch,
+} from 'react-router-dom';
+// import Layout
+import { MainLayout } from './layout';
+// import Pages
+import {
+    HomePage,
+    KNMListPage,
+    SearchPage,
+    KNMDetailPage,
+} from './pages';
 
-export default function App() {
+const App: React.FC = () => {
     return (
-        <MainLayout />
+        <BrowserRouter>
+            <Switch>
+                {/* Main Layout*/}
+                <MainLayout>
+                    <Route path="/" component={HomePage} exact />
+                    <Route path="/home" component={HomePage} exact />
+                    <Route path="/list" component={KNMListPage} />
+                    <Route path="/search" component={SearchPage} />
+                    <Route path="/detail" component={KNMDetailPage} />
+                </MainLayout>
+            </Switch>
+        </BrowserRouter>
     )
 };
+
+export default App;

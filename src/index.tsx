@@ -5,9 +5,9 @@ import App from './App';
 import {createTheme, ThemeProvider} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 // import redux
-// import {Provider} from "react-redux";
-// import rootStore from "./redux/store";
-// import {useSelector} from './redux/hooks';
+import {Provider} from "react-redux";
+import rootStore from "./redux/store";
+import {useSelector} from './redux/hooks';
 
 const Index:React.FC = () => {
     // const themeMode = useSelector(state => state.theme.currentMode);
@@ -56,9 +56,9 @@ const Index:React.FC = () => {
 ReactDOM.render(
     // <React.StrictMode>
     // 全局链接Redux
-    // <Provider store={rootStore.store}>
+    <Provider store={rootStore.store}>
         <Index />
-    // </Provider>
+    </Provider>
     // </React.StrictMode>,
     ,document.getElementById('root')
 );
