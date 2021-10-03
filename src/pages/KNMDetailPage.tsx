@@ -19,8 +19,8 @@ export const KNMDetailPage = () => {
     const classes = useStyles();
 
     return (
-            <div className={classes.main}>
-                学习科学知识网络地图
-            </div>
+        <div className={classes.main}>
+            学习科学知识网络地图
+        </div>
     )
 }
