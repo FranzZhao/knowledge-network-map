@@ -3,8 +3,9 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 // import redux-persist
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-// import Reducer
+// import Slice
 import { OpenPageSlice } from './openPageTabs/slice';
+import { OpenLeftDrawerSlice } from './openLeftDrawer/slice';
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     // user: UserSlice.reducer,
     // theme: ThemeModeSlice.reducer,
     openPage: OpenPageSlice.reducer,
+    openLeftDrawer: OpenLeftDrawerSlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

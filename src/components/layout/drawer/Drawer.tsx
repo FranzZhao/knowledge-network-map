@@ -27,9 +27,8 @@ import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import {
-    openItemToPageTab,
-} from '../../../redux/openPageTabs/slice';
+import { openItemToPageTab } from '../../../redux/openPageTabs/slice';
+import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
 
@@ -193,7 +192,9 @@ export const LeftDrawer = () => {
 
     // open drawer
     const handleDrawerOpen = () => {
-        setOpen(!open);
+        let newDrawerOpenState = !open;
+        setOpen(newDrawerOpenState);
+        dispatch(leftDrawerStateChange(newDrawerOpenState));
     };
 
     // listener of Media Query
