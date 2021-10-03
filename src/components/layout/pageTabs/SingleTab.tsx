@@ -32,7 +32,6 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
 
 interface TabState {
     title: string;
-    router: string;
     icon: JSX.Element | string;
     isActive?: boolean;
     openTab: (event: any, title: string) => void;
@@ -40,12 +39,10 @@ interface TabState {
 }
 
 export const SingleTab: React.FC<TabState> = (
-    { title, router, icon, isActive = false, openTab, closeTab }
+    { title, icon, isActive = false, openTab, closeTab }
 ) => {
     // class style
     const classes = useStyle();
-    // router
-    const history = useHistory();
 
     return (
         <Tooltip title={title} arrow>

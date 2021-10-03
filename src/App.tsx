@@ -7,26 +7,18 @@ import {
 } from 'react-router-dom';
 // import Layout
 import { MainLayout } from './layout';
-// import Pages
-import {
-    HomePage,
-    KNMListPage,
-    SearchPage,
-    KNMDetailPage,
-} from './pages';
+// import customize router
+import { MainRouter } from './router';
 
 const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Switch>
-                {/* Main Layout*/}
-                <MainLayout>
-                    <Route path="/" component={HomePage} exact />
-                    <Route path="/home" component={HomePage} exact />
-                    <Route path="/list" component={KNMListPage} />
-                    <Route path="/search" component={SearchPage} />
-                    <Route path="/detail" component={KNMDetailPage} />
-                </MainLayout>
+                <Route path="/" render={() => <MainRouter router='/' />} exact />
+                <Route path="/list" render={() => <MainRouter router='/list' />} exact />
+                <Route path="/search" render={() => <MainRouter router='/search' />} exact />
+                <Route path="/detail" render={() => <MainRouter router='/detail' />} exact />
+                <Route render={() => <MainLayout>404 NOT FOUND</MainLayout>} />
             </Switch>
         </BrowserRouter>
     )

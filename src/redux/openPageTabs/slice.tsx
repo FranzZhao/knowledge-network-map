@@ -13,9 +13,9 @@ interface UserLoginState {
 // Default State
 const initialState: UserLoginState = {
     projectNavMenuItems: DefaultNavItems,
-    leftDrawerActivatedItem: DefaultNavItems[0],
-    alreadyOpenedTabs: [ DefaultNavItems[0] ],
-    currentActivatedTab: DefaultNavItems[0],
+    leftDrawerActivatedItem: {},
+    alreadyOpenedTabs: [],
+    currentActivatedTab: {},
 };
 
 // action: Open Item To PageTabs

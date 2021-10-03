@@ -8,9 +8,6 @@ import { ButtonGroup } from '@material-ui/core';
 // import MD icon
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import FaceIcon from '@material-ui/icons/Face';
-import SwitchCameraIcon from '@material-ui/icons/SwitchCamera';
 // import customize conpoment
 import { SingleTab } from './SingleTab';
 // import Redux
@@ -96,6 +93,7 @@ export const PageTabs = () => {
         }
 
         // change router, so that the page content can change while close the tab
+        // if don't have open page? then open the welcome/home page => router = '/'
         if (Object.keys(currentActivatedTab).length === 0) {
             history.push('/');
         } else {
@@ -175,7 +173,6 @@ export const PageTabs = () => {
                             <SingleTab
                                 key={`${tab.id}-tab`}
                                 title={tab.title}
-                                router={tab.router}
                                 icon={tab.icon}
                                 isActive={currentActivatedTab.id === tab.id ? true : false}
                                 openTab={() => handleClickPageTab(tab)}
