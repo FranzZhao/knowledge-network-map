@@ -25,7 +25,7 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         /* secondary:#ffb74d;  primary:#1e88e5 */
         borderBottom: '3px solid #ffb74d !important',
         borderTop: (theme.palette.type === "light" ?
-            '3px solid #e6e6e6 !important' : '3px solid #191818 !important'),
+            '3px solid #e6e6e6 !important' : '3px solid #323232 !important'),
         color: '#dc901f !important',
     },
 }));

@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 // Import Material Theme
-import {createTheme, ThemeProvider} from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // import redux
-import {Provider} from "react-redux";
+import { Provider } from "react-redux";
 import rootStore from "./redux/store";
-import {useSelector} from './redux/hooks';
+import { useSelector } from './redux/hooks';
 
-const Index:React.FC = () => {
+const Index: React.FC = () => {
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
 
     // System Default Theme
@@ -32,7 +33,7 @@ const Index:React.FC = () => {
                 dark: '#b28035',
                 contrastText: '#000',
             },
-            error:{
+            error: {
                 light: '#ff7171',
                 main: '#f44336',
                 dark: '#d32f2f',
@@ -45,10 +46,11 @@ const Index:React.FC = () => {
 
     });
 
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <App/>
+            <App />
         </ThemeProvider>
     );
 };
@@ -60,5 +62,5 @@ ReactDOM.render(
         <Index />
     </Provider>
     // </React.StrictMode>,
-    ,document.getElementById('root')
+    , document.getElementById('root')
 );

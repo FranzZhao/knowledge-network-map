@@ -15,15 +15,13 @@ const persistConfig = {
     key: "root",    //数据根目录
     storage,        //数据保存方法: local-storage(默认) || session-storage
     whitelist: [    //白名单, 指明保存的store中的特定数据
-        // "user"      //保存user信息(jwt), 暂不持久化
+        "changeTheme"      //保存theme主题颜色
     ],
     // 黑名单, 指除了不保存store中的指定数据外, 其他均保存
 }
 
 // 将所有的Reducer捆绑起来
 const rootReducer = combineReducers({
-    // user: UserSlice.reducer,
-    // theme: ThemeModeSlice.reducer,
     openPage: OpenPageSlice.reducer,
     openLeftDrawer: OpenLeftDrawerSlice.reducer,
     changeTheme: ChangeThemeSlice.reducer,

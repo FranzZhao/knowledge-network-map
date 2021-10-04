@@ -7,7 +7,7 @@ interface ChangeThemeState {
 }
 
 const initialState: ChangeThemeState = {
-    currentTheme: 'dark',
+    currentTheme: 'light',
     loading: false,
     error: null,
 }
