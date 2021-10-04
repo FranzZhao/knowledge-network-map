@@ -22,6 +22,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
+import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh';
 // import MockData
 import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
@@ -29,6 +30,7 @@ import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { openItemToPageTab } from '../../../redux/openPageTabs/slice';
 import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
+import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
 
@@ -183,6 +185,7 @@ export const LeftDrawer = () => {
     const history = useHistory();
     // redux
     const dispatch = useDispatch();
+    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
     const currentActivatedNavItem = useSelector(state => state.openPage.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
     // drawer open state & style
@@ -214,6 +217,15 @@ export const LeftDrawer = () => {
         }));
         history.push(router);
     };
+
+    // change system theme
+    const handleChangeTheme = () => {
+        if (currentTheme === 'light'){
+            dispatch(changeCurrentTheme('dark'));
+        } else {
+            dispatch(changeCurrentTheme('light'));
+        }
+    }
 
     return (
         <Drawer
@@ -322,17 +334,31 @@ export const LeftDrawer = () => {
             <BottomNavigation
                 showLabels
                 className={clsx(classes.bottomNavLight, {
-                    // [classes.bottomNavLight]: themeMode === 'light',
-                    // [classes.bottomNavDark]: themeMode === 'dark',
+                    [classes.bottomNavLight]: currentTheme === 'light',
+                    [classes.bottomNavDark]: currentTheme === 'dark',
                     [classes.hide]: !open
                 })}
             >
                 <Tooltip title="设置" arrow>
                     <BottomNavigationAction icon={<SettingsIcon />} style={{ color: "#8c8c8c" }} key={'设置'} />
                 </Tooltip>
-                <Tooltip title="切换深色模式" arrow>
-                    <BottomNavigationAction icon={<Brightness4Icon />} style={{ color: "#8c8c8c" }} key={'联系我们'} />
-                </Tooltip>
+                {
+                    currentTheme === 'light' ? (
+                        <Tooltip title='切换为深色模式' arrow>
+                            <BottomNavigationAction
+                                icon={<Brightness4Icon />} style={{ color: '#8c8c8c' }} key={'深色模式'}
+                                onClick={handleChangeTheme}
+                            />
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title='切换为浅色模式' arrow>
+                            <BottomNavigationAction
+                                icon={<BrightnessHighIcon />} style={{ color: '#8c8c8c' }} key={'浅色模式'}
+                                onClick={handleChangeTheme}
+                            />
+                        </Tooltip>
+                    )
+                }
                 <Tooltip title="退出" arrow>
                     <BottomNavigationAction
                         icon={<ExitToAppIcon />} style={{ color: "#8c8c8c" }} key={'退出'}

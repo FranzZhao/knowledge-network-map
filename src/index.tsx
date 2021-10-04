@@ -10,12 +10,12 @@ import rootStore from "./redux/store";
 import {useSelector} from './redux/hooks';
 
 const Index:React.FC = () => {
-    // const themeMode = useSelector(state => state.theme.currentMode);
+    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
 
     // System Default Theme
     const theme = createTheme({
         palette: {
-            type: 'light',
+            type: currentTheme,
             common: {
                 black: '#000',
                 white: '#fff',

@@ -6,6 +6,7 @@ import storage from "redux-persist/lib/storage";
 // import Slice
 import { OpenPageSlice } from './openPageTabs/slice';
 import { OpenLeftDrawerSlice } from './openLeftDrawer/slice';
+import { ChangeThemeSlice } from "./changeTheme/slice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     // theme: ThemeModeSlice.reducer,
     openPage: OpenPageSlice.reducer,
     openLeftDrawer: OpenLeftDrawerSlice.reducer,
+    changeTheme: ChangeThemeSlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

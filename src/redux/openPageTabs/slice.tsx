@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { DefaultNavItems } from '../../settings/mocks/DefaultNavItem';
 
 // Project Nav Menu State
-interface UserLoginState {
+interface OpenPageTabsState {
     projectNavMenuItems: any;
     leftDrawerActivatedItem: any;
     alreadyOpenedTabs: any;
@@ -11,7 +11,7 @@ interface UserLoginState {
 }
 
 // Default State
-const initialState: UserLoginState = {
+const initialState: OpenPageTabsState = {
     projectNavMenuItems: DefaultNavItems,
     leftDrawerActivatedItem: {},
     alreadyOpenedTabs: [],

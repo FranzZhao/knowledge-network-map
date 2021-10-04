@@ -39,7 +39,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     tabUpDown: {
         backgroundColor: (theme.palette.type === "light" ? '#ececec' : '#191818'),
-        transition: 'background-color 500ms',
         '&:hover': {
             backgroundColor: (theme.palette.type === "light" ? '#f7f7f7' : '#333232'),
         },
