@@ -6,8 +6,10 @@ import { LegendComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 // import MD
+import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, IconButton, Tooltip, useMediaQuery } from '@material-ui/core';
+import { Button, Tooltip, useMediaQuery } from '@material-ui/core';
+import Fade from '@material-ui/core/Fade';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper';
@@ -22,8 +24,9 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 // import redux
 import { useSelector } from '../redux/hooks';
 
+
 const useStyles = makeStyles((theme: Theme) => createStyles({
-    toolBarPaper:{
+    toolBarPaper: {
         borderRadius: 0,
     },
     toolBar: {
@@ -46,14 +49,43 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     toolBarButtons: {
         "& > *": {
-            color: theme.palette.type==='light'?theme.palette.grey[500]:theme.palette.grey[200],
+            color: theme.palette.type === 'light' ? theme.palette.grey[500] : theme.palette.grey[200],
             minWidth: 50,
         },
         " & > *:hover ": {
             borderRadius: 'none',
         }
+    },
+    openHiddenToolBar: {
+        color: theme.palette.grey[600],
+        minWidth: 40,
+        width: 40,
+        minHeight: 40,
+        borderRadius: 20,
+        // marginRight: 10,
+    },
+    hiddenToolBar: {
+        zIndex: 10,
+    },
+    hiddenToolBarBtn: {
+        marginTop: 4,
+        zIndex: 20,
+        "& > *": {
+            color: theme.palette.grey[500],
+            minWidth: 40,
+            width: 40,
+            minHeight: 40,
+            borderRadius: 20,
+            margin: '2px 0px',
+        }
+    },
+    hide: {
+        display: 'none',
+    },
+    show: {
     }
 }));
+
 
 echarts.use(
     [GraphChart, SVGRenderer, LegendComponent]
@@ -215,7 +247,7 @@ export const KNMDetailPage: React.FC = () => {
 
     ];
     const options = {
-        backgroundColor: currentTheme === 'light' ? '#ffffff' : '#000000',	// 背景颜色
+        backgroundColor: currentTheme === 'light' ? '#ffffff' : '#191919',	// 背景颜色
         legend: {
             x: "center",
             show: false,
@@ -272,6 +304,13 @@ export const KNMDetailPage: React.FC = () => {
             data: node_data,
             links: link_data
         }],
+    };
+
+
+    const [openHiddenToolBar, setOpenHiddenToolBar] = React.useState(false);
+
+    const handleOpen = () => {
+        setOpenHiddenToolBar(!openHiddenToolBar);
     };
 
     return (
@@ -362,11 +401,53 @@ export const KNMDetailPage: React.FC = () => {
                                     </Grid>
                                 </Paper>
                             </Grid>
-                            <Grid item style={{marginRight: 20}}>
+                            <Grid item style={{ marginRight: 20 }}>
                                 <Paper elevation={0} className={classes.paper}>
-                                    <IconButton aria-label="display more actions" edge="end" color="inherit">
-                                        <MoreIcon />
-                                    </IconButton>
+                                    <div className={classes.hiddenToolBar}>
+                                        <Button
+                                            className={classes.openHiddenToolBar}
+                                            value="center"
+                                            aria-label="centered"
+                                            onClick={handleOpen}
+                                        >
+                                            <MoreIcon />
+                                        </Button>
+                                        <Fade in={openHiddenToolBar}>
+                                            <Grid container direction="column" className={classes.hiddenToolBarBtn}>
+                                                <Tooltip title="添加知识节点" placement="left" arrow>
+                                                    <Button value="center" aria-label="centered">
+                                                        <AddCircleOutlineIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="添加知识节点" placement="left" arrow>
+                                                    <Button value="添加节点关联" aria-label="right aligned">
+                                                        <AccountTreeIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="放大" placement="left" arrow>
+                                                    <Button value="left" aria-label="centered">
+                                                        <ZoomInIcon />
+                                                    </Button>
+                                                </Tooltip>
+
+                                                <Tooltip title="缩小" placement="left" arrow>
+                                                    <Button value="center" aria-label="centered">
+                                                        <ZoomOutIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="全屏" placement="left" arrow>
+                                                    <Button value="right" aria-label="centered">
+                                                        <ZoomOutMapIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="修改主题风格" placement="left" arrow>
+                                                    <Button value="left" aria-label="centered">
+                                                        <FormatColorFillIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                            </Grid>
+                                        </Fade>
+                                    </div>
                                 </Paper>
                             </Grid>
                         </Grid>
