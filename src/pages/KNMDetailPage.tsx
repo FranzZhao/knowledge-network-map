@@ -6,23 +6,12 @@ import { LegendComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 // import MD
-import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, IconButton, Tooltip, useMediaQuery } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import FormatAlignLeftIcon from '@material-ui/icons/FormatAlignLeft';
-import FormatAlignCenterIcon from '@material-ui/icons/FormatAlignCenter';
-import FormatAlignRightIcon from '@material-ui/icons/FormatAlignRight';
-import FormatAlignJustifyIcon from '@material-ui/icons/FormatAlignJustify';
-import FormatBoldIcon from '@material-ui/icons/FormatBold';
-import FormatItalicIcon from '@material-ui/icons/FormatItalic';
-import FormatUnderlinedIcon from '@material-ui/icons/FormatUnderlined';
-
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper';
-import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
@@ -34,6 +23,9 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import { useSelector } from '../redux/hooks';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
+    toolBarPaper:{
+        borderRadius: 0,
+    },
     toolBar: {
         height: '47px',
     },
@@ -54,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     toolBarButtons: {
         "& > *": {
-            color: theme.palette.grey[200],
+            color: theme.palette.type==='light'?theme.palette.grey[500]:theme.palette.grey[200],
             minWidth: 50,
         },
         " & > *:hover ": {
@@ -284,7 +276,7 @@ export const KNMDetailPage: React.FC = () => {
 
     return (
         <>
-            <Paper>
+            <Paper className={classes.toolBarPaper}>
                 {
                     mediaWidth ? (
                         <Grid
