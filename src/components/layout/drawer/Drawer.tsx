@@ -96,10 +96,10 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         // background: 'green',
         '&::-webkit-scrollbar': {
             width: 5,
-            backgroundColor: '#ffffff',
+            backgroundColor: theme.palette.type==='light'?'#ffffff':'#424242',
         },
         '&::-webkit-scrollbar-thumb': {
-            background: '#cecdcdb8',
+            background: theme.palette.type==='light'?'#cecdcdb8':'#707070b3',
             borderRadius: '6px',
         },
     },
