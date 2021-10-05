@@ -11,8 +11,9 @@ echarts.use(
 );
 
 interface KnowledgeGraphState {
-    node_data: any[];
-    link_data: any[];
+    nodeData: any[];
+    linkData: any[];
+    relations: any[];
     themeMode: 'white' | 'black';
 }
 
@@ -32,7 +33,7 @@ const blackTheme: ColorThemeState = {
 };
 
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
-    node_data, link_data, themeMode
+    nodeData, linkData, relations, themeMode
 }) => {
     let theme: ColorThemeState;
     switch (themeMode) {
@@ -51,7 +52,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
         legend: {
             x: "center",
             show: false,
-            data: ["关系1", "关系2"]
+            data: relations,
         },
         series: [{
             type: "graph",              // 系列类型:关系图
@@ -75,7 +76,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
                     width: 1,               // 线宽
                     type: 'dashed',         // 类型:solid, dashed, dotted
                     opacity: 0.5,           // 图形透明度: 0~1
-                    curveness: 0.2          // 曲度: 0~1
+                    curveness: 0.2,          // 曲度: 0~1
                 }
             },
             label: {
@@ -101,8 +102,8 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
                 }
             },
             grid: { top: 8, right: 8, bottom: 24, left: 36 },
-            data: node_data,
-            links: link_data
+            data: nodeData,
+            links: linkData
         }],
     };
 

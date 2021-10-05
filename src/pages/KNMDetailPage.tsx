@@ -21,7 +21,7 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 // import redux
 import { useSelector } from '../redux/hooks';
 // import mock data
-import { node_data, link_data } from '../settings/mocks/DefaultGraph';
+import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -250,10 +250,24 @@ export const KNMDetailPage: React.FC = () => {
             </Paper>
             {/* graph */}
             <KnowledgeGraph 
-                node_data={node_data}
-                link_data={link_data}
+                nodeData={nodeData}
+                linkData={linkData}
+                relations={relations}
                 themeMode={'black'}
             />
+            {/* node info edit panel */}
+            <div style={{
+                flex: 'flow',
+                position: 'fixed',
+                top: 98,
+                right: 0,
+                color: 'white',
+                backgroundColor: 'steelblue',
+                width: 350,
+                height: 'calc(100vh - 100px)',
+            }}>
+                1234
+            </div>
         </>
     )
 }

@@ -1,6 +1,11 @@
 import React from 'react';
 
-export let node_data = [
+export let relations = [
+    "关系1",
+    "关系2",
+];
+
+export let nodeData = [
     {
         name: "知识点1：函数的求导",
         draggable: true,                // 节点是否可拖拽，只在使用力引导布局的时候有用。
@@ -94,7 +99,8 @@ export let node_data = [
         }
     },
 ];
-export let link_data = [
+
+export let linkData = [
     {
         target: "复合函数求导",
         source: "知识点1：函数的求导",
