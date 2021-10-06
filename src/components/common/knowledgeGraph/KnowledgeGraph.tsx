@@ -114,7 +114,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
             style={{
                 height: 'calc(100vh - 99px)',
                 width: '100%',
-                borderTop: '1px solid #ececec'
+                // borderTop: '1px solid #ececec'
             }}
         />
     )

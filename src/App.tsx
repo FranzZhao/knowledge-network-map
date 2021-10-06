@@ -10,7 +10,6 @@ import { MainLayout } from './layout';
 // import customize router
 import { MainRouter } from './router';
 
-// little modify
 const App: React.FC = () => {
     return (
         <BrowserRouter>
