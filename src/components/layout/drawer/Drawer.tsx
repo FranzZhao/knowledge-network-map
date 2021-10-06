@@ -96,10 +96,10 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         // background: 'green',
         '&::-webkit-scrollbar': {
             width: 5,
-            backgroundColor: theme.palette.type==='light'?'#ffffff':'#424242',
+            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#424242',
         },
         '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.type==='light'?'#cecdcdb8':'#707070b3',
+            background: theme.palette.type === 'light' ? '#cecdcdb8' : '#707070b3',
             borderRadius: '6px',
         },
     },
@@ -220,7 +220,7 @@ export const LeftDrawer = () => {
 
     // change system theme
     const handleChangeTheme = () => {
-        if (currentTheme === 'light'){
+        if (currentTheme === 'light') {
             dispatch(changeCurrentTheme('dark'));
         } else {
             dispatch(changeCurrentTheme('light'));

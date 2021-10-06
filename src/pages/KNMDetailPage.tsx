@@ -109,10 +109,29 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 'calc(100vh - 97px)',
         borderRadius: 0,
         boxShadow: 'none',
-        overflow: 'auto',
+        overflow: 'hidden',
+        "&:hover": {
+            paddingRight: 15,
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+                width: 5,
+                backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
+                borderRadius: '6px',
+            },
+        },
     },
     infoPanelTitle: {
         fontSize: '18px !important',
+    },
+    infoPanelCloseBtn: {
+        marginTop: 3,
+        "&:hover": {
+            cursor: 'pointer',
+            color: theme.palette.error.main,
+        }
     },
     infoPanelForms: {
         marginTop: theme.spacing(2),
@@ -120,6 +139,17 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         '&>*': {
             marginBottom: theme.spacing(2),
             width: '100%',
+        },
+    },
+    tableContainer: {
+        overflow: 'auto',
+        '&::-webkit-scrollbar': {
+            height: 5,
+            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#424242',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.type === 'light' ? '#c2c2c2' : '#707070b3',
+            borderRadius: '6px',
         },
     },
     table: {
@@ -134,7 +164,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     tableBody: {
         "&>*:hover": {
             backgroundColor: theme.palette.action.hover,
-        }
+        },
     },
 }));
 
@@ -160,22 +190,22 @@ const createData = (title: string, quote: string, tags: JSX.Element, time: strin
 }
 
 const rows = [
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small"/><Chip label="基本理论" color="secondary" size="small"/></>, "2021年8月5日"),
+    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
+    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
 ];
 
 export const KNMDetailPage: React.FC = () => {
@@ -183,7 +213,7 @@ export const KNMDetailPage: React.FC = () => {
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
     const mediaWidth = useMediaQuery('(min-width:950px)');
     const [openHiddenToolBar, setOpenHiddenToolBar] = useState(false);
-
+    const [openNodeInfoPanel, setOpenNodeInfoPanel] = useState(false);
     // Auto Complete Chip
     const fixedOptions = [];
     const [values, setValues] = useState<ValueState>({
@@ -191,8 +221,18 @@ export const KNMDetailPage: React.FC = () => {
     });
 
 
-    const handleOpen = () => {
+    const handleToolBarOpen = () => {
         setOpenHiddenToolBar(!openHiddenToolBar);
+    };
+
+    const [nodeName, setNodeName] = useState('');
+    const echartsClick = {
+        'click': (e) => {
+            if (e.name) {
+                setNodeName(e.name);
+                setOpenNodeInfoPanel(true);
+            }
+        }
     };
 
     return (
@@ -296,7 +336,7 @@ export const KNMDetailPage: React.FC = () => {
                                             className={classes.openHiddenToolBar}
                                             value="center"
                                             aria-label="centered"
-                                            onClick={handleOpen}
+                                            onClick={handleToolBarOpen}
                                         >
                                             <MoreIcon />
                                         </Button>
@@ -353,112 +393,116 @@ export const KNMDetailPage: React.FC = () => {
                 linkData={linkData}
                 relations={relations}
                 themeMode={'black'}
+                echartsClick={echartsClick}
             />
             {/* node info edit panel */}
-            <Paper className={classes.infoPanel}>
-                <Grid container direction="row" justifyContent="space-between">
+            {
+                openNodeInfoPanel &&
+                <Paper className={classes.infoPanel}>
+                    <Grid container direction="row" justifyContent="space-between">
+                        <Typography
+                            variant="h6" gutterBottom
+                            className={classes.infoPanelTitle}
+                        >知识节点 | 信息编辑</Typography>
+                        <HighlightOffIcon fontSize="small" className={classes.infoPanelCloseBtn} onClick={()=>{setOpenNodeInfoPanel(false)}}/>
+                    </Grid>
+                    <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                        <TextField
+                            id="knm-node-name"
+                            label="知识节点名称"
+                            // variant="outlined" 
+                            size="small"
+                            value={nodeName}
+                        />
+                        <Autocomplete
+                            multiple
+                            id="knm-node-tags"
+                            value={values.selectedTables}
+                            onChange={(event, newValue) => {
+                                setValues({
+                                    ...values,
+                                    selectedTables: [
+                                        ...fixedOptions,
+                                        ...newValue,
+                                    ]
+                                });
+                            }}
+                            options={MockClassifyDataTable}
+                            getOptionLabel={(option) => option.title}
+                            renderTags={(tagValue, getTagProps) =>
+                                tagValue.map((option, index) => (
+                                    <Chip
+                                        label={option.title}
+                                        color={"primary"}
+                                        variant={"outlined"}
+                                        {...getTagProps({ index })}
+                                    />
+                                ))
+                            }
+                            // style={{ width: 500 }}
+                            renderInput={(params) => (
+                                <TextField {...params} label="基础数据表" />
+                            )}
+                        />
+                        <TextField
+                            id="knm-node-intro"
+                            label="知识节点简介"
+                            // variant="outlined" 
+                            size="small"
+                            defaultValue="这是一段关于“函数的求导”节点的信息简介..."
+                            multiline
+                        // rows={4}
+                        />
+                        <TextField
+                            id="knm-node-style"
+                            label="知识节点样式选择"
+                            // variant="outlined" 
+                            size="small"
+                            defaultValue="默认样式"
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<SaveIcon />}
+                        >
+                            保存节点信息
+                        </Button>
+                    </form>
+                    <Divider style={{ marginBottom: 10 }} />
                     <Typography
                         variant="h6" gutterBottom
                         className={classes.infoPanelTitle}
-                    >知识节点 | 信息编辑</Typography>
-                    <HighlightOffIcon fontSize="small" style={{ marginTop: 3 }} />
-                </Grid>
-                <form className={classes.infoPanelForms} noValidate autoComplete="off">
-                    <TextField
-                        id="knm-node-name"
-                        label="知识节点名称"
-                        // variant="outlined" 
-                        size="small"
-                        defaultValue="知识点1: 函数的求导"
-                    />
-                    <TextField
-                        id="knm-node-intro"
-                        label="知识节点简介"
-                        // variant="outlined" 
-                        size="small"
-                        defaultValue="这是一段关于“函数的求导”节点的信息简介..."
-                        multiline
-                    // rows={4}
-                    />
-                    <Autocomplete
-                        multiple
-                        id="knm-node-tags"
-                        value={values.selectedTables}
-                        onChange={(event, newValue) => {
-                            setValues({
-                                ...values,
-                                selectedTables: [
-                                    ...fixedOptions,
-                                    ...newValue,
-                                ]
-                            });
-                        }}
-                        options={MockClassifyDataTable}
-                        getOptionLabel={(option) => option.title}
-                        renderTags={(tagValue, getTagProps) =>
-                            tagValue.map((option, index) => (
-                                <Chip
-                                    label={option.title}
-                                    color={"primary"}
-                                    variant={"outlined"}
-                                    {...getTagProps({ index })}
-                                />
-                            ))
-                        }
-                        // style={{ width: 500 }}
-                        renderInput={(params) => (
-                            <TextField {...params} label="基础数据表" />
-                        )}
-                    />
-                    <TextField
-                        id="knm-node-style"
-                        label="知识节点样式选择"
-                        // variant="outlined" 
-                        size="small"
-                        defaultValue="默认样式"
-                    />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<SaveIcon />}
-                    >
-                        保存节点信息
-                    </Button>
-                </form>
-                <Divider style={{ marginBottom: 10 }} />
-                <Typography
-                    variant="h6" gutterBottom
-                    className={classes.infoPanelTitle}
-                >知识节点 | 笔记列表</Typography>
-                <TableContainer component={Paper}>
-                    <Table 
-                        className={classes.table} 
-                        aria-label="simple table" 
-                        // size="small"
-                    >
-                        <TableHead className={classes.tableHead}>
-                            <TableRow>
-                                <TableCell>#</TableCell>
-                                <TableCell>笔记标题</TableCell>
-                                <TableCell>引用</TableCell>
-                                <TableCell>笔记标签</TableCell>
-                                <TableCell>更新时间</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody className={classes.tableBody}>
-                            {rows.map((row, index) => (
-                                <TableRow key={row.title}>
-                                    <TableCell component="th" scope="row">{index+1}</TableCell>
-                                    <TableCell>{row.title}</TableCell>
-                                    <TableCell>{row.quote}</TableCell>
-                                    <TableCell>{row.tags}</TableCell>
-                                    <TableCell>{row.time}</TableCell>
+                    >知识节点 | 笔记列表</Typography>
+                    <TableContainer component={Paper} className={classes.tableContainer}>
+                        <Table
+                            className={classes.table}
+                            aria-label="simple table"
+                            size="small"
+                        >
+                            <TableHead className={classes.tableHead}>
+                                <TableRow>
+                                    <TableCell>#</TableCell>
+                                    <TableCell>笔记标题</TableCell>
+                                    <TableCell>引用</TableCell>
+                                    <TableCell>笔记标签</TableCell>
+                                    <TableCell>更新时间</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+                            </TableHead>
+                            <TableBody className={classes.tableBody}>
+                                {rows.map((row, index) => (
+                                    <TableRow key={`${row.title}-${index}`}>
+                                        <TableCell component="th" scope="row">{index + 1}</TableCell>
+                                        <TableCell>{row.title}</TableCell>
+                                        <TableCell>{row.quote}</TableCell>
+                                        <TableCell>{row.tags}</TableCell>
+                                        <TableCell>{row.time}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>
+            }
         </>
     )
 }

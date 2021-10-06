@@ -15,6 +15,7 @@ interface KnowledgeGraphState {
     linkData: any[];
     relations: any[];
     themeMode: 'white' | 'black';
+    echartsClick: {};
 }
 
 interface ColorThemeState {
@@ -33,7 +34,7 @@ const blackTheme: ColorThemeState = {
 };
 
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
-    nodeData, linkData, relations, themeMode
+    nodeData, linkData, relations, themeMode, echartsClick
 }) => {
     let theme: ColorThemeState;
     switch (themeMode) {
@@ -116,6 +117,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
                 width: '100%',
                 // borderTop: '1px solid #ececec'
             }}
+            onEvents={echartsClick}
         />
     )
 };
