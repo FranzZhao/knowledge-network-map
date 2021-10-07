@@ -41,6 +41,10 @@ import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
 import { rows } from '../settings/mocks/DefaultNotebooks';
 import { mockTags } from '../settings/mocks/DefaultTags';
 
+// import emoji
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
+
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
         borderRadius: 0,
@@ -239,7 +243,7 @@ const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
 /**
  * * Graph Basic Info Edit Panel
  */
- interface GraphBasicInfoState {
+interface GraphBasicInfoState {
     title: string;
     icon: any;
     intro: string;
@@ -264,6 +268,7 @@ const GraphBasicInfoEditPanel: React.FC = () => {
             <form className={classes.infoPanelForms} noValidate autoComplete="off">
                 <div>
                     知识地图小图标: {values.icon}
+                    <Picker title='Pick your emoji…' emoji='point_up' />
                 </div>
                 <TextField
                     id="knm-node-name"
@@ -298,7 +303,9 @@ const GraphBasicInfoEditPanel: React.FC = () => {
 const AddNewNodePanel: React.FC = () => {
     return (
         <React.Fragment>
-            新增知识节点
+            <div>节点名称</div>
+            <div>节点大小</div>
+            <div>节点颜色</div>
         </React.Fragment>
     );
 };
@@ -306,10 +313,12 @@ const AddNewNodePanel: React.FC = () => {
 /**
  * * Add New Link Panel
  */
- const AddNewLinkPanel: React.FC = () => {
+const AddNewLinkPanel: React.FC = () => {
     return (
         <React.Fragment>
-            新增知识关联
+            <div>关联名称</div>
+            <div>起始节点</div>
+            <div>目标节点</div>
         </React.Fragment>
     );
 };
@@ -317,10 +326,16 @@ const AddNewNodePanel: React.FC = () => {
 /**
  * * Modify Graph Theme Panel
  */
- const ModifyGraphThemePanel: React.FC = () => {
+const ModifyGraphThemePanel: React.FC = () => {
     return (
         <React.Fragment>
-            修改主题样式
+            <div>修改主题样式</div>
+            <div>主题颜色修改</div>
+            <div>线条样式修改</div>
+            <div>节点标题字体大小修改</div>
+            <div>节点关系字体大小修改</div>
+            <div>节点距离调整</div>
+            <div>地图布局样式</div>
         </React.Fragment>
     );
 };
