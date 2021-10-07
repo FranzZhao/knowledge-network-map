@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         // marginLeft: 240,
         // marginBottom: 20,
         // borderBottom: '1px solid #1e88e5',
-        background: (theme.palette.type === "light" ? '#ececec' : '#323232'),
+        background: (theme.palette.type === "light" ? '#ececec' : '#222b3a'),
         height: 50,
         position: 'fixed',
         zIndex: theme.zIndex.drawer - 5,
@@ -38,9 +38,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 50,
     },
     tabUpDown: {
-        backgroundColor: (theme.palette.type === "light" ? '#ececec' : '#323232'),
+        backgroundColor: (theme.palette.type === "light" ? '#ececec' : '#222b3a'),
         '&:hover': {
-            backgroundColor: (theme.palette.type === "light" ? '#f7f7f7' : '#434343'),
+            backgroundColor: (theme.palette.type === "light" ? '#f7f7f7' : '#273448'),
         },
     },
 }));

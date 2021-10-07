@@ -39,7 +39,7 @@ const drawerWidth = 240;
 const useStyle = makeStyles((theme: Theme) => createStyles({
     toolbarHeader: {
         minHeight: '56px !important',
-        backgroundColor: theme.palette.primary.dark,
+        backgroundColor: theme.palette.type === 'light' ? theme.palette.primary.dark : '#233044',
         color: theme.palette.common.white,
     },
     logo: {
@@ -68,7 +68,9 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         width: drawerWidth,
         flexShrink: 0,
         whiteSpace: 'nowrap',
-        // zIndex: theme.zIndex.drawer + 1,
+        "& .MuiDrawer-paperAnchorDockedLeft": {
+            borderRight: 0,
+        },
     },
     drawerOpen: {
         width: drawerWidth,
@@ -92,14 +94,13 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         overflowY: 'auto',
         overflowX: 'hidden',
         marginBottom: 55,
-        // zIndex: theme.zIndex.drawer + 1,
-        // background: 'green',
+        backgroundColor: theme.palette.type === 'light' ? '#ffffff' :'#233044',
         '&::-webkit-scrollbar': {
             width: 5,
-            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#424242',
+            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#233044',
         },
         '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.type === 'light' ? '#cecdcdb8' : '#707070b3',
+            background: theme.palette.type === 'light' ? '#cecdcdb8' : '#444a53a6',
             borderRadius: '6px',
         },
     },
@@ -154,27 +155,29 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
     },
     bottomNavLight: {
         overflow: 'hidden',
-        borderTop: '1px solid #e2e2e2',
-        borderRight: '1px solid #e2e2e2',
         position: 'fixed',
         bottom: 0,
         zIndex: theme.zIndex.drawer + 1,
         width: 240,
+        backgroundColor: '#f3f2f2',
     },
     bottomNavDark: {
         overflow: 'hidden',
-        borderTop: '1px solid #5f5f5f',
-        borderRight: '1px solid #5f5f5f',
         position: 'fixed',
         bottom: 0,
         zIndex: theme.zIndex.drawer + 1,
         width: 240,
+        color: theme.palette.common.white,
+        backgroundColor: '#202b3b',
     },
     nested: {
         paddingLeft: theme.spacing(4),
     },
     listSubTitle: {
         padding: '0px !important',
+    },
+    bottomNavIcon: {
+        color: theme.palette.type === 'light' ? '#848484' : '#f2f2f2',
     }
 }));
 
@@ -340,20 +343,20 @@ export const LeftDrawer = () => {
                 })}
             >
                 <Tooltip title="设置" arrow>
-                    <BottomNavigationAction icon={<SettingsIcon />} style={{ color: "#8c8c8c" }} key={'设置'} />
+                    <BottomNavigationAction icon={<SettingsIcon />} className={classes.bottomNavIcon} key={'设置'} />
                 </Tooltip>
                 {
                     currentTheme === 'light' ? (
                         <Tooltip title='切换为深色模式' arrow>
                             <BottomNavigationAction
-                                icon={<Brightness4Icon />} style={{ color: '#8c8c8c' }} key={'深色模式'}
+                                icon={<Brightness4Icon />} className={classes.bottomNavIcon} key={'深色模式'}
                                 onClick={handleChangeTheme}
                             />
                         </Tooltip>
                     ) : (
                         <Tooltip title='切换为浅色模式' arrow>
                             <BottomNavigationAction
-                                icon={<BrightnessHighIcon />} style={{ color: '#8c8c8c' }} key={'浅色模式'}
+                                icon={<BrightnessHighIcon />} className={classes.bottomNavIcon} key={'浅色模式'}
                                 onClick={handleChangeTheme}
                             />
                         </Tooltip>
@@ -361,7 +364,7 @@ export const LeftDrawer = () => {
                 }
                 <Tooltip title="退出" arrow>
                     <BottomNavigationAction
-                        icon={<ExitToAppIcon />} style={{ color: "#8c8c8c" }} key={'退出'}
+                        icon={<ExitToAppIcon />} className={classes.bottomNavIcon} key={'退出'}
                     />
                 </Tooltip>
             </BottomNavigation>

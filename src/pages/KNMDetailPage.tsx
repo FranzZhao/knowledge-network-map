@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import customize components
-import { KnowledgeGraph } from '../components/common';
+import { KnowledgeGraph, InfoPanel } from '../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -39,7 +39,8 @@ import TableRow from '@material-ui/core/TableRow';
 import { useSelector } from '../redux/hooks';
 // import mock data
 import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
-
+import { rows } from '../settings/mocks/DefaultNotebooks';
+import { mockTags } from '../settings/mocks/DefaultTags';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -119,7 +120,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             },
             '&::-webkit-scrollbar-thumb': {
                 background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
-                borderRadius: '6px',
+                borderRadius: '8px',
             },
         },
     },
@@ -134,7 +135,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     infoPanelForms: {
-        marginTop: theme.spacing(2),
         // marginBottom: theme.spacing(2),
         '&>*': {
             marginBottom: theme.spacing(2),
@@ -168,71 +168,78 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-interface ValueState {
-    selectedTables: any[];
-}
+/**
+ * * Node Info Edit Panel
+ */
+const NodeInfoEditPanel = () => {
 
-const MockClassifyDataTable = [
-    { title: '元认知' },
-    { title: '知识建构' },
-    { title: '认知论信念' },
-    { title: '复杂系统' },
-];
+};
 
-interface DataState {
-    title: string;
-    quote: string;
-    tags: JSX.Element;
-    time: string;
-}
-const createData = (title: string, quote: string, tags: JSX.Element, time: string): DataState => {
-    return { title, quote, tags, time };
-}
-
-const rows = [
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("学习科学基本概念", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("元认知基本概念", "Flavell, 1978", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("设计范式", "Hannfin, 2001", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-    createData("复杂系统理论", "Kim, 2017", <><Chip label="学习科学" color="secondary" size="small" variant="outlined" /> <Chip label="基本理论" color="secondary" size="small" variant="outlined" /></>, "2021年8月5日"),
-];
-
+/**
+ * * Knowledge Network Map: Main Component Page
+ */
 export const KNMDetailPage: React.FC = () => {
+    // component class style
     const classes = useStyles();
+    // redux
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    // media query
     const mediaWidth = useMediaQuery('(min-width:950px)');
+    /**
+     * Components State
+     */
+    // graph edit tool bar
     const [openHiddenToolBar, setOpenHiddenToolBar] = useState(false);
-    const [openNodeInfoPanel, setOpenNodeInfoPanel] = useState(false);
+    // node & link info panel: graph basic info + new node + new link + modify node or link info + ...
+    const [openInfoPanel, setOpenInfoPanel] = useState(false);
+    const [nodeName, setNodeName] = useState('');   // node name show in InfoPanel
     // Auto Complete Chip
-    const fixedOptions = [];
+    interface ValueState {
+        selectedTables: any[];
+    };
     const [values, setValues] = useState<ValueState>({
-        selectedTables: [MockClassifyDataTable[0]],
+        selectedTables: [mockTags[0]],
+    });
+    // Graph state
+    const [graph, setGraph] = useState({
+        node: nodeData,
+        link: linkData,
+        relations: relations,
     });
 
-
+    // open hidden tool bar when media width less than 950px
     const handleToolBarOpen = () => {
         setOpenHiddenToolBar(!openHiddenToolBar);
     };
 
-    const [nodeName, setNodeName] = useState('');
+    // handle graph elements click
     const echartsClick = {
         'click': (e) => {
             if (e.name) {
+                console.log(e);
                 setNodeName(e.name);
-                setOpenNodeInfoPanel(true);
+                setOpenInfoPanel(true);
             }
         }
+    };
+
+    // add graph node
+    const addNode = () => {
+        // 将原本的数组深拷贝到新的数组中, 防止useState无法检测数组内容的变化
+        let nodes = graph.node.concat();
+        let newNode = {
+            name: "new Node!",
+            draggable: true,
+            symbolSize: [100, 100],
+            itemStyle: {
+                color: '#FF963F'
+            },
+        };
+        nodes.push(newNode);
+        setGraph({
+            ...graph,
+            node: nodes
+        })
     };
 
     return (
@@ -271,7 +278,7 @@ export const KNMDetailPage: React.FC = () => {
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="添加知识节点" arrow>
-                                            <Button value="center" aria-label="centered">
+                                            <Button value="center" aria-label="centered" onClick={addNode}>
                                                 <AddCircleOutlineIcon />
                                             </Button>
                                         </Tooltip>
@@ -389,23 +396,19 @@ export const KNMDetailPage: React.FC = () => {
             </Paper>
             {/* graph */}
             <KnowledgeGraph
-                nodeData={nodeData}
-                linkData={linkData}
-                relations={relations}
-                themeMode={'black'}
+                nodeData={graph.node}
+                linkData={graph.link}
+                relations={graph.relations}
+                themeMode={currentTheme === 'light' ? 'white' : 'black'}
                 echartsClick={echartsClick}
             />
-            {/* node info edit panel */}
+            {/* info edit panel */}
             {
-                openNodeInfoPanel &&
-                <Paper className={classes.infoPanel}>
-                    <Grid container direction="row" justifyContent="space-between">
-                        <Typography
-                            variant="h6" gutterBottom
-                            className={classes.infoPanelTitle}
-                        >知识节点 | 信息编辑</Typography>
-                        <HighlightOffIcon fontSize="small" className={classes.infoPanelCloseBtn} onClick={()=>{setOpenNodeInfoPanel(false)}}/>
-                    </Grid>
+                openInfoPanel &&
+                <InfoPanel 
+                    title={'知识节点 | 信息编辑'}
+                    handleClosePanel={() => setOpenInfoPanel(false)}
+                >
                     <form className={classes.infoPanelForms} noValidate autoComplete="off">
                         <TextField
                             id="knm-node-name"
@@ -422,12 +425,11 @@ export const KNMDetailPage: React.FC = () => {
                                 setValues({
                                     ...values,
                                     selectedTables: [
-                                        ...fixedOptions,
                                         ...newValue,
                                     ]
                                 });
                             }}
-                            options={MockClassifyDataTable}
+                            options={mockTags}
                             getOptionLabel={(option) => option.title}
                             renderTags={(tagValue, getTagProps) =>
                                 tagValue.map((option, index) => (
@@ -435,6 +437,7 @@ export const KNMDetailPage: React.FC = () => {
                                         label={option.title}
                                         color={"primary"}
                                         variant={"outlined"}
+                                        size="small"
                                         {...getTagProps({ index })}
                                     />
                                 ))
@@ -501,7 +504,7 @@ export const KNMDetailPage: React.FC = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                </Paper>
+                </InfoPanel>
             }
         </>
     )

@@ -40,7 +40,11 @@ const Index: React.FC = () => {
             },
             action: {
                 hover: 'rgb(0 0 0 / 4%)',  //4
-                selected: 'rgb(0 0 0 / 8%)',  //8
+                selected: 'rgb(0 0 0 / 12%)',  //8
+            },
+            background:{
+                paper: currentTheme === 'light'? '#fff':'#2e3642',
+                default: currentTheme === 'light'? '#fafafa':'#1f2733',
             }
         },
 
