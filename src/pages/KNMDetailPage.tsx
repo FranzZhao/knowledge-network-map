@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import customize components
-import { KnowledgeGraph, InfoPanel } from '../components/common';
+import { KnowledgeGraph, InfoPanel, DataTable } from '../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -22,7 +22,6 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import SaveIcon from '@material-ui/icons/Save';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -110,18 +109,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 'calc(100vh - 97px)',
         borderRadius: 0,
         boxShadow: 'none',
-        overflow: 'hidden',
-        "&:hover": {
-            paddingRight: 15,
-            overflow: 'auto',
-            '&::-webkit-scrollbar': {
-                width: 5,
-                backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
-            },
-            '&::-webkit-scrollbar-thumb': {
-                background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
-                borderRadius: '8px',
-            },
+        overflow: 'auto',
+        '&::-webkit-scrollbar': {
+            width: 5,
+            backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
+            borderRadius: '8px',
         },
     },
     infoPanelTitle: {
@@ -171,8 +166,163 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 /**
  * * Node Info Edit Panel
  */
-const NodeInfoEditPanel = () => {
+interface NodeInfoEditPanelState {
+    nodeName: string;
+};
+const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
+    nodeName
+}) => {
+    const classes = useStyles();
 
+    return (
+        <React.Fragment>
+            <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                <TextField
+                    id="knm-node-name"
+                    label="知识节点名称"
+                    // variant="outlined" 
+                    size="small"
+                    value={nodeName}
+                />
+                <Autocomplete
+                    multiple
+                    id="tags-filled"
+                    options={mockTags.map((option) => option.title)}
+                    defaultValue={[mockTags[0].title]}
+                    freeSolo
+                    renderTags={(value: string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                            <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} label="知识节点标签" placeholder="选择或输入标签" />
+                    )}
+                />
+                <TextField
+                    id="knm-node-intro"
+                    label="知识节点简介"
+                    // variant="outlined"
+                    size="small"
+                    defaultValue="这是一段关于“函数的求导”节点的信息简介..."
+                    multiline
+                // rows={4}
+                />
+                <TextField
+                    id="knm-node-style"
+                    label="知识节点样式选择"
+                    // variant="outlined" 
+                    size="small"
+                    defaultValue="默认样式"
+                />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<SaveIcon />}
+                >
+                    保存节点信息
+                </Button>
+            </form>
+            <Divider style={{ marginBottom: 10 }} />
+            <Typography
+                variant="h6" gutterBottom
+                className={classes.infoPanelTitle}
+            >知识节点 | 笔记列表</Typography>
+            <DataTable
+                header={["笔记标题", "引用", "笔记标签", "更新时间"]}
+                rows={rows}
+            />
+        </React.Fragment>
+    );
+};
+
+/**
+ * * Graph Basic Info Edit Panel
+ */
+ interface GraphBasicInfoState {
+    title: string;
+    icon: any;
+    intro: string;
+};
+const GraphBasicInfoEditPanel: React.FC = () => {
+    const classes = useStyles();
+    // redux
+    const currentTag = useSelector(state => state.openPage.currentActivatedTab);
+    // component state
+    const [values, setValues] = useState<GraphBasicInfoState>({
+        title: currentTag.title,
+        icon: currentTag.icon,
+        intro: '这是一段关于“学习科学知识地图”的简单描述，你可以在这里写下任何有关这一知识地图的相关信息...'
+    });
+
+    const handleChange = (prop: keyof GraphBasicInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValues({ ...values, [prop]: event.target.value });
+    };
+
+    return (
+        <React.Fragment>
+            <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                <div>
+                    知识地图小图标: {values.icon}
+                </div>
+                <TextField
+                    id="knm-node-name"
+                    label="知识地图标题"
+                    size="small"
+                    value={values.title}
+                    onChange={handleChange('title')}
+                />
+                <TextField
+                    id="knm-node-intro"
+                    label="知识节点简介"
+                    size="small"
+                    value={values.intro}
+                    onChange={handleChange('intro')}
+                    multiline
+                />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<SaveIcon />}
+                >
+                    保存基本信息
+                </Button>
+            </form>
+        </React.Fragment>
+    );
+};
+
+/**
+ * * Add New Node Panel
+ */
+const AddNewNodePanel: React.FC = () => {
+    return (
+        <React.Fragment>
+            新增知识节点
+        </React.Fragment>
+    );
+};
+
+/**
+ * * Add New Link Panel
+ */
+ const AddNewLinkPanel: React.FC = () => {
+    return (
+        <React.Fragment>
+            新增知识关联
+        </React.Fragment>
+    );
+};
+
+/**
+ * * Modify Graph Theme Panel
+ */
+ const ModifyGraphThemePanel: React.FC = () => {
+    return (
+        <React.Fragment>
+            修改主题样式
+        </React.Fragment>
+    );
 };
 
 /**
@@ -186,20 +336,19 @@ export const KNMDetailPage: React.FC = () => {
     // media query
     const mediaWidth = useMediaQuery('(min-width:950px)');
     /**
-     * Components State
+     * * Components State
      */
     // graph edit tool bar
     const [openHiddenToolBar, setOpenHiddenToolBar] = useState(false);
     // node & link info panel: graph basic info + new node + new link + modify node or link info + ...
-    const [openInfoPanel, setOpenInfoPanel] = useState(false);
-    const [nodeName, setNodeName] = useState('');   // node name show in InfoPanel
-    // Auto Complete Chip
-    interface ValueState {
-        selectedTables: any[];
-    };
-    const [values, setValues] = useState<ValueState>({
-        selectedTables: [mockTags[0]],
+    const [openInfoPanel, setOpenInfoPanel] = useState({
+        graphBasicInfoEditPanel: false,
+        addNewNodePanel: false,
+        addNewLinkPanel: false,
+        modifyGraphThemePanel: false,
+        nodeInfoEditPanel: false,
     });
+    const [nodeName, setNodeName] = useState('');   // node name show in InfoPanel
     // Graph state
     const [graph, setGraph] = useState({
         node: nodeData,
@@ -212,13 +361,74 @@ export const KNMDetailPage: React.FC = () => {
         setOpenHiddenToolBar(!openHiddenToolBar);
     };
 
+    // close all info panel
+    const handleCloseInfoPanel = () => {
+        setOpenInfoPanel({
+            graphBasicInfoEditPanel: false,
+            addNewNodePanel: false,
+            addNewLinkPanel: false,
+            modifyGraphThemePanel: false,
+            nodeInfoEditPanel: false,
+        });
+    };
+
+    // open Graph Basic Info Edit Panel
+    const handleOpenGraphBasicInfoEditPanel = () => {
+        setOpenInfoPanel({
+            graphBasicInfoEditPanel: true,
+            addNewNodePanel: false,
+            addNewLinkPanel: false,
+            modifyGraphThemePanel: false,
+            nodeInfoEditPanel: false,
+        });
+    };
+
+    // open Add New Node Panel
+    const handleOpenAddNewNodePanel = () => {
+        setOpenInfoPanel({
+            graphBasicInfoEditPanel: false,
+            addNewNodePanel: true,
+            addNewLinkPanel: false,
+            modifyGraphThemePanel: false,
+            nodeInfoEditPanel: false,
+        });
+    };
+
+    // open Add New Link Panel
+    const handleOpenAddNewLinkPanel = () => {
+        setOpenInfoPanel({
+            graphBasicInfoEditPanel: false,
+            addNewNodePanel: false,
+            addNewLinkPanel: true,
+            modifyGraphThemePanel: false,
+            nodeInfoEditPanel: false,
+        });
+    };
+
+    // open Modify Graph Theme Panel
+    const handleOpenModifyGraphThemePanel = () => {
+        setOpenInfoPanel({
+            graphBasicInfoEditPanel: false,
+            addNewNodePanel: false,
+            addNewLinkPanel: true,
+            modifyGraphThemePanel: true,
+            nodeInfoEditPanel: false,
+        });
+    };
+
+
     // handle graph elements click
     const echartsClick = {
         'click': (e) => {
             if (e.name) {
-                console.log(e);
                 setNodeName(e.name);
-                setOpenInfoPanel(true);
+                setOpenInfoPanel({
+                    graphBasicInfoEditPanel: false,
+                    addNewNodePanel: false,
+                    addNewLinkPanel: false,
+                    modifyGraphThemePanel: false,
+                    nodeInfoEditPanel: true,
+                });
             }
         }
     };
@@ -243,7 +453,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     return (
-        <>
+        <React.Fragment>
             {/* tool bar button */}
             <Paper className={classes.toolBarPaper}>
                 {
@@ -273,18 +483,23 @@ export const KNMDetailPage: React.FC = () => {
                                         className={classes.toolBarButtons}
                                     >
                                         <Tooltip title="修改基本信息" arrow>
-                                            <Button value="center" aria-label="centered">
+                                            <Button value="center" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
                                                 <AssignmentIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="添加知识节点" arrow>
-                                            <Button value="center" aria-label="centered" onClick={addNode}>
+                                            <Button value="center" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
                                                 <AddCircleOutlineIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="添加知识节点" arrow>
-                                            <Button value="添加节点关联" aria-label="right aligned">
+                                            <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
                                                 <AccountTreeIcon />
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip title="修改主题风格" arrow>
+                                            <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                <FormatColorFillIcon />
                                             </Button>
                                         </Tooltip>
                                     </ToggleButtonGroup>
@@ -296,23 +511,18 @@ export const KNMDetailPage: React.FC = () => {
                                         className={classes.toolBarButtons}
                                     >
                                         <Tooltip title="放大" arrow>
-                                            <Button value="left" aria-label="centered">
+                                            <Button value="放大" aria-label="centered">
                                                 <ZoomInIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="缩小" arrow>
-                                            <Button value="center" aria-label="centered">
+                                            <Button value="缩小" aria-label="centered">
                                                 <ZoomOutIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="全屏" arrow>
-                                            <Button value="right" aria-label="centered">
+                                            <Button value="全屏" aria-label="centered">
                                                 <ZoomOutMapIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="修改主题风格" arrow>
-                                            <Button value="left" aria-label="centered">
-                                                <FormatColorFillIcon />
                                             </Button>
                                         </Tooltip>
                                     </ToggleButtonGroup>
@@ -350,39 +560,39 @@ export const KNMDetailPage: React.FC = () => {
                                         <Fade in={openHiddenToolBar}>
                                             <Grid container direction="column" className={classes.hiddenToolBarBtn}>
                                                 <Tooltip title="修改基本信息" placement="left" arrow>
-                                                    <Button value="center" aria-label="centered">
+                                                    <Button value="center" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
                                                         <AssignmentIcon />
                                                     </Button>
                                                 </Tooltip>
                                                 <Tooltip title="添加知识节点" placement="left" arrow>
-                                                    <Button value="center" aria-label="centered">
+                                                    <Button value="center" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
                                                         <AddCircleOutlineIcon />
                                                     </Button>
                                                 </Tooltip>
                                                 <Tooltip title="添加知识节点" placement="left" arrow>
-                                                    <Button value="添加节点关联" aria-label="right aligned">
+                                                    <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
                                                         <AccountTreeIcon />
                                                     </Button>
                                                 </Tooltip>
+                                                <Tooltip title="修改主题风格" placement="left" arrow>
+                                                    <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                        <FormatColorFillIcon />
+                                                    </Button>
+                                                </Tooltip>
                                                 <Tooltip title="放大" placement="left" arrow>
-                                                    <Button value="left" aria-label="centered">
+                                                    <Button value="放大" aria-label="centered">
                                                         <ZoomInIcon />
                                                     </Button>
                                                 </Tooltip>
 
                                                 <Tooltip title="缩小" placement="left" arrow>
-                                                    <Button value="center" aria-label="centered">
+                                                    <Button value="缩小" aria-label="centered">
                                                         <ZoomOutIcon />
                                                     </Button>
                                                 </Tooltip>
                                                 <Tooltip title="全屏" placement="left" arrow>
-                                                    <Button value="right" aria-label="centered">
+                                                    <Button value="全屏" aria-label="centered">
                                                         <ZoomOutMapIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="修改主题风格" placement="left" arrow>
-                                                    <Button value="left" aria-label="centered">
-                                                        <FormatColorFillIcon />
                                                     </Button>
                                                 </Tooltip>
                                             </Grid>
@@ -402,110 +612,63 @@ export const KNMDetailPage: React.FC = () => {
                 themeMode={currentTheme === 'light' ? 'white' : 'black'}
                 echartsClick={echartsClick}
             />
-            {/* info edit panel */}
+            {/* node info edit panel */}
             {
-                openInfoPanel &&
-                <InfoPanel 
+                openInfoPanel.nodeInfoEditPanel &&
+                <InfoPanel
                     title={'知识节点 | 信息编辑'}
-                    handleClosePanel={() => setOpenInfoPanel(false)}
-                >
-                    <form className={classes.infoPanelForms} noValidate autoComplete="off">
-                        <TextField
-                            id="knm-node-name"
-                            label="知识节点名称"
-                            // variant="outlined" 
-                            size="small"
-                            value={nodeName}
+                    handleClosePanel={handleCloseInfoPanel}
+                    contain={
+                        <NodeInfoEditPanel
+                            nodeName={nodeName}
                         />
-                        <Autocomplete
-                            multiple
-                            id="knm-node-tags"
-                            value={values.selectedTables}
-                            onChange={(event, newValue) => {
-                                setValues({
-                                    ...values,
-                                    selectedTables: [
-                                        ...newValue,
-                                    ]
-                                });
-                            }}
-                            options={mockTags}
-                            getOptionLabel={(option) => option.title}
-                            renderTags={(tagValue, getTagProps) =>
-                                tagValue.map((option, index) => (
-                                    <Chip
-                                        label={option.title}
-                                        color={"primary"}
-                                        variant={"outlined"}
-                                        size="small"
-                                        {...getTagProps({ index })}
-                                    />
-                                ))
-                            }
-                            // style={{ width: 500 }}
-                            renderInput={(params) => (
-                                <TextField {...params} label="基础数据表" />
-                            )}
-                        />
-                        <TextField
-                            id="knm-node-intro"
-                            label="知识节点简介"
-                            // variant="outlined" 
-                            size="small"
-                            defaultValue="这是一段关于“函数的求导”节点的信息简介..."
-                            multiline
-                        // rows={4}
-                        />
-                        <TextField
-                            id="knm-node-style"
-                            label="知识节点样式选择"
-                            // variant="outlined" 
-                            size="small"
-                            defaultValue="默认样式"
-                        />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<SaveIcon />}
-                        >
-                            保存节点信息
-                        </Button>
-                    </form>
-                    <Divider style={{ marginBottom: 10 }} />
-                    <Typography
-                        variant="h6" gutterBottom
-                        className={classes.infoPanelTitle}
-                    >知识节点 | 笔记列表</Typography>
-                    <TableContainer component={Paper} className={classes.tableContainer}>
-                        <Table
-                            className={classes.table}
-                            aria-label="simple table"
-                            size="small"
-                        >
-                            <TableHead className={classes.tableHead}>
-                                <TableRow>
-                                    <TableCell>#</TableCell>
-                                    <TableCell>笔记标题</TableCell>
-                                    <TableCell>引用</TableCell>
-                                    <TableCell>笔记标签</TableCell>
-                                    <TableCell>更新时间</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody className={classes.tableBody}>
-                                {rows.map((row, index) => (
-                                    <TableRow key={`${row.title}-${index}`}>
-                                        <TableCell component="th" scope="row">{index + 1}</TableCell>
-                                        <TableCell>{row.title}</TableCell>
-                                        <TableCell>{row.quote}</TableCell>
-                                        <TableCell>{row.tags}</TableCell>
-                                        <TableCell>{row.time}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </InfoPanel>
+                    }
+                />
             }
-        </>
+            {/* graph info edit panel */}
+            {
+                openInfoPanel.graphBasicInfoEditPanel &&
+                <InfoPanel
+                    title={'知识笔记 | 基础信息'}
+                    handleClosePanel={handleCloseInfoPanel}
+                    contain={
+                        <GraphBasicInfoEditPanel />
+                    }
+                />
+            }
+            {/* add new node panel */}
+            {
+                openInfoPanel.addNewNodePanel &&
+                <InfoPanel
+                    title={'知识笔记 | 新增知识节点'}
+                    handleClosePanel={handleCloseInfoPanel}
+                    contain={
+                        <AddNewNodePanel />
+                    }
+                />
+            }
+            {/* add new link panel */}
+            {
+                openInfoPanel.addNewLinkPanel &&
+                <InfoPanel
+                    title={'知识笔记 | 新增知识关联'}
+                    handleClosePanel={handleCloseInfoPanel}
+                    contain={
+                        <AddNewLinkPanel />
+                    }
+                />
+            }
+            {/* modefy graph theme panel */}
+            {
+                openInfoPanel.modifyGraphThemePanel &&
+                <InfoPanel
+                    title={'知识笔记 | 修改主题样式'}
+                    handleClosePanel={handleCloseInfoPanel}
+                    contain={
+                        <ModifyGraphThemePanel />
+                    }
+                />
+            }
+        </React.Fragment>
     )
 }

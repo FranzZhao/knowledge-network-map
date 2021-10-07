@@ -16,19 +16,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 'calc(100vh - 97px)',
         borderRadius: 0,
         boxShadow: 'none',
-        overflow: 'hidden',
-        marginBottom: theme.spacing(2),
-        "&:hover": {
-            paddingRight: 15,
-            overflow: 'auto',
-            '&::-webkit-scrollbar': {
-                width: 5,
-                backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
-            },
-            '&::-webkit-scrollbar-thumb': {
-                background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
-                borderRadius: '8px',
-            },
+        overflow: 'auto',
+        '&::-webkit-scrollbar': {
+            width: 5,
+            backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
+            borderRadius: '8px',
         },
     },
     infoPanelTitle: {
@@ -45,11 +40,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 interface InfoPanelState {
     title: any;
+    contain: any;
     handleClosePanel: ()=>void;
 }
 
 export const InfoPanel: React.FC<InfoPanelState> = ({
-    title, handleClosePanel, children
+    title, contain, handleClosePanel
 }) => {
     const classes = useStyles();
 
@@ -62,7 +58,7 @@ export const InfoPanel: React.FC<InfoPanelState> = ({
                 >{title}</Typography>
                 <HighlightOffIcon fontSize="small" className={classes.infoPanelCloseBtn} onClick={handleClosePanel} />
             </Grid>
-            {children}
+            {contain}
         </Paper>
     )
 }
