@@ -15,6 +15,8 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
+import PhotoSizeSelectSmallIcon from '@material-ui/icons/PhotoSizeSelectSmall';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FormatColorFillIcon from '@material-ui/icons/FormatColorFill';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
@@ -57,6 +59,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 
+// import react-full-screen
+import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -837,6 +841,7 @@ const ModifyGraphThemePanel: React.FC = () => {
     );
 };
 
+
 /**
  * * Knowledge Network Map: Main Component Page
  */
@@ -932,8 +937,18 @@ export const KNMDetailPage: React.FC = () => {
     // handle graph elements click
     const echartsClick = {
         'click': (e) => {
-            if (e.name) {
+            if (e.dataType === 'node') {
                 setNodeName(e.name);
+                setOpenInfoPanel({
+                    graphBasicInfoEditPanel: false,
+                    addNewNodePanel: false,
+                    addNewLinkPanel: false,
+                    modifyGraphThemePanel: false,
+                    nodeInfoEditPanel: true,
+                });
+            }
+            if (e.dataType === 'edge') {
+                setNodeName(e.value);
                 setOpenInfoPanel({
                     graphBasicInfoEditPanel: false,
                     addNewNodePanel: false,
@@ -964,8 +979,26 @@ export const KNMDetailPage: React.FC = () => {
         })
     };
 
+    // zoom in
+    const [zoom, setZoom] = useState(1);
+    const zoomIn = () => {
+        if (zoom < 2) {
+            setZoom(zoom+0.1);
+        }
+    };
+    const zoomOut = () => {
+        if (zoom > 0.5) {
+            setZoom(zoom-0.1);
+        }
+    };
+    const zoomReset = () => {
+        setZoom(1);
+    };
+
+    const handleFullScreen = useFullScreenHandle();
+
     return (
-        <React.Fragment>
+        <FullScreen handle={handleFullScreen}>
             {/* tool bar button */}
             <Paper className={classes.toolBarPaper}>
                 {
@@ -1023,18 +1056,29 @@ export const KNMDetailPage: React.FC = () => {
                                         className={classes.toolBarButtons}
                                     >
                                         <Tooltip title="放大" arrow>
-                                            <Button value="放大" aria-label="centered">
+                                            <Button value="放大" aria-label="centered" onClick={zoomIn}>
                                                 <ZoomInIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="缩小" arrow>
-                                            <Button value="缩小" aria-label="centered">
+                                            <Button value="缩小" aria-label="centered" onClick={zoomOut}>
                                                 <ZoomOutIcon />
                                             </Button>
                                         </Tooltip>
-                                        <Tooltip title="全屏" arrow>
-                                            <Button value="全屏" aria-label="centered">
-                                                <ZoomOutMapIcon />
+                                        <Tooltip title="大小恢复" arrow>
+                                            <Button value="大小恢复" aria-label="centered" onClick={zoomReset}>
+                                                <RotateLeftIcon />
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip title="全屏" arrow placement="bottom">
+                                            <Button value="全屏" aria-label="centered" onClick={handleFullScreen.enter}>
+                                                {
+                                                    handleFullScreen.active ? (
+                                                        <PhotoSizeSelectSmallIcon />
+                                                    ) : (
+                                                        <ZoomOutMapIcon />
+                                                    )
+                                                }
                                             </Button>
                                         </Tooltip>
                                     </ToggleButtonGroup>
@@ -1122,6 +1166,7 @@ export const KNMDetailPage: React.FC = () => {
                 linkData={graph.link}
                 relations={graph.relations}
                 themeMode={currentTheme === 'light' ? 'white' : 'black'}
+                zoom={zoom}
                 echartsClick={echartsClick}
             />
             {/* node info edit panel */}
@@ -1181,6 +1226,6 @@ export const KNMDetailPage: React.FC = () => {
                     }
                 />
             }
-        </React.Fragment>
+        </FullScreen>
     )
 }

@@ -10,14 +10,6 @@ echarts.use(
     [GraphChart, SVGRenderer, LegendComponent]
 );
 
-interface KnowledgeGraphState {
-    nodeData: any[];
-    linkData: any[];
-    relations: any[];
-    themeMode: 'white' | 'black';
-    echartsClick: {};
-}
-
 interface ColorThemeState {
     backgroundColor: string; 
     lineStyleColor: string;
@@ -94,8 +86,17 @@ const initialOptions = {
     }],
 };
 
+interface KnowledgeGraphState {
+    nodeData: any[];
+    linkData: any[];
+    relations: any[];
+    themeMode: 'white' | 'black';
+    zoom: number;
+    echartsClick: {};
+};
+
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
-    nodeData, linkData, relations, themeMode, echartsClick
+    nodeData, linkData, relations, themeMode, zoom, echartsClick
 }) => {
     let theme: ColorThemeState;
     switch (themeMode) {
@@ -126,8 +127,10 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
         currentOptions.series[0].links = linkData;
         currentOptions.backgroundColor = theme.backgroundColor;
         currentOptions.series[0].lineStyle.normal.color = theme.lineStyleColor;
+        // zoom
+        currentOptions.series[0].zoom = zoom;
         setOptions(currentOptions);
-    }, [nodeData, linkData, relations, themeMode]);
+    }, [nodeData, linkData, relations, themeMode, zoom]);
 
     const chart = React.useMemo(() => (
         <ReactEchartsCore
