@@ -19,7 +19,7 @@ interface KnowledgeGraphState {
 }
 
 interface ColorThemeState {
-    backgroundColor: string;
+    backgroundColor: string; 
     lineStyleColor: string;
 }
 
@@ -27,9 +27,10 @@ const whiteTheme: ColorThemeState = {
     backgroundColor: '#fafafa',
     lineStyleColor: '#232323',
 };
-
+// #fafafa, #fce4ec, #bbdefb, #b3e5fc, #b2ebf2, #b2dfdb, #c8e6c9, #f0f4c3, #fff9c4, #ffe0b2
+// #232323, #263238, #193c4d, #31354b, #3d3f34, #334241, #34485f, #1b2818, #1b3436, #1b2c36
 const blackTheme: ColorThemeState = {
-    backgroundColor: '#232323',
+    backgroundColor: '#263238',
     lineStyleColor: '#ffffff',
 };
 
@@ -58,10 +59,10 @@ const initialOptions = {
             // 关联线的样式设置
             normal: {
                 // 深色系时: '#ffffff'; 浅色系时: '#232323'
-                color: '#ffffff',          // 颜色
-                width: 1,               // 线宽
+                color: '#232323',          // 颜色
+                width: 1.6,               // 线宽
                 type: 'dashed',         // 类型:solid, dashed, dotted
-                opacity: 0.5,           // 图形透明度: 0~1
+                opacity: 1,           // 图形透明度: 0~1
                 curveness: 0.2,          // 曲度: 0~1
             }
         },

@@ -27,6 +27,7 @@ import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
+import Slider from '@material-ui/core/Slider';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -52,6 +53,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 
 // import react-color
 import { CirclePicker } from 'react-color';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -185,6 +190,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     colorPicker: {
         marginBottom: '0px !important',
+    },
+    sliderStyle: {
+        marginBottom: '0px !important',
+    },
+    smallText: {
+        fontSize: 10,
+        color: theme.palette.type === 'light' ? '#686d6d' : '#c1c1c1',
+        marginBottom: '0px !important',
     }
 }));
 
@@ -209,9 +222,12 @@ const materialColor = [
     "#795548",
     "#9e9e9e",
     "#607d8b",
-    "#ffffff",
-    "#000000",
 ];
+
+const graphColorTheme = [
+    '#fafafa', '#fce4ec', '#bbdefb', '#b3e5fc', '#b2ebf2', '#b2dfdb', '#c8e6c9', '#f0f4c3', '#fff9c4', '#ffe0b2',
+    '#232323', '#263238', '#193c4d', '#31354b', '#3d3f34', '#334241', '#34485f', '#1b2818', '#1b3436', '#1b2c36',
+]
 
 /**
  * * Node Info Edit Panel
@@ -343,15 +359,25 @@ const GraphBasicInfoEditPanel: React.FC = () => {
     };
 
     const [projectEmoji, setProjectEmoji] = useState('books');
+    const [showEmoji, setShowEmoji] = useState(projectEmoji);
     const handleChangeEmoji = (emoji) => {
-        setProjectEmoji(emoji.id);
+        setShowEmoji(emoji.id);
     };
 
     const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
     const handleOpenEmojiPicker = () => {
+        // if close the picker, means to change the project emoji
+        if (openEmojiPicker) {
+            setProjectEmoji(showEmoji);
+        }
         setOpenEmojiPicker(!openEmojiPicker);
     }
+
+    const handleCancelChangeEmoji = () => {
+        setShowEmoji(projectEmoji);
+        setOpenEmojiPicker(false);
+    };
 
     return (
         <React.Fragment>
@@ -359,12 +385,16 @@ const GraphBasicInfoEditPanel: React.FC = () => {
                 <div>
                     <Grid container direction="row" justifyContent="space-between">
                         <Grid item className={classes.emojiStyle}>
-                            知识地图小图标: <Emoji emoji={projectEmoji} set='twitter' size={26} />
+                            知识地图小图标: <Emoji emoji={openEmojiPicker ? showEmoji : projectEmoji} set='twitter' size={26} />
                         </Grid>
                         <Grid item>
-                            <Button color="secondary" onClick={handleOpenEmojiPicker}>
+                            <Button color="primary" onClick={handleOpenEmojiPicker}>
                                 {openEmojiPicker ? '确定更换' : '更换图标'}
                             </Button>
+                            {
+                                openEmojiPicker &&
+                                <Button color="secondary" onClick={handleCancelChangeEmoji}>取消更换</Button>
+                            }
                         </Grid>
                     </Grid>
                     {/* emoji picker*/}
@@ -426,6 +456,13 @@ const AddNewNodePanel: React.FC = () => {
         nodeSize: '',
     });
 
+    const handleChangeText = (prop: keyof AddNewNodeState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValues({
+            ...values,
+            [prop]: event.target.value
+        });
+    }
+
     const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
         setValues({
             ...values,
@@ -433,7 +470,7 @@ const AddNewNodePanel: React.FC = () => {
         });
     };
 
-    const [nodeColor, setNodeColor] = useState('#f44336');
+    const [nodeColor, setNodeColor] = useState(materialColor[0]);
     const handleChangeNodeColor = (newNodeColor, event) => {
         setNodeColor(newNodeColor);
     };
@@ -446,6 +483,7 @@ const AddNewNodePanel: React.FC = () => {
                     label="知识节点名称"
                     size="small"
                     value={values.nodeName}
+                    onChange={handleChangeText('nodeName')}
                 />
                 <Autocomplete
                     multiple
@@ -467,6 +505,7 @@ const AddNewNodePanel: React.FC = () => {
                     label="知识节点简介"
                     size="small"
                     defaultValue={values.nodeIntro}
+                    onChange={handleChangeText('nodeIntro')}
                     multiline
                 />
                 <FormControl>
@@ -491,7 +530,7 @@ const AddNewNodePanel: React.FC = () => {
                     onChangeComplete={handleChangeNodeColor}
                     colors={materialColor}
                     circleSize={20}
-                    width={'400px'}
+                    width={'350px'}
                 />
                 <Button
                     variant="contained"
@@ -508,31 +547,35 @@ const AddNewNodePanel: React.FC = () => {
 /**
  * * Add New Link Panel
  */
- interface AddNewLinkState {
-    nodeName: string;
-    nodeTags: any[];
-    nodeIntro: string;
-    nodeSize: string;
+interface AddNewLinkState {
+    linkName: string;
+    linkTags: any[];
+    linkIntro: string;
+    linkStart: string;
+    linkEnd: string;
 }
 const AddNewLinkPanel: React.FC = () => {
     const classes = useStyles();
     const [values, setValues] = useState<AddNewLinkState>({
-        nodeName: '',
-        nodeTags: [],
-        nodeIntro: '',
-        nodeSize: '',
+        linkName: '',
+        linkTags: [],
+        linkIntro: '',
+        linkStart: '',
+        linkEnd: '',
     });
 
-    const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const handleChangeText = (prop: keyof AddNewLinkState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
             ...values,
-            nodeSize: event.target.value as string,
+            [prop]: event.target.value
         });
-    };
+    }
 
-    const [nodeColor, setNodeColor] = useState('#f44336');
-    const handleChangeNodeColor = (newNodeColor, event) => {
-        setNodeColor(newNodeColor);
+    const handleChangeLinkNodes = (prop: keyof AddNewLinkState) => (event: React.ChangeEvent<{ value: unknown }>) => {
+        setValues({
+            ...values,
+            [prop]: event.target.value as string,
+        });
     };
 
     return (
@@ -542,13 +585,14 @@ const AddNewLinkPanel: React.FC = () => {
                     id="knm-node-name"
                     label="知识关联名称"
                     size="small"
-                    value={values.nodeName}
+                    value={values.linkName}
+                    onChange={handleChangeText('linkName')}
                 />
                 <Autocomplete
                     multiple
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
-                    defaultValue={values.nodeTags}
+                    defaultValue={values.linkTags}
                     freeSolo
                     renderTags={(value: string[], getTagProps) =>
                         value.map((option: string, index: number) => (
@@ -563,7 +607,8 @@ const AddNewLinkPanel: React.FC = () => {
                     id="knm-node-intro"
                     label="知识关联简介"
                     size="small"
-                    defaultValue={values.nodeIntro}
+                    value={values.linkIntro}
+                    onChange={handleChangeText('linkIntro')}
                     multiline
                 />
                 <FormControl>
@@ -571,14 +616,14 @@ const AddNewLinkPanel: React.FC = () => {
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={values.nodeSize}
-                        onChange={handleChangeNodeSize}
+                        value={values.linkStart}
+                        onChange={handleChangeLinkNodes('linkStart')}
                     >
-                        <MenuItem value={55}>小</MenuItem>
-                        <MenuItem value={64}>较小</MenuItem>
-                        <MenuItem value={76}>适中</MenuItem>
-                        <MenuItem value={88}>较大</MenuItem>
-                        <MenuItem value={100}>大</MenuItem>
+                        <MenuItem value={55}>知识点1</MenuItem>
+                        <MenuItem value={64}>知识点2</MenuItem>
+                        <MenuItem value={76}>知识点3</MenuItem>
+                        <MenuItem value={88}>知识点4</MenuItem>
+                        <MenuItem value={100}>知识点5</MenuItem>
                     </Select>
                 </FormControl>
                 <FormControl>
@@ -586,14 +631,14 @@ const AddNewLinkPanel: React.FC = () => {
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={values.nodeSize}
-                        onChange={handleChangeNodeSize}
+                        value={values.linkEnd}
+                        onChange={handleChangeLinkNodes('linkEnd')}
                     >
-                        <MenuItem value={55}>小</MenuItem>
-                        <MenuItem value={64}>较小</MenuItem>
-                        <MenuItem value={76}>适中</MenuItem>
-                        <MenuItem value={88}>较大</MenuItem>
-                        <MenuItem value={100}>大</MenuItem>
+                        <MenuItem value={55}>知识点1</MenuItem>
+                        <MenuItem value={64}>知识点2</MenuItem>
+                        <MenuItem value={76}>知识点3</MenuItem>
+                        <MenuItem value={88}>知识点4</MenuItem>
+                        <MenuItem value={100}>知识点5</MenuItem>
                     </Select>
                 </FormControl>
                 <Button
@@ -611,16 +656,183 @@ const AddNewLinkPanel: React.FC = () => {
 /**
  * * Modify Graph Theme Panel
  */
+interface ModifyGraphThemeState {
+    graphColor: string;
+    lineType: 'dashed' | 'solid' | 'dotted';
+};
 const ModifyGraphThemePanel: React.FC = () => {
+    const classes = useStyles();
+    const [values, setValues] = useState<ModifyGraphThemeState>({
+        graphColor: graphColorTheme[0],
+        lineType: 'dashed',
+    });
+    const handleChangeGraphColor = (color, event) => {
+        setValues({
+            ...values,
+            graphColor: color,
+        });
+    };
+
+    const handleChangeSelect = (prop: keyof ModifyGraphThemeState) => (event: React.ChangeEvent<{ value: unknown }>) => {
+        setValues({
+            ...values,
+            [prop]: event.target.value,
+        });
+    };
+
     return (
         <React.Fragment>
-            <div>修改主题样式</div>
-            <div>主题颜色修改</div>
-            <div>线条样式修改</div>
-            <div>节点标题字体大小修改</div>
-            <div>节点关系字体大小修改</div>
-            <div>节点距离调整</div>
-            <div>地图布局样式</div>
+            <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                <div>主题颜色修改</div>
+                <CirclePicker
+                    className={classes.colorPicker}
+                    color={values.graphColor}
+                    onChangeComplete={handleChangeGraphColor}
+                    colors={graphColorTheme}
+                    circleSize={20}
+                    width={'350px'}
+                />
+                <div>关联线样式修改</div>
+                <FormControl>
+                    <InputLabel id="demo-simple-select-label">关联线类型</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={values.lineType}
+                        onChange={handleChangeSelect('lineType')}
+                    >
+                        <MenuItem value={'dashed'}>dashed</MenuItem>
+                        <MenuItem value={'solid'}>solid</MenuItem>
+                        <MenuItem value={'dotted'}>dotted</MenuItem>
+                    </Select>
+                </FormControl>
+                <p className={classes.smallText}>线条颜色</p>
+                <CirclePicker
+                    className={classes.colorPicker}
+                    // color={values.graphColor}
+                    // onChangeComplete={handleChangeGraphColor}
+                    colors={['#ffffff', '#ff9800', '#ffeb3b', '#ff5722', '#8bc34a', '#2d6986', '#1b3436', '#194d48', '#862d4b', '#232323']}
+                    circleSize={20}
+                    width={'350px'}
+                />
+                <p className={classes.smallText}>线条宽度</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={0.5}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={0.1}
+                    marks
+                    min={0.0}
+                    max={2.0}
+                    valueLabelDisplay="auto"
+                />
+                <p className={classes.smallText}>线条透明度</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={0.5}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={0.02}
+                    marks
+                    min={0.0}
+                    max={1.0}
+                    valueLabelDisplay="auto"
+                />
+                <p className={classes.smallText}>线条曲度</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={0.2}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={0.02}
+                    marks
+                    min={0.0}
+                    max={1.0}
+                    valueLabelDisplay="auto"
+                />
+
+                <div>节点标签字体样式修改</div>
+                <p className={classes.smallText}>标签字体大小</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={14}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={1}
+                    marks
+                    min={10}
+                    max={24}
+                    valueLabelDisplay="auto"
+                />
+                <FormControl>
+                    <InputLabel id="demo-simple-select-label">标签位置</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={'inside'}
+                    // onChange={handleChangeSelect('lineType')}
+                    >
+                        <MenuItem value={'top'}>top</MenuItem>
+                        <MenuItem value={'left'}>left</MenuItem>
+                        <MenuItem value={'right'}>right</MenuItem>
+                        <MenuItem value={'bottom'}>bottom</MenuItem>
+                        <MenuItem value={'inside'}>inside</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <div>节点关联线字体样式修改</div>
+                <p className={classes.smallText}>关联线字体大小</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={14}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={1}
+                    marks
+                    min={10}
+                    max={24}
+                    valueLabelDisplay="auto"
+                />
+
+                <div>地图布局样式</div>
+                <RadioGroup row aria-label="position" name="position" defaultValue="force">
+                    <FormControlLabel
+                        value="force"
+                        control={<Radio color="primary" />}
+                        label="力引导图"
+                        labelPlacement="end"
+                    />
+                    <FormControlLabel
+                        value="circular"
+                        control={<Radio color="primary" />}
+                        label="环形图"
+                        labelPlacement="end"
+                    />
+                </RadioGroup>
+
+                <div>力引导图布局设置(选择力引导图才有)</div>
+                <p className={classes.smallText}>节点互斥大小</p>
+                <Slider
+                    className={classes.sliderStyle}
+                    defaultValue={40}
+                    // getAriaValueText={valuetext}
+                    aria-labelledby="discrete-slider-small-steps"
+                    step={1}
+                    marks
+                    min={1}
+                    max={100}
+                    valueLabelDisplay="auto"
+                />
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<QueuePlayNextIcon />}
+                >
+                    修改主题样式
+                </Button>
+            </form>
         </React.Fragment>
     );
 };
