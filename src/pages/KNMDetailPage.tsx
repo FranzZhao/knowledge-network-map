@@ -50,6 +50,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
+// import react-color
+import { CirclePicker } from 'react-color';
+
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
         borderRadius: 0,
@@ -180,7 +183,35 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(1),
         minWidth: 120,
     },
+    colorPicker: {
+        marginBottom: '0px !important',
+    }
 }));
+
+const materialColor = [
+    "#f44336",
+    "#e91e63",
+    "#9c27b0",
+    "#673ab7",
+    "#3f51b5",
+    "#2196f3",
+    "#03a9f4",
+    "#00bcd4",
+    "#009688",
+    "#4caf50",
+    "#8bc34a",
+    "#cddc39",
+    "#ffeb3b",
+    "#ffc107",
+    "#ff9800",
+    "#f57c00",
+    "#ff5722",
+    "#795548",
+    "#9e9e9e",
+    "#607d8b",
+    "#ffffff",
+    "#000000",
+];
 
 /**
  * * Node Info Edit Panel
@@ -402,6 +433,11 @@ const AddNewNodePanel: React.FC = () => {
         });
     };
 
+    const [nodeColor, setNodeColor] = useState('#f44336');
+    const handleChangeNodeColor = (newNodeColor, event) => {
+        setNodeColor(newNodeColor);
+    };
+
     return (
         <React.Fragment>
             <form className={classes.infoPanelForms} noValidate autoComplete="off">
@@ -449,6 +485,14 @@ const AddNewNodePanel: React.FC = () => {
                     </Select>
                 </FormControl>
                 <div>节点颜色</div>
+                <CirclePicker
+                    className={classes.colorPicker}
+                    color={nodeColor}
+                    onChangeComplete={handleChangeNodeColor}
+                    colors={materialColor}
+                    circleSize={20}
+                    width={'400px'}
+                />
                 <Button
                     variant="contained"
                     color="primary"
@@ -464,14 +508,102 @@ const AddNewNodePanel: React.FC = () => {
 /**
  * * Add New Link Panel
  */
+ interface AddNewLinkState {
+    nodeName: string;
+    nodeTags: any[];
+    nodeIntro: string;
+    nodeSize: string;
+}
 const AddNewLinkPanel: React.FC = () => {
+    const classes = useStyles();
+    const [values, setValues] = useState<AddNewLinkState>({
+        nodeName: '',
+        nodeTags: [],
+        nodeIntro: '',
+        nodeSize: '',
+    });
+
+    const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setValues({
+            ...values,
+            nodeSize: event.target.value as string,
+        });
+    };
+
+    const [nodeColor, setNodeColor] = useState('#f44336');
+    const handleChangeNodeColor = (newNodeColor, event) => {
+        setNodeColor(newNodeColor);
+    };
+
     return (
         <React.Fragment>
-            <div>关联名称</div>
-            <div>关联标签</div>
-            <div>关联简介</div>
-            <div>起始节点</div>
-            <div>目标节点</div>
+            <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                <TextField
+                    id="knm-node-name"
+                    label="知识关联名称"
+                    size="small"
+                    value={values.nodeName}
+                />
+                <Autocomplete
+                    multiple
+                    id="tags-filled"
+                    options={mockTags.map((option) => option.title)}
+                    defaultValue={values.nodeTags}
+                    freeSolo
+                    renderTags={(value: string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                            <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} label="知识关联标签" placeholder="选择或输入标签" />
+                    )}
+                />
+                <TextField
+                    id="knm-node-intro"
+                    label="知识关联简介"
+                    size="small"
+                    defaultValue={values.nodeIntro}
+                    multiline
+                />
+                <FormControl>
+                    <InputLabel id="demo-simple-select-label">起始节点</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={values.nodeSize}
+                        onChange={handleChangeNodeSize}
+                    >
+                        <MenuItem value={55}>小</MenuItem>
+                        <MenuItem value={64}>较小</MenuItem>
+                        <MenuItem value={76}>适中</MenuItem>
+                        <MenuItem value={88}>较大</MenuItem>
+                        <MenuItem value={100}>大</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl>
+                    <InputLabel id="demo-simple-select-label">目标节点</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={values.nodeSize}
+                        onChange={handleChangeNodeSize}
+                    >
+                        <MenuItem value={55}>小</MenuItem>
+                        <MenuItem value={64}>较小</MenuItem>
+                        <MenuItem value={76}>适中</MenuItem>
+                        <MenuItem value={88}>较大</MenuItem>
+                        <MenuItem value={100}>大</MenuItem>
+                    </Select>
+                </FormControl>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<QueuePlayNextIcon />}
+                >
+                    新建知识关联
+                </Button>
+            </form>
         </React.Fragment>
     );
 };
@@ -651,16 +783,16 @@ export const KNMDetailPage: React.FC = () => {
                                         className={classes.toolBarButtons}
                                     >
                                         <Tooltip title="修改基本信息" arrow>
-                                            <Button value="center" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                            <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
                                                 <AssignmentIcon />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip title="添加知识节点" arrow>
-                                            <Button value="center" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                            <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
                                                 <AddCircleOutlineIcon />
                                             </Button>
                                         </Tooltip>
-                                        <Tooltip title="添加知识节点" arrow>
+                                        <Tooltip title="添加节点关联" arrow>
                                             <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
                                                 <AccountTreeIcon />
                                             </Button>
@@ -728,16 +860,16 @@ export const KNMDetailPage: React.FC = () => {
                                         <Fade in={openHiddenToolBar}>
                                             <Grid container direction="column" className={classes.hiddenToolBarBtn}>
                                                 <Tooltip title="修改基本信息" placement="left" arrow>
-                                                    <Button value="center" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                                    <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
                                                         <AssignmentIcon />
                                                     </Button>
                                                 </Tooltip>
                                                 <Tooltip title="添加知识节点" placement="left" arrow>
-                                                    <Button value="center" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                                    <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
                                                         <AddCircleOutlineIcon />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="添加知识节点" placement="left" arrow>
+                                                <Tooltip title="添加节点关联" placement="left" arrow>
                                                     <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
                                                         <AccountTreeIcon />
                                                     </Button>
