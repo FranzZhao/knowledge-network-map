@@ -111,14 +111,14 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
     // echarts option
     const [options, setOptions] = useState(initialOptions);
 
+    // echarts link's label
     const showLinkLabel = (param) => {
         return param.data.value;
     }
 
+    // listener: whether graph had changed
     useEffect(() => {
         let currentOptions = JSON.parse(JSON.stringify(options));
-        console.log(currentOptions);
-        // let currentOptions = Object.assign(options);
         currentOptions.legend.data = relations;
         currentOptions.series[0].edgeLabel.normal.formatter = showLinkLabel;
         currentOptions.series[0].data = nodeData;
@@ -133,7 +133,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
             echarts={echarts}
             option={options}
             style={{
-                height: 'calc(100vh - 99px)',
+                height: 'calc(100vh - 98px)',
                 width: '100%',
                 // borderTop: '1px solid #ececec'
             }}

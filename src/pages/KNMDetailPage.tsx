@@ -23,6 +23,7 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import SaveIcon from '@material-ui/icons/Save';
+import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
@@ -43,7 +44,11 @@ import { mockTags } from '../settings/mocks/DefaultTags';
 
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
-import { Picker } from 'emoji-mart';
+import { Picker, Emoji } from 'emoji-mart';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -165,6 +170,16 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             backgroundColor: theme.palette.action.hover,
         },
     },
+    emojiStyle: {
+        "& > span": {
+            left: 10,
+            top: 5,
+        }
+    },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+    },
 }));
 
 /**
@@ -252,6 +267,7 @@ const GraphBasicInfoEditPanel: React.FC = () => {
     const classes = useStyles();
     // redux
     const currentTag = useSelector(state => state.openPage.currentActivatedTab);
+    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
     // component state
     const [values, setValues] = useState<GraphBasicInfoState>({
         title: currentTag.title,
@@ -263,12 +279,76 @@ const GraphBasicInfoEditPanel: React.FC = () => {
         setValues({ ...values, [prop]: event.target.value });
     };
 
+    // emoji i18n
+    const emojiI18n = {
+        search: '搜索',
+        clear: '清空', // Accessible label on "clear" button
+        notfound: '没有找到Emoji',
+        skintext: '选择你的默认肤色',
+        categories: {
+            search: '搜索结果',
+            recent: '常用',
+            smileys: '笑脸 & 表情',
+            people: '人 & 身体',
+            nature: '动物 & 自然',
+            foods: '食物 & 饮品',
+            activity: '活动',
+            places: '旅行 & 场地',
+            objects: '物品',
+            symbols: '符号',
+            flags: '旗帜',
+            custom: '自定义',
+        },
+        categorieslabel: 'Emoji类别', // Accessible title for the list of categories
+        skintones: {
+            1: '默认肤色',
+            2: '浅肤色',
+            3: '适中浅肤色',
+            4: '适中肤色',
+            5: '适中深肤色',
+            6: '深肤色',
+        },
+
+    };
+
+    const [projectEmoji, setProjectEmoji] = useState('books');
+    const handleChangeEmoji = (emoji) => {
+        setProjectEmoji(emoji.id);
+    };
+
+    const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+
+    const handleOpenEmojiPicker = () => {
+        setOpenEmojiPicker(!openEmojiPicker);
+    }
+
     return (
         <React.Fragment>
             <form className={classes.infoPanelForms} noValidate autoComplete="off">
                 <div>
-                    知识地图小图标: {values.icon}
-                    <Picker title='Pick your emoji…' emoji='point_up' />
+                    <Grid container direction="row" justifyContent="space-between">
+                        <Grid item className={classes.emojiStyle}>
+                            知识地图小图标: <Emoji emoji={projectEmoji} set='twitter' size={26} />
+                        </Grid>
+                        <Grid item>
+                            <Button color="secondary" onClick={handleOpenEmojiPicker}>
+                                {openEmojiPicker ? '确定更换' : '更换图标'}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    {/* emoji picker*/}
+                    {
+                        openEmojiPicker &&
+                        <Picker
+                            style={{ position: 'absolute', right: 20, top: 100, zIndex: 10, width: 360, }}
+                            set='twitter'
+                            title={'选择项目图标'}
+                            emoji='point_up'
+                            i18n={emojiI18n}
+                            onSelect={handleChangeEmoji}
+                            theme={currentTheme === 'light' ? 'light' : 'dark'}
+                        />
+                    }
                 </div>
                 <TextField
                     id="knm-node-name"
@@ -300,12 +380,83 @@ const GraphBasicInfoEditPanel: React.FC = () => {
 /**
  * * Add New Node Panel
  */
+interface AddNewNodeState {
+    nodeName: string;
+    nodeTags: any[];
+    nodeIntro: string;
+    nodeSize: string;
+}
 const AddNewNodePanel: React.FC = () => {
+    const classes = useStyles();
+    const [values, setValues] = useState<AddNewNodeState>({
+        nodeName: '',
+        nodeTags: [],
+        nodeIntro: '',
+        nodeSize: '',
+    });
+
+    const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setValues({
+            ...values,
+            nodeSize: event.target.value as string,
+        });
+    };
+
     return (
         <React.Fragment>
-            <div>节点名称</div>
-            <div>节点大小</div>
-            <div>节点颜色</div>
+            <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                <TextField
+                    id="knm-node-name"
+                    label="知识节点名称"
+                    size="small"
+                    value={values.nodeName}
+                />
+                <Autocomplete
+                    multiple
+                    id="tags-filled"
+                    options={mockTags.map((option) => option.title)}
+                    defaultValue={values.nodeTags}
+                    freeSolo
+                    renderTags={(value: string[], getTagProps) =>
+                        value.map((option: string, index: number) => (
+                            <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} label="知识节点标签" placeholder="选择或输入标签" />
+                    )}
+                />
+                <TextField
+                    id="knm-node-intro"
+                    label="知识节点简介"
+                    size="small"
+                    defaultValue={values.nodeIntro}
+                    multiline
+                />
+                <FormControl>
+                    <InputLabel id="demo-simple-select-label">节点大小</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={values.nodeSize}
+                        onChange={handleChangeNodeSize}
+                    >
+                        <MenuItem value={55}>小</MenuItem>
+                        <MenuItem value={64}>较小</MenuItem>
+                        <MenuItem value={76}>适中</MenuItem>
+                        <MenuItem value={88}>较大</MenuItem>
+                        <MenuItem value={100}>大</MenuItem>
+                    </Select>
+                </FormControl>
+                <div>节点颜色</div>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<QueuePlayNextIcon />}
+                >
+                    新建知识节点
+                </Button>
+            </form>
         </React.Fragment>
     );
 };
@@ -317,6 +468,8 @@ const AddNewLinkPanel: React.FC = () => {
     return (
         <React.Fragment>
             <div>关联名称</div>
+            <div>关联标签</div>
+            <div>关联简介</div>
             <div>起始节点</div>
             <div>目标节点</div>
         </React.Fragment>
