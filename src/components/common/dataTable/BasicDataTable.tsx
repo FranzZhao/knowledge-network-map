@@ -131,6 +131,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     tableBody: {
         "&>*:hover": {
             backgroundColor: theme.palette.action.hover,
+            cursor: 'pointer',
         },
     },
 }));
@@ -140,7 +141,7 @@ interface DataTableState {
     rows: any[];
 }
 
-export const DataTable: React.FC<DataTableState> = ({
+export const BasicDataTable: React.FC<DataTableState> = ({
     header, rows
 }) => {
     const classes = useStyles();
@@ -164,11 +165,11 @@ export const DataTable: React.FC<DataTableState> = ({
                 </TableHead>
                 <TableBody className={classes.tableBody}>
                     {rows.map((row, index) => (
-                        <TableRow key={`${index+1}`}>
+                        <TableRow key={`${index + 1}`}>
                             <TableCell component="th" scope="row">{index + 1}</TableCell>
                             {
                                 row.map((item) => (
-                                    <TableCell key={`${item}-${index+1}`}>{item}</TableCell>
+                                    <TableCell key={`${item}-${index + 1}`}>{item}</TableCell>
                                 ))
                             }
                         </TableRow>

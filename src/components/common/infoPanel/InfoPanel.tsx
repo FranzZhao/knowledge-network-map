@@ -4,49 +4,48 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    infoPanel: {
-        flex: 'flow',
-        position: 'fixed',
-        top: 97,
-        right: 0,
-        padding: 20,
-        backgroundColor: theme.palette.type === "light" ? '#e3eded' : '#303030',
-        width: 400,
-        height: 'calc(100vh - 97px)',
-        borderRadius: 0,
-        boxShadow: 'none',
-        overflow: 'auto',
-        '&::-webkit-scrollbar': {
-            width: 5,
-            backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
-        },
-        '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
-            borderRadius: '8px',
-        },
-    },
-    infoPanelTitle: {
-        fontSize: '18px !important',
-    },
-    infoPanelCloseBtn: {
-        marginTop: 3,
-        "&:hover": {
-            cursor: 'pointer',
-            color: theme.palette.error.main,
-        }
-    },
-}));
-
 interface InfoPanelState {
     title: any;
     contain: any;
-    handleClosePanel: ()=>void;
+    handleClosePanel: () => void;
+    isFullScreen?: boolean;
 }
-
 export const InfoPanel: React.FC<InfoPanelState> = ({
-    title, contain, handleClosePanel
+    title, contain, handleClosePanel, isFullScreen = false,
 }) => {
+    const useStyles = makeStyles((theme: Theme) => createStyles({
+        infoPanel: {
+            flex: 'flow',
+            position: 'fixed',
+            top: isFullScreen ? 47 : 97,
+            right: 0,
+            padding: 20,
+            backgroundColor: theme.palette.type === "light" ? '#e3eded' : '#303030',
+            width: 400,
+            height: isFullScreen ?'calc(100vh - 47px)':'calc(100vh - 97px)',
+            borderRadius: 0,
+            boxShadow: 'none',
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+                width: 5,
+                backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
+                borderRadius: '8px',
+            },
+        },
+        infoPanelTitle: {
+            fontSize: '18px !important',
+        },
+        infoPanelCloseBtn: {
+            marginTop: 3,
+            "&:hover": {
+                cursor: 'pointer',
+                color: theme.palette.error.main,
+            }
+        },
+    }));
     const classes = useStyles();
 
     return (

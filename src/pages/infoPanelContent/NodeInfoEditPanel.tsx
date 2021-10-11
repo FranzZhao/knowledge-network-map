@@ -1,6 +1,6 @@
 import React from 'react';
 // import customize components
-import { DataTable } from '../../components/common';
+import { BasicDataTable } from '../../components/common';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -18,7 +18,7 @@ import { rows } from '../../settings/mocks/DefaultNotebooks';
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {
         fontSize: '18px !important',
-    },    
+    },
     infoPanelForms: {
         // marginBottom: theme.spacing(2),
         '&>*': {
@@ -91,7 +91,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                 variant="h6" gutterBottom
                 className={classes.infoPanelTitle}
             >知识节点 | 笔记列表</Typography>
-            <DataTable
+            <BasicDataTable
                 header={["笔记标题", "引用", "笔记标签", "更新时间"]}
                 rows={rows}
             />

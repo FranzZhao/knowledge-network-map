@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
+// import styles from './index.css';
 // Import Material Theme
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import CircularProgress from '@material-ui/core/CircularProgress';
 // import redux
 import { Provider } from "react-redux";
 import rootStore from "./redux/store";

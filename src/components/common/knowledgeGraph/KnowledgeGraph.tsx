@@ -93,10 +93,11 @@ interface KnowledgeGraphState {
     themeMode: 'white' | 'black';
     zoom: number;
     echartsClick: {};
+    isFullScreen?: boolean;
 };
 
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
-    nodeData, linkData, relations, themeMode, zoom, echartsClick
+    nodeData, linkData, relations, themeMode, zoom, echartsClick, isFullScreen=false
 }) => {
     let theme: ColorThemeState;
     switch (themeMode) {
@@ -130,21 +131,20 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
         // zoom
         currentOptions.series[0].zoom = zoom;
         setOptions(currentOptions);
-    }, [nodeData, linkData, relations, themeMode, zoom]);
+    }, [options, nodeData, linkData, relations, themeMode, zoom]);
 
     const chart = React.useMemo(() => (
         <ReactEchartsCore
             echarts={echarts}
             option={options}
             style={{
-                height: 'calc(100vh - 98px)',
+                height: isFullScreen ?'calc(100vh - 47px)':'calc(100vh - 98px)',
                 width: '100%',
-                // borderTop: '1px solid #ececec'
             }}
             onEvents={echartsClick}
             lazyUpdate={true}
         />
-    ), [options]);
+    ), [options, isFullScreen]);
 
     return (
         <React.Fragment>

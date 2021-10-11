@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 // import customize components
-import { KnowledgeGraph, InfoPanel, DataTable } from '../components/common';
+import { KnowledgeGraph, InfoPanel, BasicDataTable } from '../components/common';
 // import MD
+import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Button from '@material-ui/core/Button';
@@ -21,9 +22,13 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import MapIcon from '@material-ui/icons/Map';
+import BookIcon from '@material-ui/icons/Book';
+import NoteAddIcon from '@material-ui/icons/NoteAdd';
 // import redux
 import { useSelector } from '../redux/hooks';
 // import mock data
+import { rows } from '../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
 // import react-full-screen
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
@@ -35,6 +40,9 @@ import {
     AddNewLinkPanel,
     ModifyGraphThemePanel,
 } from './infoPanelContent';
+// import Markdown Editor
+import ReactMarkdown from 'react-markdown';
+// import remarkGfm from 'remark-gfm';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -90,98 +98,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             margin: '2px 0px',
         }
     },
-    hide: {
-        display: 'none',
-    },
-    infoPanel: {
-        flex: 'flow',
-        position: 'fixed',
-        top: 97,
-        right: 0,
-        padding: 20,
-        backgroundColor: theme.palette.type === "light" ? '#e3eded' : '#303030',
-        width: 400,
-        height: 'calc(100vh - 97px)',
-        borderRadius: 0,
-        boxShadow: 'none',
-        overflow: 'auto',
-        '&::-webkit-scrollbar': {
-            width: 5,
-            backgroundColor: theme.palette.type === 'light' ? '#e3eded' : '#424242',
-        },
-        '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.type === 'light' ? '#ffb74d' : '#707070b3',
-            borderRadius: '8px',
+    viewButton: {
+        "& button": {
+            color: theme.palette.type === 'light' ? '#9e9e9e' : '#eeeeee',
         },
     },
-    infoPanelTitle: {
-        fontSize: '18px !important',
-    },
-    infoPanelCloseBtn: {
-        marginTop: 3,
-        "&:hover": {
-            cursor: 'pointer',
-            color: theme.palette.error.main,
-        }
-    },
-    infoPanelForms: {
-        // marginBottom: theme.spacing(2),
-        '&>*': {
-            marginBottom: theme.spacing(2),
-            width: '100%',
-        },
-    },
-    tableContainer: {
-        overflow: 'auto',
-        '&::-webkit-scrollbar': {
-            height: 5,
-            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#424242',
-        },
-        '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.type === 'light' ? '#c2c2c2' : '#707070b3',
-            borderRadius: '6px',
-        },
-    },
-    table: {
-        minWidth: 650,
-    },
-    tableHead: {
-        backgroundColor: theme.palette.primary.dark,
-        "& *": {
-            color: theme.palette.common.white,
-        }
-    },
-    tableBody: {
-        "&>*:hover": {
-            backgroundColor: theme.palette.action.hover,
-        },
-    },
-    emojiStyle: {
-        "& > span": {
-            left: 10,
-            top: 5,
-        }
-    },
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 120,
-    },
-    colorPicker: {
-        marginBottom: '0px !important',
-    },
-    sliderStyle: {
-        marginBottom: '0px !important',
-    },
-    smallText: {
-        fontSize: 10,
-        color: theme.palette.type === 'light' ? '#686d6d' : '#c1c1c1',
-        marginBottom: '0px !important',
-    },
-    toggleBtn: {
-        width: '100%',
-        "& > *": {
-            width: 71
-        }
+    viewButtonSelected: {
+        color: theme.palette.type === 'light' ? '#b1b1b1 !important' : '#ffffff !important',
     }
 }));
 
@@ -368,7 +291,16 @@ export const KNMDetailPage: React.FC = () => {
 
     const handleFullScreen = useFullScreenHandle();
 
+    // switch view
+    const [views, setViews] = useState<string>('graphView');
+    const handleSwitchViews = (newView) => {
+        if (newView !== null) {
+            setViews(newView);
+        }
+    };
+
     return (
+        // Full Screen Control
         <FullScreen handle={handleFullScreen}>
             {/* tool bar button */}
             <Paper className={classes.toolBarPaper}>
@@ -391,6 +323,86 @@ export const KNMDetailPage: React.FC = () => {
                             </Grid>
                             <Grid item style={{ marginLeft: 20 }}>
                                 <Paper elevation={0} className={classes.paper}>
+                                    <Divider flexItem orientation="vertical" className={classes.divider} />
+                                    <ToggleButtonGroup
+                                        exclusive
+                                        aria-label="text alignment"
+                                        size="small"
+                                        className={clsx(classes.toolBarButtons, classes.viewButton)}
+                                    >
+                                        {
+                                            views === 'graphView' ? (
+                                                <Button
+                                                    className={classes.viewButtonSelected}
+                                                    value="graphView"
+                                                    aria-label="centered"
+                                                    disabled
+                                                    variant="contained"
+                                                    onClick={() => handleSwitchViews('graphView')}
+                                                >
+                                                    <MapIcon />
+                                                </Button>
+                                            ) : (
+                                                <Tooltip title='知识地图视图' arrow>
+                                                    <Button
+                                                        value="graphView"
+                                                        aria-label="centered"
+                                                        onClick={() => handleSwitchViews('graphView')}
+                                                    >
+                                                        <MapIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                            )
+                                        }
+                                        {
+                                            views === 'notebookListView' ? (
+                                                <Button
+                                                    className={classes.viewButtonSelected}
+                                                    value="notebookListView"
+                                                    aria-label="centered"
+                                                    disabled
+                                                    variant="contained"
+                                                    onClick={() => handleSwitchViews('notebookListView')}
+                                                >
+                                                    <BookIcon />
+                                                </Button>
+                                            ) : (
+                                                <Tooltip title='知识笔记视图' arrow>
+                                                    <Button
+                                                        value="notebookListView"
+                                                        aria-label="centered"
+                                                        onClick={() => handleSwitchViews('notebookListView')}
+                                                    >
+                                                        <BookIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                            )
+                                        }
+                                        {
+                                            views === 'newNotebookView' ? (
+                                                <Button
+                                                    className={classes.viewButtonSelected}
+                                                    value="newNotebookView"
+                                                    aria-label="centered"
+                                                    disabled
+                                                    variant="contained"
+                                                    onClick={() => handleSwitchViews('newNotebookView')}
+                                                >
+                                                    <NoteAddIcon />
+                                                </Button>
+                                            ) : (
+                                                <Tooltip title='新建知识笔记' arrow>
+                                                    <Button
+                                                        value="newNotebookView"
+                                                        aria-label="centered"
+                                                        onClick={() => handleSwitchViews('newNotebookView')}
+                                                    >
+                                                        <NoteAddIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                            )
+                                        }
+                                    </ToggleButtonGroup>
                                     <Divider flexItem orientation="vertical" className={classes.divider} />
                                     <ToggleButtonGroup
                                         size="small"
@@ -441,19 +453,22 @@ export const KNMDetailPage: React.FC = () => {
                                                 <RotateLeftIcon />
                                             </Button>
                                         </Tooltip>
-                                        <Tooltip title="全屏" arrow placement="bottom">
-                                            <Button value="全屏" aria-label="centered" onClick={handleFullScreen.enter}>
-                                                {
-                                                    handleFullScreen.active ? (
+                                        {
+                                            handleFullScreen.active ? (
+                                                <Tooltip title="退出全屏" arrow placement="bottom">
+                                                    <Button value="退出全屏" aria-label="centered" onClick={handleFullScreen.exit}>
                                                         <PhotoSizeSelectSmallIcon />
-                                                    ) : (
+                                                    </Button>
+                                                </Tooltip>
+                                            ) : (
+                                                <Tooltip title="全屏" arrow placement="bottom">
+                                                    <Button value="全屏" aria-label="centered" onClick={handleFullScreen.enter}>
                                                         <ZoomOutMapIcon />
-                                                    )
-                                                }
-                                            </Button>
-                                        </Tooltip>
+                                                    </Button>
+                                                </Tooltip>
+                                            )
+                                        }
                                     </ToggleButtonGroup>
-                                    <Divider flexItem orientation="vertical" className={classes.divider} />
                                 </Paper>
                             </Grid>
                         </Grid>
@@ -532,75 +547,107 @@ export const KNMDetailPage: React.FC = () => {
                 }
             </Paper>
             {/* graph */}
-            <KnowledgeGraph
-                nodeData={graph.node}
-                linkData={graph.link}
-                relations={graph.relations}
-                themeMode={currentTheme === 'light' ? 'white' : 'black'}
-                zoom={zoom}
-                echartsClick={echartsClick}
-            />
-            {/* node info edit panel */}
-            {
-                openInfoPanel.nodeInfoEditPanel &&
-                <InfoPanel
-                    title={'知识节点 | 信息编辑'}
-                    handleClosePanel={handleCloseInfoPanel}
-                    contain={
-                        <NodeInfoEditPanel
-                            nodeName={nodeName}
+            <React.Fragment>
+                {
+                    views === 'graphView' &&
+                    <>
+                        <KnowledgeGraph
+                            nodeData={graph.node}
+                            linkData={graph.link}
+                            relations={graph.relations}
+                            themeMode={currentTheme === 'light' ? 'white' : 'black'}
+                            zoom={zoom}
+                            echartsClick={echartsClick}
+                            isFullScreen={handleFullScreen.active}
                         />
-                    }
-                />
-            }
-            {/* graph info edit panel */}
-            {
-                openInfoPanel.graphBasicInfoEditPanel &&
-                <InfoPanel
-                    title={'知识笔记 | 基础信息'}
-                    handleClosePanel={handleCloseInfoPanel}
-                    contain={
-                        <GraphBasicInfoEditPanel />
-                    }
-                />
-            }
-            {/* add new node panel */}
-            {
-                openInfoPanel.addNewNodePanel &&
-                <InfoPanel
-                    title={'知识笔记 | 新增知识节点'}
-                    handleClosePanel={handleCloseInfoPanel}
-                    contain={
-                        <AddNewNodePanel
-                            materialColor={materialColor}
+                        {/* node info edit panel */}
+                        {
+                            openInfoPanel.nodeInfoEditPanel &&
+                            <InfoPanel
+                                title={'知识节点 | 信息编辑'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <NodeInfoEditPanel
+                                        nodeName={nodeName}
+                                    />
+                                }
+                                isFullScreen={handleFullScreen.active}
+                            />
+                        }
+                        {/* graph info edit panel */}
+                        {
+                            openInfoPanel.graphBasicInfoEditPanel &&
+                            <InfoPanel
+                                title={'知识笔记 | 基础信息'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <GraphBasicInfoEditPanel />
+                                }
+                                isFullScreen={handleFullScreen.active}
+                            />
+                        }
+                        {/* add new node panel */}
+                        {
+                            openInfoPanel.addNewNodePanel &&
+                            <InfoPanel
+                                title={'知识笔记 | 新增知识节点'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <AddNewNodePanel
+                                        materialColor={materialColor}
+                                    />
+                                }
+                                isFullScreen={handleFullScreen.active}
+                            />
+                        }
+                        {/* add new link panel */}
+                        {
+                            openInfoPanel.addNewLinkPanel &&
+                            <InfoPanel
+                                title={'知识笔记 | 新增知识关联'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <AddNewLinkPanel />
+                                }
+                                isFullScreen={handleFullScreen.active}
+                            />
+                        }
+                        {/* modify graph theme panel */}
+                        {
+                            openInfoPanel.modifyGraphThemePanel &&
+                            <InfoPanel
+                                title={'知识笔记 | 修改主题样式'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <ModifyGraphThemePanel
+                                        graphColorTheme={graphColorTheme}
+                                    />
+                                }
+                                isFullScreen={handleFullScreen.active}
+                            />
+                        }
+                    </>
+                }
+                {
+                    views === 'notebookListView' &&
+                    <React.Fragment>
+                        <h1>这是知识地图笔记列表</h1>
+                        <BasicDataTable
+                            header={["笔记标题", "引用", "标签", "时间"]}
+                            rows={rows}
                         />
-                    }
-                />
-            }
-            {/* add new link panel */}
-            {
-                openInfoPanel.addNewLinkPanel &&
-                <InfoPanel
-                    title={'知识笔记 | 新增知识关联'}
-                    handleClosePanel={handleCloseInfoPanel}
-                    contain={
-                        <AddNewLinkPanel />
-                    }
-                />
-            }
-            {/* modefy graph theme panel */}
-            {
-                openInfoPanel.modifyGraphThemePanel &&
-                <InfoPanel
-                    title={'知识笔记 | 修改主题样式'}
-                    handleClosePanel={handleCloseInfoPanel}
-                    contain={
-                        <ModifyGraphThemePanel
-                            graphColorTheme={graphColorTheme}
-                        />
-                    }
-                />
-            }
+                    </React.Fragment>
+                }
+                {
+                    views === 'newNotebookView' &&
+                    <React.Fragment>
+                        <h1>新建知识笔记</h1>
+                        <ReactMarkdown>
+                            This ~is not~ strikethrough, but ~~this is~~!
+                        </ReactMarkdown>
+                    </React.Fragment>
+                }
+            </React.Fragment>
         </FullScreen>
     )
 }

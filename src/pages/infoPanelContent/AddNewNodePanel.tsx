@@ -12,9 +12,6 @@ import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 // import react-color
 import { CirclePicker } from 'react-color';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
 // import mock data
 import { mockTags } from '../../settings/mocks/DefaultTags';
 

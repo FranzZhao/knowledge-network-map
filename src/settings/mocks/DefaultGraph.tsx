@@ -1,5 +1,3 @@
-import React from 'react';
-
 export let relations = [
     "关系1",
     "关系2",
