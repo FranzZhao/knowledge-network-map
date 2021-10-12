@@ -10,24 +10,9 @@ echarts.use(
     [GraphChart, SVGRenderer, LegendComponent]
 );
 
-interface ColorThemeState {
-    backgroundColor: string; 
-    lineStyleColor: string;
-}
-
-const whiteTheme: ColorThemeState = {
-    backgroundColor: '#fafafa',
-    lineStyleColor: '#232323',
-};
-// #fafafa, #fce4ec, #bbdefb, #b3e5fc, #b2ebf2, #b2dfdb, #c8e6c9, #f0f4c3, #fff9c4, #ffe0b2
-// #232323, #263238, #193c4d, #31354b, #3d3f34, #334241, #34485f, #1b2818, #1b3436, #1b2c36
-const blackTheme: ColorThemeState = {
-    backgroundColor: '#263238',
-    lineStyleColor: '#ffffff',
-};
 
 const initialOptions = {
-    backgroundColor: '#232323',	// 背景颜色
+    backgroundColor: '',	// 背景颜色
     legend: {
         x: "center",
         show: true,
@@ -37,7 +22,7 @@ const initialOptions = {
         type: "graph",              // 系列类型:关系图
         top: '10%',                 // 图表距离容器顶部的距离
         zoom: 1,
-        roam: 'move',                 // 是否开启鼠标缩放和平移漫游:'scale','move',true,false
+        roam: true,                 // 是否开启鼠标缩放和平移漫游:'scale','move',true,false
         focusNodeAdjacency: true,   // 移动到节点时突出周边节点与关联
         force: {
             // 力引导布局相关的配置项
@@ -90,26 +75,27 @@ interface KnowledgeGraphState {
     nodeData: any[];
     linkData: any[];
     relations: any[];
-    themeMode: 'white' | 'black';
-    zoom: number;
+    themeColor: string; // 主题颜色
+    lineStyleType: 'solid' | 'dashed' | 'dotted';   //关联线样式
+    lineStyleColor: string;     // 关联线颜色
+    lineStyleWidth: number;     // 关联线宽度
+    lineStyleOpacity: number;   // 关联线透明度
+    lineStyleCurveness: number; // 关联线曲度
+    labelFontSize: number;         //节点标签字体大小
+    labelPosition: 'top' | 'left' | 'right' | 'bottom' | 'inside';
+    edgeLabelFontSize: number;
+    layout: 'force' | 'circular';
+    forcePower: number;
     echartsClick: {};
     isFullScreen?: boolean;
 };
 
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
-    nodeData, linkData, relations, themeMode, zoom, echartsClick, isFullScreen=false
+    nodeData, linkData, relations,
+    themeColor, lineStyleType, lineStyleColor, lineStyleWidth, lineStyleOpacity, lineStyleCurveness,
+    labelFontSize, labelPosition, edgeLabelFontSize, layout, forcePower,
+    echartsClick, isFullScreen = false
 }) => {
-    let theme: ColorThemeState;
-    switch (themeMode) {
-        case 'white':
-            theme = whiteTheme;
-            break;
-        case 'black':
-            theme = blackTheme;
-            break;
-        default:
-            theme = whiteTheme;
-    }
 
     // echarts option
     const [options, setOptions] = useState(initialOptions);
@@ -121,24 +107,38 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
 
     // listener: whether graph had changed
     useEffect(() => {
+        // deep copy
         let currentOptions = JSON.parse(JSON.stringify(options));
-        currentOptions.legend.data = relations;
-        currentOptions.series[0].edgeLabel.normal.formatter = showLinkLabel;
+        // assignment
         currentOptions.series[0].data = nodeData;
         currentOptions.series[0].links = linkData;
-        currentOptions.backgroundColor = theme.backgroundColor;
-        currentOptions.series[0].lineStyle.normal.color = theme.lineStyleColor;
-        // zoom
-        currentOptions.series[0].zoom = zoom;
+        currentOptions.legend.data = relations;
+        currentOptions.backgroundColor = themeColor;
+        currentOptions.series[0].lineStyle.normal.type = lineStyleType;
+        currentOptions.series[0].lineStyle.normal.color = lineStyleColor;
+        currentOptions.series[0].lineStyle.normal.width = lineStyleWidth;
+        currentOptions.series[0].lineStyle.normal.opacity = lineStyleOpacity;
+        currentOptions.series[0].lineStyle.normal.curveness = lineStyleCurveness;
+        currentOptions.series[0].label.normal.textStyle.fontSize = labelFontSize;
+        currentOptions.series[0].label.normal.position = labelPosition;
+        currentOptions.series[0].edgeLabel.normal.textStyle.fontSize = edgeLabelFontSize;
+        currentOptions.series[0].edgeLabel.normal.formatter = showLinkLabel;
+        currentOptions.series[0].layout = layout;
+        currentOptions.series[0].force.repulsion = forcePower * 10;
+        // set State
         setOptions(currentOptions);
-    }, [options, nodeData, linkData, relations, themeMode, zoom]);
+    }, [
+        nodeData, linkData, relations, themeColor, lineStyleType, lineStyleColor,
+        lineStyleWidth, lineStyleOpacity, lineStyleCurveness,
+        labelFontSize, labelPosition, edgeLabelFontSize, layout, forcePower,
+    ]);
 
     const chart = React.useMemo(() => (
         <ReactEchartsCore
             echarts={echarts}
             option={options}
             style={{
-                height: isFullScreen ?'calc(100vh - 47px)':'calc(100vh - 98px)',
+                height: isFullScreen ? 'calc(100vh - 47px)' : 'calc(100vh - 98px)',
                 width: '100%',
             }}
             onEvents={echartsClick}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import customize components
-import { KnowledgeGraph, InfoPanel, BasicDataTable } from '../components/common';
+import { KnowledgeGraph, InfoPanel, PaginationDataTable, TinyMCE } from '../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -40,9 +40,8 @@ import {
     AddNewLinkPanel,
     ModifyGraphThemePanel,
 } from './infoPanelContent';
-// import Markdown Editor
-import ReactMarkdown from 'react-markdown';
-// import remarkGfm from 'remark-gfm';
+// import notebook edit
+import { NewNoteBookView } from './newNotebookView';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -136,6 +135,27 @@ const graphColorTheme = [
     '#232323', '#263238', '#193c4d', '#31354b', '#3d3f34', '#334241', '#34485f', '#1b2818', '#1b3436', '#1b2c36',
 ];
 
+const lineColor = [
+    '#ffffff', '#ff9800', '#ffeb3b', '#ff5722', '#8bc34a', 
+    '#2d6986', '#1b3436', '#194d48', '#862d4b', '#232323'
+];
+
+interface KnowledgeGraphState {
+    node: any[];
+    link: any[];
+    relations: any[];
+    themeColor: string; // 主题颜色
+    lineStyleType: 'solid' | 'dashed' | 'dotted';   //关联线样式
+    lineStyleColor: string;     // 关联线颜色
+    lineStyleWidth: number;     // 关联线宽度
+    lineStyleOpacity: number;   // 关联线透明度
+    lineStyleCurveness: number; // 关联线曲度
+    labelFontSize: number;         //节点标签字体大小
+    labelPosition: 'top' | 'left' | 'right' | 'bottom' | 'inside';
+    edgeLabelFontSize: number;
+    layout: 'force' | 'circular';
+    forcePower: number;
+};
 /**
  * * Knowledge Network Map: Main Component Page
  */
@@ -145,7 +165,7 @@ export const KNMDetailPage: React.FC = () => {
     // redux
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
     // media query
-    const mediaWidth = useMediaQuery('(min-width:950px)');
+    const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
      * * Components State
      */
@@ -161,10 +181,21 @@ export const KNMDetailPage: React.FC = () => {
     });
     const [nodeName, setNodeName] = useState('');   // node name show in InfoPanel
     // Graph state
-    const [graph, setGraph] = useState({
+    const [graph, setGraph] = useState<KnowledgeGraphState>({
         node: nodeData,
         link: linkData,
         relations: relations,
+        themeColor: graphColorTheme[11], // 主题颜色
+        lineStyleType: 'dashed',   //关联线样式
+        lineStyleColor: '#ffffff',     // 关联线颜色
+        lineStyleWidth: 1.6,     // 关联线宽度
+        lineStyleOpacity: 1,   // 关联线透明度
+        lineStyleCurveness: 0.2, // 关联线曲度
+        labelFontSize: 14,         //节点标签字体大小
+        labelPosition: 'inside',
+        edgeLabelFontSize: 12,
+        layout: 'force',
+        forcePower: 40,
     });
 
     // open hidden tool bar when media width less than 950px
@@ -255,39 +286,52 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     // add graph node
-    const addNode = () => {
+    const handleAddNode = (newNode) => {
         // 将原本的数组深拷贝到新的数组中, 防止useState无法检测数组内容的变化
         let nodes = graph.node.concat();
-        let newNode = {
-            name: "new Node!",
-            draggable: true,
-            symbolSize: [100, 100],
-            itemStyle: {
-                color: '#FF963F'
-            },
-        };
         nodes.push(newNode);
         setGraph({
             ...graph,
-            node: nodes
+            node: nodes,
         })
     };
 
+    // add graph link & relation
+    const handleAddNewLink = (newLink, newRelation) => {
+        let link = graph.link.concat();
+        link.push(newLink);
+        let relations = graph.relations.concat();
+        relations.push(newRelation);
+        setGraph({
+            ...graph,
+            link: link,
+            relations: relations,
+        });
+    }
+
+    // modify graph theme style
+    const handleModifyGraph = (target, newValue) => {
+        setGraph({
+            ...graph,
+            [target]: newValue
+        });
+    }
+
     // zoom in
-    const [zoom, setZoom] = useState(1);
-    const zoomIn = () => {
-        if (zoom < 2) {
-            setZoom(zoom + 0.1);
-        }
-    };
-    const zoomOut = () => {
-        if (zoom > 0.5) {
-            setZoom(zoom - 0.1);
-        }
-    };
-    const zoomReset = () => {
-        setZoom(1);
-    };
+    // const [zoom, setZoom] = useState(1);
+    // const zoomIn = () => {
+    //     if (zoom < 2) {
+    //         setZoom(zoom + 0.1);
+    //     }
+    // };
+    // const zoomOut = () => {
+    //     if (zoom > 0.5) {
+    //         setZoom(zoom - 0.1);
+    //     }
+    // };
+    // const zoomReset = () => {
+    //     setZoom(1);
+    // };
 
     const handleFullScreen = useFullScreenHandle();
 
@@ -410,49 +454,6 @@ export const KNMDetailPage: React.FC = () => {
                                         aria-label="text alignment"
                                         className={classes.toolBarButtons}
                                     >
-                                        <Tooltip title="修改基本信息" arrow>
-                                            <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
-                                                <AssignmentIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="添加知识节点" arrow>
-                                            <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
-                                                <AddCircleOutlineIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="添加节点关联" arrow>
-                                            <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
-                                                <AccountTreeIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="修改主题风格" arrow>
-                                            <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
-                                                <FormatColorFillIcon />
-                                            </Button>
-                                        </Tooltip>
-                                    </ToggleButtonGroup>
-                                    <Divider flexItem orientation="vertical" className={classes.divider} />
-                                    <ToggleButtonGroup
-                                        size="small"
-                                        exclusive
-                                        aria-label="text alignment"
-                                        className={classes.toolBarButtons}
-                                    >
-                                        <Tooltip title="放大" arrow>
-                                            <Button value="放大" aria-label="centered" onClick={zoomIn}>
-                                                <ZoomInIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="缩小" arrow>
-                                            <Button value="缩小" aria-label="centered" onClick={zoomOut}>
-                                                <ZoomOutIcon />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip title="大小恢复" arrow>
-                                            <Button value="大小恢复" aria-label="centered" onClick={zoomReset}>
-                                                <RotateLeftIcon />
-                                            </Button>
-                                        </Tooltip>
                                         {
                                             handleFullScreen.active ? (
                                                 <Tooltip title="退出全屏" arrow placement="bottom">
@@ -469,6 +470,39 @@ export const KNMDetailPage: React.FC = () => {
                                             )
                                         }
                                     </ToggleButtonGroup>
+                                    {
+                                        views === 'graphView' &&
+                                        <>
+                                            <Divider flexItem orientation="vertical" className={classes.divider} />
+                                            <ToggleButtonGroup
+                                                size="small"
+                                                exclusive
+                                                aria-label="text alignment"
+                                                className={classes.toolBarButtons}
+                                            >
+                                                <Tooltip title="修改基本信息" arrow>
+                                                    <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                                        <AssignmentIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="添加知识节点" arrow>
+                                                    <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                                        <AddCircleOutlineIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="添加节点关联" arrow>
+                                                    <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
+                                                        <AccountTreeIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="修改主题风格" arrow>
+                                                    <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                        <FormatColorFillIcon />
+                                                    </Button>
+                                                </Tooltip>
+                                            </ToggleButtonGroup>
+                                        </>
+                                    }
                                 </Paper>
                             </Grid>
                         </Grid>
@@ -547,7 +581,7 @@ export const KNMDetailPage: React.FC = () => {
                 }
             </Paper>
             {/* graph */}
-            <React.Fragment>
+            <div style={{ backgroundColor: currentTheme==='light'?'#fbfbfb':'#1f2733', height: '100vh' }}>
                 {
                     views === 'graphView' &&
                     <>
@@ -555,8 +589,17 @@ export const KNMDetailPage: React.FC = () => {
                             nodeData={graph.node}
                             linkData={graph.link}
                             relations={graph.relations}
-                            themeMode={currentTheme === 'light' ? 'white' : 'black'}
-                            zoom={zoom}
+                            themeColor={graph.themeColor}
+                            lineStyleType={graph.lineStyleType}
+                            lineStyleColor={graph.lineStyleColor}
+                            lineStyleWidth={graph.lineStyleWidth}
+                            lineStyleOpacity={graph.lineStyleOpacity}
+                            lineStyleCurveness={graph.lineStyleCurveness}
+                            labelFontSize={graph.labelFontSize}
+                            labelPosition={graph.labelPosition}
+                            edgeLabelFontSize={graph.edgeLabelFontSize}
+                            layout={graph.layout}
+                            forcePower={graph.forcePower}
                             echartsClick={echartsClick}
                             isFullScreen={handleFullScreen.active}
                         />
@@ -595,6 +638,7 @@ export const KNMDetailPage: React.FC = () => {
                                 contain={
                                     <AddNewNodePanel
                                         materialColor={materialColor}
+                                        handleAddNode={handleAddNode}
                                     />
                                 }
                                 isFullScreen={handleFullScreen.active}
@@ -607,7 +651,9 @@ export const KNMDetailPage: React.FC = () => {
                                 title={'知识笔记 | 新增知识关联'}
                                 handleClosePanel={handleCloseInfoPanel}
                                 contain={
-                                    <AddNewLinkPanel />
+                                    <AddNewLinkPanel
+                                        handleAddNewLink={handleAddNewLink}
+                                    />
                                 }
                                 isFullScreen={handleFullScreen.active}
                             />
@@ -620,7 +666,10 @@ export const KNMDetailPage: React.FC = () => {
                                 handleClosePanel={handleCloseInfoPanel}
                                 contain={
                                     <ModifyGraphThemePanel
+                                        currentGraphThemeOption={graph}
                                         graphColorTheme={graphColorTheme}
+                                        lineColor={lineColor}
+                                        handleModifyGraph={handleModifyGraph}
                                     />
                                 }
                                 isFullScreen={handleFullScreen.active}
@@ -630,24 +679,21 @@ export const KNMDetailPage: React.FC = () => {
                 }
                 {
                     views === 'notebookListView' &&
-                    <React.Fragment>
-                        <h1>这是知识地图笔记列表</h1>
-                        <BasicDataTable
+                    <div style={{ padding: '10px 30px' }}>
+                        <h1>知识地图笔记列表</h1>
+                        <PaginationDataTable
                             header={["笔记标题", "引用", "标签", "时间"]}
                             rows={rows}
                         />
-                    </React.Fragment>
+                    </div>
                 }
                 {
                     views === 'newNotebookView' &&
-                    <React.Fragment>
-                        <h1>新建知识笔记</h1>
-                        <ReactMarkdown>
-                            This ~is not~ strikethrough, but ~~this is~~!
-                        </ReactMarkdown>
-                    </React.Fragment>
+                    <div style={{ padding: '10px 30px' }}>
+                        <NewNoteBookView />
+                    </div>
                 }
-            </React.Fragment>
+            </div>
         </FullScreen>
     )
 }

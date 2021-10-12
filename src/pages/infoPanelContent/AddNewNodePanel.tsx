@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -33,21 +33,34 @@ interface AddNewNodeState {
     nodeTags: any[];
     nodeIntro: string;
     nodeSize: string;
+    nodeColor: string;
 };
 interface AddNewNodePanelState {
-    materialColor: any[],
+    materialColor: any[];
+    handleAddNode: (any) => void;
 }
 export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
-    materialColor
+    materialColor, handleAddNode
 }) => {
     const classes = useStyles();
+    // text state
+    // {
+    //     name: "知识点1：函数的求导",
+    //     draggable: true,
+    //     symbolSize: [100, 100],
+    //     itemStyle: {
+    //         color: '#FF963F'
+    //     },
+    // }
     const [values, setValues] = useState<AddNewNodeState>({
         nodeName: '',
         nodeTags: [],
         nodeIntro: '',
         nodeSize: '',
+        nodeColor: materialColor[0],
     });
 
+    // text change
     const handleChangeText = (prop: keyof AddNewNodeState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
             ...values,
@@ -55,6 +68,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
         });
     }
 
+    // node size select
     const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
         setValues({
             ...values,
@@ -62,9 +76,26 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
         });
     };
 
-    const [nodeColor, setNodeColor] = useState(materialColor[0]);
+    // node color select
     const handleChangeNodeColor = (newNodeColor, event) => {
-        setNodeColor(newNodeColor);
+        setValues({
+            ...values,
+            nodeColor: newNodeColor.hex
+        });
+    };
+
+    // handle add node
+    const handleAddNewNodeClick = () => {
+        // add new node info
+        let newNode = {
+            name: values.nodeName,
+            draggable: true,
+            symbolSize: [values.nodeSize, values.nodeSize],
+            itemStyle: {
+                color: values.nodeColor
+            },
+        };
+        handleAddNode(newNode);
     };
 
     return (
@@ -118,7 +149,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                 <div>节点颜色</div>
                 <CirclePicker
                     className={classes.colorPicker}
-                    color={nodeColor}
+                    color={values.nodeColor}
                     onChangeComplete={handleChangeNodeColor}
                     colors={materialColor}
                     circleSize={20}
@@ -128,6 +159,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                     variant="contained"
                     color="primary"
                     startIcon={<QueuePlayNextIcon />}
+                    onClick={handleAddNewNodeClick}
                 >
                     新建知识节点
                 </Button>

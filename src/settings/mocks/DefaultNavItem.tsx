@@ -9,13 +9,13 @@ export const DefaultNavItems = [
         type: 'SystemNavItems',
         router: '/list'
     },
-    {
-        id: "search",
-        title: "笔记检索",
-        icon: <SearchIcon />,
-        type: 'SystemNavItems',
-        router: '/search',
-    },
+    // {
+    //     id: "search",
+    //     title: "笔记检索",
+    //     icon: <SearchIcon />,
+    //     type: 'SystemNavItems',
+    //     router: '/search',
+    // },
     {
         id: 'knm1',
         title: "学习科学地图",

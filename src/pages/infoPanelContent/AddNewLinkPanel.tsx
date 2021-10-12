@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -12,6 +12,7 @@ import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 // import mock data
 import { mockTags } from '../../settings/mocks/DefaultTags';
+import { relations, nodeData } from '../../settings/mocks/DefaultGraph';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {
@@ -30,7 +31,13 @@ interface AddNewLinkState {
     linkEnd: string;
 }
 
-export const AddNewLinkPanel: React.FC = () => {
+
+interface AddNewLinkPanelState {
+    handleAddNewLink: (newLink: any, newRelation: any) => void;
+}
+export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
+    handleAddNewLink
+}) => {
     const classes = useStyles();
     const [values, setValues] = useState<AddNewLinkState>({
         linkName: '',
@@ -52,6 +59,22 @@ export const AddNewLinkPanel: React.FC = () => {
             ...values,
             [prop]: event.target.value as string,
         });
+    };
+
+    const handleAddNewLinkClick = () => {
+        let newRelations = relations;
+        if (relations.indexOf(values.linkName) === -1){
+            // new link name
+            newRelations.push(values.linkName);
+        }
+        let newLink = {
+            source: values.linkStart,
+            target: values.linkEnd,
+            value: values.linkName,
+        };
+        // console.log(newRelations);
+        // console.log(newLink);
+        handleAddNewLink(newLink, newRelations);
     };
 
     return (
@@ -95,11 +118,13 @@ export const AddNewLinkPanel: React.FC = () => {
                         value={values.linkStart}
                         onChange={handleChangeLinkNodes('linkStart')}
                     >
-                        <MenuItem value={55}>知识点1</MenuItem>
-                        <MenuItem value={64}>知识点2</MenuItem>
-                        <MenuItem value={76}>知识点3</MenuItem>
-                        <MenuItem value={88}>知识点4</MenuItem>
-                        <MenuItem value={100}>知识点5</MenuItem>
+                        {
+                            nodeData.map((node, index) => {
+                                return (
+                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                );
+                            })
+                        }
                     </Select>
                 </FormControl>
                 <FormControl>
@@ -110,17 +135,20 @@ export const AddNewLinkPanel: React.FC = () => {
                         value={values.linkEnd}
                         onChange={handleChangeLinkNodes('linkEnd')}
                     >
-                        <MenuItem value={55}>知识点1</MenuItem>
-                        <MenuItem value={64}>知识点2</MenuItem>
-                        <MenuItem value={76}>知识点3</MenuItem>
-                        <MenuItem value={88}>知识点4</MenuItem>
-                        <MenuItem value={100}>知识点5</MenuItem>
+                        {
+                            nodeData.map((node, index) => {
+                                return (
+                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                );
+                            })
+                        }
                     </Select>
                 </FormControl>
                 <Button
                     variant="contained"
                     color="primary"
                     startIcon={<QueuePlayNextIcon />}
+                    onClick={handleAddNewLinkClick}
                 >
                     新建知识关联
                 </Button>

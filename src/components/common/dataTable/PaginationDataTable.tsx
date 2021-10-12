@@ -118,9 +118,10 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
     const classes = useStyles2();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const colSpan = header.length + 1;
     const maxRow = rows.length;
+    // row per pages option
     let pageOption: any[];
-    // [5, 10, 25, { label: 'All', value: -1 }]
     if (maxRow <= 5) {
         pageOption = [5];
     } else if (maxRow < 10) {
@@ -130,8 +131,6 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
     } else {
         pageOption = [5, 10, 25, { label: 'All', value: -1 }];
     }
-
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setPage(newPage);
@@ -177,18 +176,13 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
                             }
                         </TableRow>
                     ))}
-                    {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                            <TableCell colSpan={6} />
-                        </TableRow>
-                    )}
                 </TableBody>
                 <TableFooter>
                     <TableRow>
                         <TablePagination
                             className={classes.tableFooter}
                             rowsPerPageOptions={pageOption}
-                            colSpan={3}
+                            colSpan={colSpan}
                             count={rows.length}
                             rowsPerPage={rowsPerPage}
                             page={page}

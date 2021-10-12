@@ -18,7 +18,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import Button from '@material-ui/core/Button';
-import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
+import SaveIcon from '@material-ui/icons/Save';
 // import react-color
 import { CirclePicker } from 'react-color';
 
@@ -58,24 +58,30 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-// theme color
+// theme color change
 interface ThemeStyleContentState {
-    values: ModifyGraphThemeValuesState;
-    handleChangeGraphColor: (color: any, event: any) => void;
+    currentColor: string;
     graphColorTheme: string[];
+    handleModifyGraph: (target: string, newValue: any) => void;
 }
 const ThemeStyleContent: React.FC<ThemeStyleContentState> = ({
-    values, handleChangeGraphColor, graphColorTheme
+    currentColor, graphColorTheme, handleModifyGraph
 }) => {
     const classes = useStyles();
+    const [color, setColor] = useState(currentColor);
+
+    const handleChangeThemeStyle = (color) => {
+        setColor(color);
+        handleModifyGraph('themeColor', color.hex);
+    }
 
     return (
         <React.Fragment>
             <div className={classes.panelTitle}>主题颜色修改</div>
             <CirclePicker
                 className={classes.colorPicker}
-                color={values.graphColor}
-                onChangeComplete={handleChangeGraphColor}
+                color={color}
+                onChangeComplete={handleChangeThemeStyle}
                 colors={graphColorTheme}
                 circleSize={20}
                 width={'350px'}
@@ -84,15 +90,71 @@ const ThemeStyleContent: React.FC<ThemeStyleContentState> = ({
     );
 };
 
-// link style
+// link style change
 interface EdgeStyleContentState {
-    values: ModifyGraphThemeValuesState;
-    handleChangeSelect: (string) => void;
+    lineColor: string[];
+    currentLineType: 'dashed' | 'solid' | 'dotted';
+    currentLineColor: string;
+    currentLineWidth: number | number[];
+    currentLineOpacity: number | number[];
+    currentLineCurveness: number | number[];
+    handleModifyGraph: (target: string, newValue: any) => void;
 }
 const EdgeStyleContent: React.FC<EdgeStyleContentState> = ({
-    values, handleChangeSelect
+    lineColor, currentLineType, currentLineColor, currentLineWidth,
+    currentLineOpacity, currentLineCurveness, handleModifyGraph
 }) => {
     const classes = useStyles();
+    const [values, setValues] = useState({
+        lineType: currentLineType,
+        lineColor: currentLineColor,
+        lineWidth: currentLineWidth,
+        lineOpacity: currentLineOpacity,
+        lineCurveness: currentLineCurveness,
+    });
+
+    // line style change
+    const handleChangeLineType = (event: React.ChangeEvent<{ value: any }>) => {
+        let newLineType = event.target.value as 'dashed' | 'solid' | 'dotted';
+        setValues({
+            ...values,
+            lineType: newLineType,
+        });
+        handleModifyGraph('lineStyleType', newLineType);
+    };
+
+    // line color change
+    const handleChangeLineColor = (color) => {
+        setValues({
+            ...values,
+            lineColor: color.hex,
+        });
+        handleModifyGraph('lineStyleColor', color.hex);
+    };
+
+    const handleChangeLineWidth = (event: any, newValue: number | number[]) => {
+        setValues({
+            ...values,
+            lineWidth: newValue,
+        });
+        handleModifyGraph('lineStyleWidth', newValue);
+    }
+
+    const handleChangeLineOpacity = (event: any, newValue: number | number[]) => {
+        setValues({
+            ...values,
+            lineOpacity: newValue,
+        });
+        handleModifyGraph('lineStyleOpacity', newValue);
+    };
+
+    const handleChangeLineCurveness = (event: any, newValue: number | number[]) => {
+        setValues({
+            ...values,
+            lineCurveness: newValue,
+        });
+        handleModifyGraph('lineStyleCurveness', newValue);
+    };
 
     return (
         <React.Fragment>
@@ -103,27 +165,27 @@ const EdgeStyleContent: React.FC<EdgeStyleContentState> = ({
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={values.lineType}
-                    onChange={handleChangeSelect}
+                    onChange={handleChangeLineType}
                 >
-                    <MenuItem value={'dashed'}>dashed</MenuItem>
-                    <MenuItem value={'solid'}>solid</MenuItem>
-                    <MenuItem value={'dotted'}>dotted</MenuItem>
+                    <MenuItem value={'dashed'}>虚线</MenuItem>
+                    <MenuItem value={'solid'}>实线</MenuItem>
+                    <MenuItem value={'dotted'}>点线</MenuItem>
                 </Select>
             </FormControl>
             <p className={classes.smallText}>线条颜色</p>
             <CirclePicker
                 className={classes.colorPickerLineStyle}
-                // color={values.graphColor}
-                // onChangeComplete={handleChangeGraphColor}
-                colors={['#ffffff', '#ff9800', '#ffeb3b', '#ff5722', '#8bc34a', '#2d6986', '#1b3436', '#194d48', '#862d4b', '#232323']}
+                color={values.lineColor}
+                onChangeComplete={handleChangeLineColor}
+                colors={lineColor}
                 circleSize={20}
                 width={'350px'}
             />
             <p className={classes.smallText}>线条宽度</p>
             <Slider
                 className={classes.sliderStyle}
-                defaultValue={0.5}
-                // getAriaValueText={valuetext}
+                value={typeof values.lineWidth === 'number' ? values.lineWidth : 0}
+                onChange={handleChangeLineWidth}
                 aria-labelledby="discrete-slider-small-steps"
                 step={0.1}
                 marks
@@ -134,8 +196,8 @@ const EdgeStyleContent: React.FC<EdgeStyleContentState> = ({
             <p className={classes.smallText}>线条透明度</p>
             <Slider
                 className={classes.sliderStyle}
-                defaultValue={0.5}
-                // getAriaValueText={valuetext}
+                value={typeof values.lineOpacity === 'number' ? values.lineOpacity : 0}
+                onChange={handleChangeLineOpacity}
                 aria-labelledby="discrete-slider-small-steps"
                 step={0.02}
                 marks
@@ -146,8 +208,8 @@ const EdgeStyleContent: React.FC<EdgeStyleContentState> = ({
             <p className={classes.smallText}>线条曲度</p>
             <Slider
                 className={classes.sliderStyle}
-                defaultValue={0.2}
-                // getAriaValueText={valuetext}
+                value={typeof values.lineCurveness === 'number' ? values.lineCurveness : 0}
+                onChange={handleChangeLineCurveness}
                 aria-labelledby="discrete-slider-small-steps"
                 step={0.02}
                 marks
@@ -159,17 +221,46 @@ const EdgeStyleContent: React.FC<EdgeStyleContentState> = ({
     );
 };
 
-// node font style
-const NodeFontStyle = () => {
+// node font style change
+interface NodeFontStyleState {
+    currentLabelFontSize: number | number[];
+    currentLabelPosition: 'top' | 'left' | 'right' | 'bottom' | 'inside';
+    handleModifyGraph: (target: string, newValue: any) => void;
+}
+const NodeFontStyle: React.FC<NodeFontStyleState> = ({
+    currentLabelFontSize, currentLabelPosition, handleModifyGraph
+}) => {
     const classes = useStyles();
+    const [values, setValues] = useState({
+        labelFontSize: currentLabelFontSize,
+        labelPosition: currentLabelPosition,
+    });
+
+    const handleChangeLabelFontSize = (event: any, newValue: number | number[]) => {
+        setValues({
+            ...values,
+            labelFontSize: newValue,
+        });
+        handleModifyGraph('labelFontSize', newValue);
+    }
+
+    const handleChangeLabelPosition = (event: React.ChangeEvent<{ value: any }>) => {
+        let newLabelPosition = event.target.value as 'top' | 'left' | 'right' | 'bottom' | 'inside';
+        setValues({
+            ...values,
+            labelPosition: newLabelPosition,
+        });
+        handleModifyGraph('labelPosition', newLabelPosition);
+    };
+
     return (
         <React.Fragment>
             <div className={classes.panelTitle}>节点标签字体样式修改</div>
             <p className={classes.smallText}>标签字体大小</p>
             <Slider
                 className={classes.sliderStyle}
-                defaultValue={14}
-                // getAriaValueText={valuetext}
+                value={values.labelFontSize}
+                onChange={handleChangeLabelFontSize}
                 aria-labelledby="discrete-slider-small-steps"
                 step={1}
                 marks
@@ -182,23 +273,35 @@ const NodeFontStyle = () => {
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={'inside'}
-                // onChange={handleChangeSelect('lineType')}
+                    value={values.labelPosition}
+                    onChange={handleChangeLabelPosition}
                 >
-                    <MenuItem value={'top'}>top</MenuItem>
-                    <MenuItem value={'left'}>left</MenuItem>
-                    <MenuItem value={'right'}>right</MenuItem>
-                    <MenuItem value={'bottom'}>bottom</MenuItem>
-                    <MenuItem value={'inside'}>inside</MenuItem>
+                    <MenuItem value={'top'}>顶部</MenuItem>
+                    <MenuItem value={'left'}>左侧</MenuItem>
+                    <MenuItem value={'right'}>右侧</MenuItem>
+                    <MenuItem value={'bottom'}>底部</MenuItem>
+                    <MenuItem value={'inside'}>内部</MenuItem>
                 </Select>
             </FormControl>
         </React.Fragment>
     );
 };
 
-// edge font style
-const EdgeFontStyle = () => {
+// edge font style change
+interface EdgeFontStyleState {
+    currentEdgeLabelFontSize: number | number[];
+    handleModifyGraph: (target: string, newValue: any) => void;
+}
+const EdgeFontStyle: React.FC<EdgeFontStyleState> = ({
+    currentEdgeLabelFontSize, handleModifyGraph
+}) => {
     const classes = useStyles();
+    const [values, setValues] = useState(currentEdgeLabelFontSize);
+
+    const handleChangeEdgeLabelFontSize = (event: any, newValue: number | number[]) => {
+        setValues(newValue);
+        handleModifyGraph('edgeLabelFontSize', newValue);
+    }
 
     return (
         <React.Fragment>
@@ -206,26 +309,59 @@ const EdgeFontStyle = () => {
             <p className={classes.smallText}>关联线字体大小</p>
             <Slider
                 className={classes.sliderStyle}
-                defaultValue={14}
-                // getAriaValueText={valuetext}
+                value={values}
+                onChange={handleChangeEdgeLabelFontSize}
                 aria-labelledby="discrete-slider-small-steps"
                 step={1}
                 marks
-                min={10}
-                max={24}
+                min={8}
+                max={20}
                 valueLabelDisplay="auto"
             />
         </React.Fragment>
     );
 };
 
-// layout
-const LayoutStyle = () => {
+// layout change
+interface LayoutStyleState {
+    currentLayout: 'force' | 'circular';
+    currentForcePower: number | number[];
+    handleModifyGraph: (target: string, newValue: any) => void;
+}
+const LayoutStyle: React.FC<LayoutStyleState> = ({
+    currentLayout, currentForcePower, handleModifyGraph
+}) => {
     const classes = useStyles();
+    const [values, setValues] = useState({
+        layout: currentLayout,
+        forcePower: currentForcePower,
+    });
+
+    const handleChangeLayout = (event: React.ChangeEvent<HTMLInputElement>) => {
+        let newLayout = event.target.value as 'force' | 'circular';
+        setValues({
+            ...values,
+            layout: newLayout
+        });
+        handleModifyGraph('layout', newLayout);
+    };
+
+    const handleChangeForcePower = (event: any, newValue: number | number[]) => {
+        setValues({
+            ...values,
+            forcePower: newValue
+        });
+        handleModifyGraph('forcePower', newValue);
+    }
+
     return (
         <React.Fragment>
             <div className={classes.panelTitle}>地图布局样式</div>
-            <RadioGroup row aria-label="position" name="position" defaultValue="force">
+            <RadioGroup
+                row aria-label="position" name="position"
+                value={values.layout}
+                onChange={handleChangeLayout}
+            >
                 <FormControlLabel
                     value="force"
                     control={<Radio color="primary" />}
@@ -239,20 +375,24 @@ const LayoutStyle = () => {
                     labelPlacement="end"
                 />
             </RadioGroup>
-
-            <div>力引导图布局设置(选择力引导图才有)</div>
-            <p className={classes.smallText}>节点互斥大小</p>
-            <Slider
-                className={classes.sliderStyle}
-                defaultValue={40}
-                // getAriaValueText={valuetext}
-                aria-labelledby="discrete-slider-small-steps"
-                step={1}
-                marks
-                min={1}
-                max={100}
-                valueLabelDisplay="auto"
-            />
+            {
+                values.layout === 'force' &&
+                <>
+                    <div>力引导图布局设置</div>
+                    <p className={classes.smallText}>节点互斥大小</p>
+                    <Slider
+                        className={classes.sliderStyle}
+                        value={values.forcePower}
+                        onChange={handleChangeForcePower}
+                        aria-labelledby="discrete-slider-small-steps"
+                        step={1}
+                        marks
+                        min={1}
+                        max={100}
+                        valueLabelDisplay="auto"
+                    />
+                </>
+            }
         </React.Fragment>
     );
 };
@@ -262,30 +402,33 @@ interface ModifyGraphThemeValuesState {
     graphColor: string;
     lineType: 'dashed' | 'solid' | 'dotted';
 };
+
+interface KnowledgeGraphState {
+    node: any[];
+    link: any[];
+    relations: any[];
+    themeColor: string; // 主题颜色
+    lineStyleType: 'solid' | 'dashed' | 'dotted';   //关联线样式
+    lineStyleColor: string;     // 关联线颜色
+    lineStyleWidth: number;     // 关联线宽度
+    lineStyleOpacity: number;   // 关联线透明度
+    lineStyleCurveness: number; // 关联线曲度
+    labelFontSize: number;         //节点标签字体大小
+    labelPosition: 'top' | 'left' | 'right' | 'bottom' | 'inside';
+    edgeLabelFontSize: number;
+    layout: 'force' | 'circular';
+    forcePower: number;
+};
 interface ModifyGraphThemePanel {
-    graphColorTheme: any[];
+    currentGraphThemeOption: KnowledgeGraphState;
+    graphColorTheme: string[];
+    lineColor: string[];
+    handleModifyGraph: (target: string, newValue: any) => void;
 }
 export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanel> = ({
-    graphColorTheme
+    currentGraphThemeOption, graphColorTheme, lineColor, handleModifyGraph
 }) => {
     const classes = useStyles();
-    const [values, setValues] = useState<ModifyGraphThemeValuesState>({
-        graphColor: graphColorTheme[0],
-        lineType: 'dashed',
-    });
-    const handleChangeGraphColor = (color, event) => {
-        setValues({
-            ...values,
-            graphColor: color,
-        });
-    };
-
-    const handleChangeSelect = (prop: keyof ModifyGraphThemeValuesState) => (event: React.ChangeEvent<{ value: unknown }>) => {
-        setValues({
-            ...values,
-            [prop]: event.target.value,
-        });
-    };
 
     const [alignment, setAlignment] = React.useState<string>('theme');
 
@@ -326,36 +469,52 @@ export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanel> = ({
                 {
                     alignment === 'theme' &&
                     <ThemeStyleContent
-                        values={values}
-                        handleChangeGraphColor={handleChangeGraphColor}
+                        currentColor={currentGraphThemeOption.themeColor}
                         graphColorTheme={graphColorTheme}
+                        handleModifyGraph={handleModifyGraph}
                     />
                 }
                 {
                     alignment === 'edge' &&
                     <EdgeStyleContent
-                        values={values}
-                        handleChangeSelect={handleChangeSelect('lineType')}
+                        lineColor={lineColor}
+                        currentLineType={currentGraphThemeOption.lineStyleType}
+                        currentLineColor={currentGraphThemeOption.lineStyleColor}
+                        currentLineWidth={currentGraphThemeOption.lineStyleWidth}
+                        currentLineOpacity={currentGraphThemeOption.lineStyleOpacity}
+                        currentLineCurveness={currentGraphThemeOption.lineStyleCurveness}
+                        handleModifyGraph={handleModifyGraph}
                     />
                 }
                 {
                     alignment === 'nodeFont' &&
-                    <NodeFontStyle />
+                    <NodeFontStyle
+                        currentLabelFontSize={currentGraphThemeOption.labelFontSize}
+                        currentLabelPosition={currentGraphThemeOption.labelPosition}
+                        handleModifyGraph={handleModifyGraph}
+                    />
                 }
                 {
                     alignment === 'edgeFont' &&
-                    <EdgeFontStyle />
+                    <EdgeFontStyle
+                        currentEdgeLabelFontSize={currentGraphThemeOption.edgeLabelFontSize}
+                        handleModifyGraph={handleModifyGraph}
+                    />
                 }
                 {
                     alignment === 'layout' &&
-                    <LayoutStyle />
+                    <LayoutStyle
+                        currentLayout={currentGraphThemeOption.layout}
+                        currentForcePower={currentGraphThemeOption.forcePower}
+                        handleModifyGraph={handleModifyGraph}
+                    />
                 }
                 <Button
                     variant="contained"
                     color="primary"
-                    startIcon={<QueuePlayNextIcon />}
+                    startIcon={<SaveIcon />}
                 >
-                    修改主题样式
+                    保存当前主题样式
                 </Button>
             </form>
         </React.Fragment>
