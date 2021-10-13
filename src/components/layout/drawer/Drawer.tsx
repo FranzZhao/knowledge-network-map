@@ -33,6 +33,9 @@ import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
+// import emoji
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker, Emoji } from 'emoji-mart';
 
 // Current Page Style
 const drawerWidth = 240;
@@ -323,7 +326,8 @@ export const LeftDrawer = () => {
                                         onClick={() => handleClickNavItem(item.title, item.router)}
                                     >
                                         <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
-                                            {item.icon}
+                                            {/* {item.icon} */}
+                                            <Emoji emoji={item.icon as string} set='twitter' size={20} />
                                         </ListItemIcon>
                                         <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
                                     </ListItem>

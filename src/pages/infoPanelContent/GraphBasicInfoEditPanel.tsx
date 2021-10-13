@@ -36,20 +36,30 @@ interface GraphBasicInfoState {
     intro: string;
 };
 
-export const GraphBasicInfoEditPanel: React.FC = () => {
+interface GraphBasicInfoEditPanelState {
+    graphTitle: string;
+    graphIcon: any;
+    handleChangeProjectInfo: (target: string, newValue: any)=>void;
+}
+export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = ({
+    graphTitle, graphIcon, handleChangeProjectInfo
+}) => {
     const classes = useStyles();
     // redux
-    const currentTag = useSelector(state => state.openPage.currentActivatedTab);
+    // const currentTag = useSelector(state => state.openPage.currentActivatedTab);
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
     // component state
     const [values, setValues] = useState<GraphBasicInfoState>({
-        title: currentTag.title,
-        icon: currentTag.icon,
+        title: graphTitle,
+        icon: graphIcon,
         intro: '这是一段关于“学习科学知识地图”的简单描述，你可以在这里写下任何有关这一知识地图的相关信息...'
     });
 
     const handleChange = (prop: keyof GraphBasicInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [prop]: event.target.value });
+        if (prop === 'title'){
+            handleChangeProjectInfo(prop, event.target.value);
+        }
     };
 
     // emoji i18n
@@ -84,9 +94,10 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
 
     };
 
-    const [projectEmoji, setProjectEmoji] = useState('books');
+    const [projectEmoji, setProjectEmoji] = useState(graphIcon);
     const [showEmoji, setShowEmoji] = useState(projectEmoji);
     const handleChangeEmoji = (emoji) => {
+        console.log(emoji.id);
         setShowEmoji(emoji.id);
     };
 
@@ -96,6 +107,7 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
         // if close the picker, means to change the project emoji
         if (openEmojiPicker) {
             setProjectEmoji(showEmoji);
+            handleChangeProjectInfo('icon', showEmoji);
         }
         setOpenEmojiPicker(!openEmojiPicker);
     }

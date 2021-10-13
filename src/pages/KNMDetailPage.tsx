@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import customize components
 import { KnowledgeGraph, InfoPanel, PaginationDataTable, TinyMCE } from '../components/common';
 // import MD
@@ -28,6 +28,7 @@ import NoteAddIcon from '@material-ui/icons/NoteAdd';
 // import redux
 import { useSelector } from '../redux/hooks';
 // import mock data
+import { DefaultNavItems } from '../settings/mocks/DefaultNavItem';
 import { rows } from '../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
 // import react-full-screen
@@ -42,6 +43,10 @@ import {
 } from './infoPanelContent';
 // import notebook edit
 import { NewNoteBookView } from './newNotebookView';
+// import emoji
+import { Emoji } from 'emoji-mart';
+import 'emoji-mart/css/emoji-mart.css';
+
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
@@ -136,7 +141,7 @@ const graphColorTheme = [
 ];
 
 const lineColor = [
-    '#ffffff', '#ff9800', '#ffeb3b', '#ff5722', '#8bc34a', 
+    '#ffffff', '#ff9800', '#ffeb3b', '#ff5722', '#8bc34a',
     '#2d6986', '#1b3436', '#194d48', '#862d4b', '#232323'
 ];
 
@@ -164,6 +169,7 @@ export const KNMDetailPage: React.FC = () => {
     const classes = useStyles();
     // redux
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentOpenPage = useSelector(state => state.openPage.leftDrawerActivatedItem);
     // media query
     const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
@@ -307,7 +313,7 @@ export const KNMDetailPage: React.FC = () => {
             link: link,
             relations: relations,
         });
-    }
+    };
 
     // modify graph theme style
     const handleModifyGraph = (target, newValue) => {
@@ -315,23 +321,7 @@ export const KNMDetailPage: React.FC = () => {
             ...graph,
             [target]: newValue
         });
-    }
-
-    // zoom in
-    // const [zoom, setZoom] = useState(1);
-    // const zoomIn = () => {
-    //     if (zoom < 2) {
-    //         setZoom(zoom + 0.1);
-    //     }
-    // };
-    // const zoomOut = () => {
-    //     if (zoom > 0.5) {
-    //         setZoom(zoom - 0.1);
-    //     }
-    // };
-    // const zoomReset = () => {
-    //     setZoom(1);
-    // };
+    };
 
     const handleFullScreen = useFullScreenHandle();
 
@@ -341,6 +331,25 @@ export const KNMDetailPage: React.FC = () => {
         if (newView !== null) {
             setViews(newView);
         }
+    };
+
+    const [projectInfo, setProjectInfo] = useState({
+        icon: currentOpenPage.icon,
+        title: currentOpenPage.title,
+    });
+
+    useEffect(() => {
+        setProjectInfo({
+            icon: currentOpenPage.icon,
+            title: currentOpenPage.title,
+        });
+    }, [currentOpenPage]);
+
+    const handleChangeProjectInfo = (target: string, newValue: any) => {
+        setProjectInfo({
+            ...projectInfo,
+            [target]: newValue,
+        });
     };
 
     return (
@@ -360,8 +369,14 @@ export const KNMDetailPage: React.FC = () => {
                             <Grid item>
                                 <Paper className={classes.paper}>
                                     <Grid container spacing={2} className={classes.graphTitle}>
-                                        <Grid item>🧩</Grid>
-                                        <Grid item>学习科学知识地图</Grid>
+                                        <Grid item style={{ paddingTop: 14 }}>
+                                            {/* a strange bug 😕 */}
+                                            {
+                                                projectInfo.icon &&
+                                                <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                            }
+                                        </Grid>
+                                        <Grid item>{projectInfo.title}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>
@@ -517,8 +532,10 @@ export const KNMDetailPage: React.FC = () => {
                             <Grid item>
                                 <Paper className={classes.paper}>
                                     <Grid container spacing={2} className={classes.graphTitle}>
-                                        <Grid item>🧩</Grid>
-                                        <Grid item>学习科学知识地图</Grid>
+                                        <Grid item>
+                                            {/* <Emoji emoji={'books'} set='twitter' size={26} /> */}
+                                        </Grid>
+                                        <Grid item>{projectInfo.title}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>
@@ -581,7 +598,7 @@ export const KNMDetailPage: React.FC = () => {
                 }
             </Paper>
             {/* graph */}
-            <div style={{ backgroundColor: currentTheme==='light'?'#fbfbfb':'#1f2733', height: '100vh' }}>
+            <div style={{ backgroundColor: currentTheme === 'light' ? '#fbfbfb' : '#1f2733', height: '100%' }}>
                 {
                     views === 'graphView' &&
                     <>
@@ -624,7 +641,11 @@ export const KNMDetailPage: React.FC = () => {
                                 title={'知识笔记 | 基础信息'}
                                 handleClosePanel={handleCloseInfoPanel}
                                 contain={
-                                    <GraphBasicInfoEditPanel />
+                                    <GraphBasicInfoEditPanel
+                                        graphTitle={projectInfo.title}
+                                        graphIcon={projectInfo.icon}
+                                        handleChangeProjectInfo={handleChangeProjectInfo}
+                                    />
                                 }
                                 isFullScreen={handleFullScreen.active}
                             />

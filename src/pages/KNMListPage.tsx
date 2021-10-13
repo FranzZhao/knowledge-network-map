@@ -18,7 +18,7 @@ export const KNMListPage: React.FC = () => {
         <div style={{padding: '10px 30px'}}>
             <h1>知识地图列表</h1>
             <PaginationDataTable 
-                header={["title", "tags", "user", "createTime"]}
+                header={["知识地图标题", "标签", "创建者", "创建时间"]}
                 rows={DefaultKNM}
             />
         </div>
