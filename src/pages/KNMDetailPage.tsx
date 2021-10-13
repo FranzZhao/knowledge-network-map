@@ -374,7 +374,7 @@ export const KNMDetailPage: React.FC = () => {
                                         <Grid item style={{ paddingTop: 14 }}>
                                             {/* a strange bug 😕 */}
                                             {
-                                                projectInfo.icon ? (
+                                                (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
                                                     <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
                                                 ) : ''
                                             }
