@@ -1,27 +1,48 @@
 import React from 'react';
 // import React-Router-DOM
 import {
-    BrowserRouter,
+    HashRouter as Router,
     Route,
     Switch,
 } from 'react-router-dom';
+// import customize router
+// import { MainRouter, LoginRegisterRouter } from './router';
 // import Layout
 import { MainLayout } from './layout';
-// import customize router
-import { MainRouter } from './router';
+// import page
+import {
+    HomePage,
+    KNMListPage,
+    SearchPage,
+    KNMDetailPage,
+} from './pages';
 
 const App: React.FC = () => {
     return (
-        <BrowserRouter>
+        <Router>
             <Switch>
-                <Route path="/" render={() => <MainRouter router='/' />} exact />
-                <Route path="/list" render={() => <MainRouter router='/list' />} exact />
-                <Route path="/search" render={() => <MainRouter router='/search' />} exact />
-                <Route path="/detail" render={() => <MainRouter router='/detail' />} exact />
-                <Route render={() => <MainLayout>404 NOT FOUND</MainLayout>} />
+                <Route exact path="/" render={() => (<MainLayout><HomePage /></MainLayout>)} />
+                <Route path="/main/list" render={() => (<MainLayout><KNMListPage /></MainLayout>)} />
+                <Route path="/main/search" render={() => (<MainLayout><SearchPage /></MainLayout>)} />
+                <Route path="/main/detail" render={() => (<MainLayout><KNMDetailPage /></MainLayout>)} />
+                <Route path="/user/login" component={LoginPage} />
+                <Route path="/user/register" component={RegisterPage} />
+                <Route render={() => <h1>404 NOT FOUND</h1>} />
             </Switch>
-        </BrowserRouter>
+        </Router>
     )
 };
+
+const LoginPage = () => {
+    return (
+        <h1>登录</h1>
+    );
+}
+
+const RegisterPage = () => {
+    return (
+        <h1>注册</h1>
+    );
+}
 
 export default App;

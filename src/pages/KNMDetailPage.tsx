@@ -334,11 +334,13 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     const [projectInfo, setProjectInfo] = useState({
-        icon: currentOpenPage.icon,
-        title: currentOpenPage.title,
+        icon: '',
+        title: '',
     });
 
     useEffect(() => {
+        console.log('here');
+        console.log(currentOpenPage.icon);
         setProjectInfo({
             icon: currentOpenPage.icon,
             title: currentOpenPage.title,
@@ -372,8 +374,9 @@ export const KNMDetailPage: React.FC = () => {
                                         <Grid item style={{ paddingTop: 14 }}>
                                             {/* a strange bug 😕 */}
                                             {
-                                                projectInfo.icon &&
-                                                <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                                projectInfo.icon ? (
+                                                    <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                                ) : ''
                                             }
                                         </Grid>
                                         <Grid item>{projectInfo.title}</Grid>

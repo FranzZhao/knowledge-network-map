@@ -1,15 +1,10 @@
 import React from 'react';
 // import MD
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+// import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 // import customize component
 import { PaginationDataTable } from '../components/common';
 // get mock data
 import { DefaultKNM } from '../settings/mocks/DefaultKNM';
-
-const useStyles = makeStyles((theme: Theme) => createStyles({
-
-}));
-
 
 
 export const KNMListPage: React.FC = () => {

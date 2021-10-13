@@ -1,6 +1,6 @@
 import React from 'react';
 // import Layout
-import {MainLayout} from '../layout';
+import { MainLayout } from '../layout';
 // import page
 import {
     HomePage,
@@ -8,34 +8,25 @@ import {
     SearchPage,
     KNMDetailPage,
 } from '../pages';
+// import React-Router-DOM
+import {
+    BrowserRouter,
+    Route,
+    Switch,
+    Link,
+    Redirect
+} from 'react-router-dom';
 
-interface MainRouterState {
-    router: string;
-}
-export const MainRouter:React.FC<MainRouterState> = ({
-    router
-}) => {
-
-    const handleChoiceRouter = (router) => {
-        switch (router) {
-            case '/':
-                return <HomePage />;
-            case '/list':
-                return <KNMListPage />;
-            case '/search':
-                return <SearchPage />;
-            case '/detail':
-                return <KNMDetailPage />;
-            default:
-                return <HomePage />;
-        }
-    }
-
+export const MainRouter: React.FC = () => {
     return (
-        <MainLayout>
-            {
-                handleChoiceRouter(router)
-            }  
-        </MainLayout>
+        <BrowserRouter>
+            <Switch>
+                <Route path="/main/home" render={() => (<MainLayout><HomePage /></MainLayout>)} />
+                <Route path="/main/list" render={() => (<MainLayout><KNMListPage /></MainLayout>)} />
+                <Route path="/main/search" render={() => (<MainLayout><SearchPage /></MainLayout>)} />
+                <Route path="/main/detail" render={() => (<MainLayout><KNMDetailPage /></MainLayout>)} />
+                <Route render={() => { return (<h1>404 NOT FOUND</h1>) }} />
+            </Switch>
+        </BrowserRouter>
     )
 }

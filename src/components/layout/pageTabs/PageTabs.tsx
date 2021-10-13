@@ -92,7 +92,7 @@ export const PageTabs = () => {
         }
 
         // change router, so that the page content can change while close the tab
-        // if don't have open page? then open the welcome/home page => router = '/'
+        // if don't have open page? then open the welcome/main/home page => router = '/main/home'
         if (Object.keys(currentActivatedTab).length === 0) {
             history.push('/');
         } else {

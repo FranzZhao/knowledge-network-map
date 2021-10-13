@@ -27,8 +27,9 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
     tabActive: {
         /* secondary:#ffb74d;  primary:#1e88e5 */
         borderBottom: '3px solid #ffb74d !important',
-        borderTop: (theme.palette.type === "light" ?
-            '3px solid #e6e6e6 !important' : '3px solid #323232 !important'),
+        marginTop: -3,
+        // borderTop: (theme.palette.type === "light" ?
+        //     '3px solid #ececec !important' : '3px solid #222b3a !important'),
         color: '#dc901f !important',
     },
 }));

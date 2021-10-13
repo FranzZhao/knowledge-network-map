@@ -233,6 +233,11 @@ export const LeftDrawer = () => {
         }
     }
 
+    // logout
+    const handleLogout = () => {
+        history.push('/user/login/');
+    };
+
     return (
         <Drawer
             variant="permanent"
@@ -369,6 +374,7 @@ export const LeftDrawer = () => {
                 <Tooltip title="退出" arrow>
                     <BottomNavigationAction
                         icon={<ExitToAppIcon />} className={classes.bottomNavIcon} key={'退出'}
+                        onClick={handleLogout}
                     />
                 </Tooltip>
             </BottomNavigation>
