@@ -8,7 +8,7 @@ import {
 // import customize router
 // import { MainRouter, LoginRegisterRouter } from './router';
 // import Layout
-import { MainLayout } from './layout';
+import { MainLayout, LoginLayout } from './layout';
 // import page
 import {
     HomePage,
@@ -16,6 +16,7 @@ import {
     SearchPage,
     KNMDetailPage,
 } from './pages';
+import {Login, Register} from './pages/loginRegister';
 
 const App: React.FC = () => {
     return (
@@ -25,8 +26,8 @@ const App: React.FC = () => {
                 <Route path="/main/list" render={() => (<MainLayout><KNMListPage /></MainLayout>)} />
                 <Route path="/main/search" render={() => (<MainLayout><SearchPage /></MainLayout>)} />
                 <Route path="/main/detail" render={() => (<MainLayout><KNMDetailPage /></MainLayout>)} />
-                <Route path="/user/login" component={LoginPage} />
-                <Route path="/user/register" component={RegisterPage} />
+                <Route path="/user/login" render={() => (<LoginLayout><Login /></LoginLayout>)} />
+                <Route path="/user/register" render={() => (<LoginLayout><Register /></LoginLayout>)} />
                 <Route render={() => <h1>404 NOT FOUND</h1>} />
             </Switch>
         </Router>
