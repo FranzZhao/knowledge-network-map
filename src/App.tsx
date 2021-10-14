@@ -26,8 +26,8 @@ const App: React.FC = () => {
                 <Route path="/main/list" render={() => (<MainLayout><KNMListPage /></MainLayout>)} />
                 <Route path="/main/search" render={() => (<MainLayout><SearchPage /></MainLayout>)} />
                 <Route path="/main/detail" render={() => (<MainLayout><KNMDetailPage /></MainLayout>)} />
-                <Route path="/user/login" render={() => (<LoginLayout><Login /></LoginLayout>)} />
-                <Route path="/user/register" render={() => (<LoginLayout><Register /></LoginLayout>)} />
+                <Route path="/user/login" render={() => (<LoginLayout />)} />
+                <Route path="/user/register" render={() => (<LoginLayout />)} />
                 <Route render={() => <h1>404 NOT FOUND</h1>} />
             </Switch>
         </Router>

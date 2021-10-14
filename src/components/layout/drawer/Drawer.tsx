@@ -235,7 +235,7 @@ export const LeftDrawer = () => {
 
     // logout
     const handleLogout = () => {
-        history.push('/user/login/');
+        history.push('/user/login');
     };
 
     return (
