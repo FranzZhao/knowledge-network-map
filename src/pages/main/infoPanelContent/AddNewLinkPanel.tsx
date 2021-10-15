@@ -11,8 +11,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 // import mock data
-import { mockTags } from '../../settings/mocks/DefaultTags';
-import { relations, nodeData } from '../../settings/mocks/DefaultGraph';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
+import { relations, nodeData } from '../../../settings/mocks/DefaultGraph';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {

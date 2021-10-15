@@ -8,9 +8,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 // customize component
-import { PaginationDataTable } from '../components/common/dataTable';
+import { PaginationDataTable } from '../../components/common/dataTable';
 // get mock data
-import { DefaultKNM } from '../settings/mocks/DefaultKNM';
+import { DefaultKNM } from '../../settings/mocks/DefaultKNM';
 import { Button } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

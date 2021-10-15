@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     infoBoxNormal: {
         width: 500,
-        height: '82%',
+        height: 580,
         borderRadius: '10px',
     },
     infoBoxFullScreen: {
@@ -195,7 +195,9 @@ export const Register: React.FC = () => {
             systemAlertSnackMsg: '注册成功',
         });
 
-        // return history.push('/user/login');
+        setTimeout(()=>{
+            history.push('/user/login');
+        }, 2000);
     }
 
     const handleCloseSnackbar = (event?: React.SyntheticEvent, reason?: string) => {
@@ -289,7 +291,7 @@ export const Register: React.FC = () => {
                 msg={values.systemAlertSnackMsg}
                 handleCloseSnackbar={handleCloseSnackbar}
                 autoClose={true}
-                duration={4000}
+                duration={1000}
             />
         </div>
 

@@ -13,7 +13,7 @@ import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 // import react-color
 import { CirclePicker } from 'react-color';
 // import mock data
-import { mockTags } from '../../settings/mocks/DefaultTags';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {

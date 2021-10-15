@@ -1,7 +1,15 @@
 import ArtTrackIcon from '@material-ui/icons/ArtTrack';
 import SearchIcon from '@material-ui/icons/Search';
+import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 
 export const DefaultNavItems = [
+    {
+        id: "userSpace",
+        title: "用户空间",
+        icon: <CloudQueueIcon />,
+        type: 'NavItemsBottom',
+        router: '/main/userSpace',
+    },
     {
         id: "all-maps",
         title: "所有地图",

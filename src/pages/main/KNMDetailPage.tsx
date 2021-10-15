@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import customize components
-import { KnowledgeGraph, InfoPanel, PaginationDataTable, TinyMCE } from '../components/common';
+import { KnowledgeGraph, InfoPanel, PaginationDataTable, TinyMCE } from '../../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -26,11 +26,11 @@ import MapIcon from '@material-ui/icons/Map';
 import BookIcon from '@material-ui/icons/Book';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 // import redux
-import { useSelector } from '../redux/hooks';
+import { useSelector } from '../../redux/hooks';
 // import mock data
-import { DefaultNavItems } from '../settings/mocks/DefaultNavItem';
-import { rows } from '../settings/mocks/DefaultNotebooks';
-import { nodeData, linkData, relations } from '../settings/mocks/DefaultGraph';
+import { DefaultNavItems } from '../../settings/mocks/DefaultNavItem';
+import { rows } from '../../settings/mocks/DefaultNotebooks';
+import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
 // import react-full-screen
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 // import panel page

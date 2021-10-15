@@ -15,8 +15,8 @@ import {
     KNMListPage,
     SearchPage,
     KNMDetailPage,
+    UserSpacePage,
 } from './pages';
-import {Login, Register} from './pages/loginRegister';
 
 const App: React.FC = () => {
     return (
@@ -26,6 +26,7 @@ const App: React.FC = () => {
                 <Route path="/main/list" render={() => (<MainLayout><KNMListPage /></MainLayout>)} />
                 <Route path="/main/search" render={() => (<MainLayout><SearchPage /></MainLayout>)} />
                 <Route path="/main/detail" render={() => (<MainLayout><KNMDetailPage /></MainLayout>)} />
+                <Route path="/main/userSpace" render={() => (<MainLayout><UserSpacePage /></MainLayout>)} />
                 <Route path="/user/login" render={() => (<LoginLayout />)} />
                 <Route path="/user/register" render={() => (<LoginLayout />)} />
                 <Route render={() => <h1>404 NOT FOUND</h1>} />

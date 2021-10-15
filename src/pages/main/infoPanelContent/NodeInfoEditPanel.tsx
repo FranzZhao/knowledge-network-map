@@ -1,6 +1,6 @@
 import React from 'react';
 // import customize components
-import { BasicDataTable } from '../../components/common';
+import { BasicDataTable } from '../../../components/common';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -11,8 +11,8 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import SaveIcon from '@material-ui/icons/Save';
 // import mock data
-import { mockTags } from '../../settings/mocks/DefaultTags';
-import { rows } from '../../settings/mocks/DefaultNotebooks';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
+import { rows } from '../../../settings/mocks/DefaultNotebooks';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

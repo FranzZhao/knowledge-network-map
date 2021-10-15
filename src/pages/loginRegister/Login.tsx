@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     infoBoxNormal: {
         width: 500,
-        height: '75%',
+        height: 535,
         borderRadius: '10px',
     },
     infoBoxFullScreen: {
@@ -165,31 +165,29 @@ export const Login: React.FC<LoginPageState> = ({
             });
         }
 
-        setValues({
-            ...values,
-            emailErrorMsg: '',
-            passwordErrorMsg: '',
-        });
-
-        if (values.email==='1234@1234.com' && values.password==='1234') {
+        if (values.email === '1234@1234.com' && values.password === '1234') {
             setValues({
                 ...values,
+                emailErrorMsg: '',
+                passwordErrorMsg: '',
+                openSnackbar: true,
                 systemAlertSnackType: 'success',
                 systemAlertSnackMsg: '登录成功',
             });
         } else {
             setValues({
                 ...values,
+                emailErrorMsg: '',
+                passwordErrorMsg: '',
+                openSnackbar: true,
                 systemAlertSnackType: 'error',
                 systemAlertSnackMsg: '用户名或密码错误',
             });
         }
-        setValues({
-            ...values,
-            openSnackbar: true
-        });
         // login success
-        // return handleLogin();
+        setTimeout(()=>{
+            handleLogin();
+        }, 2000);
     };
 
     // listener: enter key press
@@ -294,13 +292,13 @@ export const Login: React.FC<LoginPageState> = ({
             </div>
 
             {/* System snackbar alert msg: whether user login success */}
-            <SnackbarAlert 
+            <SnackbarAlert
                 open={values.openSnackbar}
-                type={values.systemAlertSnackType} 
-                msg={values.systemAlertSnackMsg} 
+                type={values.systemAlertSnackType}
+                msg={values.systemAlertSnackMsg}
                 handleCloseSnackbar={handleCloseSnackbar}
                 autoClose={true}
-                duration={4000}
+                duration={1000}
             />
         </div>
     )

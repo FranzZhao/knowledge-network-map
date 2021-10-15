@@ -9,7 +9,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 // import redux
-import { useSelector } from '../../redux/hooks';
+import { useSelector } from '../../../redux/hooks';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {

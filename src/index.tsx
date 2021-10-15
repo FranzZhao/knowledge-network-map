@@ -44,7 +44,7 @@ const Index: React.FC = () => {
             },
             background:{
                 paper: currentTheme === 'light'? '#fff':'#2e3642',
-                default: currentTheme === 'light'? '#fafafa':'#1f2733',
+                default: currentTheme === 'light'? '#f7f7f7':'#1f2733',
             }
         },
 

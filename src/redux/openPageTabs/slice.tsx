@@ -106,6 +106,33 @@ export const closePageTab = createAsyncThunk(
     }
 );
 
+// action: open user space
+export const openUserSpace = createAsyncThunk(
+    'openPage/openUserSpace',
+    (alreadyOpenedTabs: any)=>{
+        const userSpaceItem = DefaultNavItems[0];
+        // judge whether user space already opened
+        let isUserSpaceOpened = false;
+        alreadyOpenedTabs.map((tab) => {
+            if(tab.id === userSpaceItem.id){
+                isUserSpaceOpened = true;
+            }
+        });
+        if (!isUserSpaceOpened){
+            // never open user space
+            return {
+                currentActivatedTab: userSpaceItem,
+                alreadyOpenedTabs: [...alreadyOpenedTabs, userSpaceItem],
+            };
+        } else {
+            return {
+                currentActivatedTab: userSpaceItem,
+                alreadyOpenedTabs: [...alreadyOpenedTabs],
+            };
+        }
+    }
+);
+
 // slice: combine of Reducer & Action
 export const OpenPageSlice = createSlice({
     name: 'openPage',
@@ -123,6 +150,11 @@ export const OpenPageSlice = createSlice({
             state.leftDrawerActivatedItem = action.payload.leftDrawerActivatedItem;
             state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
             state.currentActivatedTab = action.payload.currentActivatedTab;
+        },
+        // open user space
+        [openUserSpace.fulfilled.type]: (state, action) => {
+            state.currentActivatedTab = action.payload.currentActivatedTab;
+            state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
         },
     }
 });

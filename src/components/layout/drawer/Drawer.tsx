@@ -23,12 +23,13 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh';
+import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 // import MockData
 import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { openItemToPageTab } from '../../../redux/openPageTabs/slice';
+import { openItemToPageTab, openUserSpace } from '../../../redux/openPageTabs/slice';
 import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
 // import Router
@@ -351,8 +352,16 @@ export const LeftDrawer = () => {
                     [classes.hide]: !open
                 })}
             >
-                <Tooltip title="设置" arrow>
-                    <BottomNavigationAction icon={<SettingsIcon />} className={classes.bottomNavIcon} key={'设置'} />
+                <Tooltip title="用户空间" arrow>
+                    <BottomNavigationAction 
+                        icon={<CloudQueueIcon />} 
+                        className={classes.bottomNavIcon} 
+                        key={'设置'} 
+                        onClick={()=>{
+                            dispatch(openUserSpace(alreadyOpenedTabs));
+                            history.push('/main/userSpace');
+                        }}
+                    />
                 </Tooltip>
                 {
                     currentTheme === 'light' ? (

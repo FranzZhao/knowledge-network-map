@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import customize components
-import { TinyMCE } from '../../components/common';
+import { TinyMCE } from '../../../components/common';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SaveIcon from '@material-ui/icons/Save';
 // import mock data
-import { mockTags } from '../../settings/mocks/DefaultTags';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
 import Chip from '@material-ui/core/Chip';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
