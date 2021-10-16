@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import customize components
-import { KnowledgeGraph, InfoPanel, PaginationDataTable, TinyMCE } from '../../components/common';
+import { KnowledgeGraph, InfoPanel, PaginationDataTable } from '../../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -16,7 +16,6 @@ import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 import PhotoSizeSelectSmallIcon from '@material-ui/icons/PhotoSizeSelectSmall';
-import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FormatColorFillIcon from '@material-ui/icons/FormatColorFill';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
@@ -28,7 +27,6 @@ import NoteAddIcon from '@material-ui/icons/NoteAdd';
 // import redux
 import { useSelector } from '../../redux/hooks';
 // import mock data
-import { DefaultNavItems } from '../../settings/mocks/DefaultNavItem';
 import { rows } from '../../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
 // import react-full-screen

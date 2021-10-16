@@ -5,8 +5,6 @@ import {
     Route,
     Switch,
 } from 'react-router-dom';
-// import customize router
-// import { MainRouter, LoginRegisterRouter } from './router';
 // import Layout
 import { MainLayout, LoginLayout } from './layout';
 // import page
@@ -34,17 +32,5 @@ const App: React.FC = () => {
         </Router>
     )
 };
-
-const LoginPage = () => {
-    return (
-        <h1>登录</h1>
-    );
-}
-
-const RegisterPage = () => {
-    return (
-        <h1>注册</h1>
-    );
-}
 
 export default App;

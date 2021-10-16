@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 // import MD
 import clsx from 'clsx';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Button, Checkbox, FormControlLabel, FormGroup, Grid, Paper, Snackbar, Typography, useMediaQuery } from '@material-ui/core';
+import { Button, Checkbox, FormControlLabel, FormGroup, Grid, Paper, Typography, useMediaQuery } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 // import customize
@@ -11,7 +11,6 @@ import { DialogBox, TextFieldWithVerification, PasswordWithVerification, Snackba
 import { useHistory } from 'react-router';
 // import customize hook
 import { useKeyPress } from '../../hooks';
-import Alert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {

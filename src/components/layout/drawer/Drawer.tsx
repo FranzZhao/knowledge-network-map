@@ -7,6 +7,8 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import logo from '../../../assets/image/logo.png';
 import userBackground from '../../../assets/image/user-info.jpg';
 import userPicture from '../../../assets/image/users/Franz.png';
+// import customize components
+import { DialogBox } from '../../common';
 // import MD components
 import Drawer from '@material-ui/core/Drawer';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -14,16 +16,16 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
-import { List, ListItem, ListItemIcon, ListItemText, ListSubheader, Typography } from '@material-ui/core';
+import { Button, List, ListItem, ListItemIcon, ListItemText, ListSubheader, TextField, Typography } from '@material-ui/core';
 // import MD icons
 import MenuIcon from '@material-ui/icons/Menu';
-import SettingsIcon from '@material-ui/icons/Settings';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
+import AddIcon from '@material-ui/icons/Add';
 // import MockData
 import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
@@ -36,11 +38,11 @@ import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
 import { useHistory } from 'react-router-dom';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
-import { Picker, Emoji } from 'emoji-mart';
+import { Emoji, Picker } from 'emoji-mart';
 
 // Current Page Style
 const drawerWidth = 240;
-const useStyle = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     toolbarHeader: {
         minHeight: '56px !important',
         backgroundColor: theme.palette.type === 'light' ? theme.palette.primary.dark : '#233044',
@@ -72,6 +74,9 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         width: drawerWidth,
         flexShrink: 0,
         whiteSpace: 'nowrap',
+        "& .MuiDrawer-paper": {
+            backgroundColor: '#233044',
+        },
         "& .MuiDrawer-paperAnchorDockedLeft": {
             borderRight: 0,
         },
@@ -98,7 +103,7 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
         overflowY: 'auto',
         overflowX: 'hidden',
         marginBottom: 55,
-        backgroundColor: theme.palette.type === 'light' ? '#ffffff' :'#233044',
+        backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#233044',
         '&::-webkit-scrollbar': {
             width: 5,
             backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#233044',
@@ -182,12 +187,31 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
     },
     bottomNavIcon: {
         color: theme.palette.type === 'light' ? '#848484' : '#f2f2f2',
-    }
+    },
+    emojiPicker: {
+        "& .emoji-mart-scroll": {
+            height: 160,
+            '&::-webkit-scrollbar': {
+                width: 5,
+                backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#222222',
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: theme.palette.type === 'light' ? '#cecdcdb8' : '#444a53a6',
+                borderRadius: '6px',
+            },
+        }
+    },
+    emojiStyle: {
+        "& > span": {
+            left: 10,
+            top: 5,
+        }
+    },
 }));
 
 export const LeftDrawer = () => {
     // style
-    const classes = useStyle();
+    const classes = useStyles();
     // router
     const history = useHistory();
     // redux
@@ -199,6 +223,18 @@ export const LeftDrawer = () => {
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:950px)');
     const matches600 = useMediaQuery('(min-width:600px)');
+    // open add new knm dialog
+    const [openDialog, setOpenDialog] = useState(false);
+
+    // open add new knm dialog
+    const handleOpenAddKNMDialog = () => {
+        setOpenDialog(true);
+    };
+
+    // close add new knm dialog
+    const handleCloseAddKNMDialog = () => {
+        setOpenDialog(false);
+    };
 
     // open drawer
     const handleDrawerOpen = () => {
@@ -342,6 +378,24 @@ export const LeftDrawer = () => {
                         }
                     })
                 }
+                <ListItem
+                    button
+                    key={`add-knm-item`}
+                    className={classes.menuList}
+                    // selected={currentActivatedNavItem.title === item.title ? true : false}
+                    onClick={handleOpenAddKNMDialog}
+                >
+                    <ListItemIcon className={classes.menuMainIcon} style={{ color: '#959595' }} key={`add-knm-icon`}>
+                        <AddIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={'添加知识地图'} style={{ color: '#959595' }} key={`add-knm-text`} className={clsx({ [classes.hide]: !open })} />
+                </ListItem>
+
+                {/* add knm dialog */}
+                <AddKNMDialog
+                    openDialog={openDialog}
+                    handleCloseDialog={handleCloseAddKNMDialog}
+                />
             </div>
             {/* Bottom Button: Setting & LightOrDark & Logout */}
             <BottomNavigation
@@ -353,11 +407,11 @@ export const LeftDrawer = () => {
                 })}
             >
                 <Tooltip title="用户空间" arrow>
-                    <BottomNavigationAction 
-                        icon={<CloudQueueIcon />} 
-                        className={classes.bottomNavIcon} 
-                        key={'设置'} 
-                        onClick={()=>{
+                    <BottomNavigationAction
+                        icon={<CloudQueueIcon />}
+                        className={classes.bottomNavIcon}
+                        key={'设置'}
+                        onClick={() => {
                             dispatch(openUserSpace(alreadyOpenedTabs));
                             history.push('/main/userSpace');
                         }}
@@ -388,5 +442,121 @@ export const LeftDrawer = () => {
                 </Tooltip>
             </BottomNavigation>
         </Drawer>
+    );
+};
+
+interface AddKNMDialogState {
+    openDialog: boolean;
+    handleCloseDialog: () => void;
+}
+interface NewKNMInfoState {
+    title: string;
+    intro: string;
+}
+const AddKNMDialog: React.FC<AddKNMDialogState> = ({
+    openDialog, handleCloseDialog
+}) => {
+    const classes = useStyles();
+    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const [values, setValues] = useState<NewKNMInfoState>({
+        title: '',
+        intro: '',
+    });
+    // emoji i18n
+    const emojiI18n = {
+        search: '搜索',
+        clear: '清空', // Accessible label on "clear" button
+        notfound: '没有找到Emoji',
+        skintext: '选择你的默认肤色',
+        categories: {
+            search: '搜索结果',
+            recent: '常用',
+            smileys: '笑脸 & 表情',
+            people: '人 & 身体',
+            nature: '动物 & 自然',
+            foods: '食物 & 饮品',
+            activity: '活动',
+            places: '旅行 & 场地',
+            objects: '物品',
+            symbols: '符号',
+            flags: '旗帜',
+            custom: '自定义',
+        },
+        categorieslabel: 'Emoji类别', // Accessible title for the list of categories
+        skintones: {
+            1: '默认肤色',
+            2: '浅肤色',
+            3: '适中浅肤色',
+            4: '适中肤色',
+            5: '适中深肤色',
+            6: '深肤色',
+        },
+    };
+
+    const handleChange = (prop: keyof NewKNMInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValues({
+            ...values,
+            [prop]: event.target.value
+        });
+    };
+
+    const [showEmoji, setShowEmoji] = useState('books');
+    const handleChangeEmoji = (emoji) => {
+        setShowEmoji(emoji.id);
+    };
+
+    const handleNewKNM = () => {
+        handleCloseDialog();
+    };
+
+    return (
+        <DialogBox
+            boxSize={'lg'}
+            open={openDialog}
+            title={'添加知识地图'}
+            contain={
+                <React.Fragment>
+                    <TextField
+                        id="knm-node-name"
+                        label="知识地图标题"
+                        size="small"
+                        value={values.title}
+                        onChange={handleChange('title')}
+                        style={{ width: '100%', marginBottom: 10 }}
+                    />
+                    <TextField
+                        id="knm-node-intro"
+                        label="知识节点简介"
+                        size="small"
+                        value={values.intro}
+                        onChange={handleChange('intro')}
+                        multiline
+                        style={{ width: '100%', marginBottom: 10 }}
+                    />
+                    <div className={classes.emojiStyle} style={{ width: '100%', marginBottom: 20, fontSize: 16 }}>
+                        知识地图小图标: <Emoji emoji={showEmoji} set='twitter' size={30} /> &nbsp;&nbsp;（请选择合适的emoji）
+                    </div>
+                    <div className={classes.emojiPicker}>
+                        <Picker
+                            style={{
+                                width: 451,
+                            }}
+                            set='twitter'
+                            title={'选择项目图标'}
+                            emoji='point_up'
+                            i18n={emojiI18n}
+                            onSelect={handleChangeEmoji}
+                            theme={currentTheme === 'light' ? 'light' : 'dark'}
+                        />
+                    </div>
+                </React.Fragment >
+            }
+            actions={
+                <React.Fragment>
+                    <Button variant="text" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                    <Button variant="text" color="primary" onClick={handleNewKNM}>新建</Button>
+                </React.Fragment>
+            }
+        />
     );
 };

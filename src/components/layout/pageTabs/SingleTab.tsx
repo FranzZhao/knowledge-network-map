@@ -6,11 +6,9 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 // import Material Component
 import { Button, Grid, Tooltip } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-// import Router
-// import { useHistory } from 'react-router-dom';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
-import { Picker, Emoji } from 'emoji-mart';
+import { Emoji } from 'emoji-mart';
 
 const useStyle = makeStyles((theme: Theme) => createStyles({
     tabButton: {

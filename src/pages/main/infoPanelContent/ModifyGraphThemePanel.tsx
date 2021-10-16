@@ -397,12 +397,6 @@ const LayoutStyle: React.FC<LayoutStyleState> = ({
     );
 };
 
-// panel
-interface ModifyGraphThemeValuesState {
-    graphColor: string;
-    lineType: 'dashed' | 'solid' | 'dotted';
-};
-
 interface KnowledgeGraphState {
     node: any[];
     link: any[];
@@ -419,13 +413,13 @@ interface KnowledgeGraphState {
     layout: 'force' | 'circular';
     forcePower: number;
 };
-interface ModifyGraphThemePanel {
+interface ModifyGraphThemePanelState {
     currentGraphThemeOption: KnowledgeGraphState;
     graphColorTheme: string[];
     lineColor: string[];
     handleModifyGraph: (target: string, newValue: any) => void;
 }
-export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanel> = ({
+export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanelState> = ({
     currentGraphThemeOption, graphColorTheme, lineColor, handleModifyGraph
 }) => {
     const classes = useStyles();

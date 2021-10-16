@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 // import MD
 import clsx from 'clsx';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Button, FormControl, IconButton, Input, InputAdornment, InputLabel, Paper, TextField, Typography, useMediaQuery } from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { Button, Paper, Typography, useMediaQuery } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 // import router
 import { useHistory } from 'react-router';
