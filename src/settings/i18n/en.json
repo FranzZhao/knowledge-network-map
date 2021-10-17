@@ -1,0 +1,40 @@
+{
+    "login": {
+        "welcome": "WELCOME",
+        "email": "e-mail",
+        "password": "password",
+        "remember_me": "remember me",
+        "forget_password": "forget password",
+        "login_btn": "LOGIN",
+        "register_alert": "Don't have an account yet? Register now!",
+        "register_btn": "REGISTER NOW",
+        "find_password_title": "Find Password",
+        "find_password_msg": "Enter your email, we will set a random new password and send it to your email. After logging in with a random password, please reset the password immediately!"
+    },
+    "register": {
+        "register_title": "REGISTER",
+        "username": "username",
+        "email": "e-mail",
+        "password": "password",
+        "confirm_password": "confirm password",
+        "register_btn": "REGISTER",
+        "login_alert": "Already have an account? Log in immediately!",
+        "login_btn": "LOGIN NOW"
+    },
+    "common": {
+        "btn_cancel": "CANCEL",
+        "btn_confirm": "CONFIRM"
+    },
+    "form_alert_msg": {
+        "email_not_null": "e-mail can not be empty",
+        "email_format_error": "e-mail format error",
+        "password_not_null": "password can not be empty",
+        "user_not_null": "username can not be empty",
+        "password_repeat_error": "passwords are inconsistent"
+    },
+    "snackbar_msg": {
+        "login_success": "Login Success :)",
+        "login_fail": "Login Fail :(",
+        "register_success": "Register Success :)"
+    }
+}

@@ -11,6 +11,8 @@ import { DialogBox, TextFieldWithVerification, PasswordWithVerification, Snackba
 import { useHistory } from 'react-router';
 // import customize hook
 import { useKeyPress } from '../../hooks';
+// import i18next
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -97,7 +99,11 @@ interface LoginPageState {
 export const Login: React.FC<LoginPageState> = ({
     handleLogin
 }) => {
+    // style
     const classes = useStyles();
+    // i18n
+    const { t } = useTranslation();
+    // screen
     const match = useMediaQuery('(min-width:600px)');
     const [values, setValues] = React.useState<LoginState>({
         email: '',
@@ -145,14 +151,14 @@ export const Login: React.FC<LoginPageState> = ({
         if (values.email === '') {
             return setValues({
                 ...values,
-                emailErrorMsg: '邮箱不能为空',
+                emailErrorMsg: t("form_alert_msg.email_not_null"),
                 passwordErrorMsg: '',
             });
         }
         if (!emailReg.test(values.email)) {
             return setValues({
                 ...values,
-                emailErrorMsg: '邮箱格式错误',
+                emailErrorMsg: t("form_alert_msg.email_format_error"),
                 passwordErrorMsg: '',
             });
         }
@@ -160,7 +166,7 @@ export const Login: React.FC<LoginPageState> = ({
             return setValues({
                 ...values,
                 emailErrorMsg: '',
-                passwordErrorMsg: '密码不能为空',
+                passwordErrorMsg: t("form_alert_msg.password_not_null"),
             });
         }
 
@@ -171,7 +177,7 @@ export const Login: React.FC<LoginPageState> = ({
                 passwordErrorMsg: '',
                 openSnackbar: true,
                 systemAlertSnackType: 'success',
-                systemAlertSnackMsg: '登录成功',
+                systemAlertSnackMsg: t("snackbar_msg.login_success"),
             });
         } else {
             setValues({
@@ -180,11 +186,11 @@ export const Login: React.FC<LoginPageState> = ({
                 passwordErrorMsg: '',
                 openSnackbar: true,
                 systemAlertSnackType: 'error',
-                systemAlertSnackMsg: '用户名或密码错误',
+                systemAlertSnackMsg: t("snackbar_msg.login_fail"),
             });
         }
         // login success
-        setTimeout(()=>{
+        setTimeout(() => {
             handleLogin();
         }, 2000);
     };
@@ -213,10 +219,10 @@ export const Login: React.FC<LoginPageState> = ({
                 [classes.infoBoxFullScreen]: !match
             })}>
                 <form className={classes.forms} noValidate autoComplete="off">
-                    <Typography variant={'h4'} style={{ marginTop: 24, letterSpacing: 15 }}>欢迎登录</Typography>
+                    <Typography variant={'h4'} style={{ marginTop: 24, letterSpacing: 15 }}>{t("login.welcome")}</Typography>
                     <TextFieldWithVerification
                         id={'login-email'}
-                        label={'邮箱'}
+                        label={t("login.email")}
                         color={'secondary'}
                         value={values.email}
                         handleChangeText={handleChange('email')}
@@ -224,7 +230,7 @@ export const Login: React.FC<LoginPageState> = ({
                     />
                     <PasswordWithVerification
                         id={'login-password'}
-                        label={'密码'}
+                        label={t("login.password")}
                         color={'secondary'}
                         value={values.password}
                         handleChangeText={handleChange('password')}
@@ -245,14 +251,14 @@ export const Login: React.FC<LoginPageState> = ({
                                                 name="rememberMe"
                                                 color="secondary"
                                             />}
-                                        label="记住我"
+                                        label={t("login.remember_me")}
                                     />
                                 </FormGroup>
                             </Grid>
                             {/* forget password */}
                             <Grid item className={classes.forgetBtn} onClick={handleOpenDialog}>
                                 <LockIcon className={classes.forgetIcon} />
-                                <span> 忘记密码</span>
+                                <span> {t("login.forget_password")}</span>
                             </Grid>
                         </Grid>
                     </div>
@@ -265,12 +271,12 @@ export const Login: React.FC<LoginPageState> = ({
                         endIcon={<ExitToAppIcon />}
                         onClick={handleClickLoginButton}
                     >
-                        登录
+                        {t("login.login_btn")}
                     </Button>
 
                     {/* register enter */}
                     <Paper elevation={0} className={classes.loginRegister}>
-                        还未拥有账号？立刻注册新账号！
+                        {t("login.register_alert")}
                         <br />
                         <Button
                             color="secondary" className={classes.registerBtn}
@@ -278,7 +284,7 @@ export const Login: React.FC<LoginPageState> = ({
                                 history.push('/user/register');
                             }}
                         >
-                            注册账号
+                            {t("login.register_btn")}
                         </Button>
                     </Paper>
 
@@ -310,6 +316,8 @@ interface ForgetPasswordDialogState {
 const ForgetPasswordDialog: React.FC<ForgetPasswordDialogState> = ({
     open, handleClose
 }) => {
+    // i18n
+    const { t } = useTranslation();
     // email Reg. verification code
     const emailReg = /^([a-zA-Z]|[0-9])(\w|)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
     const [forgetPasswordEmail, setForgetPasswordEmail] = React.useState('');
@@ -323,10 +331,10 @@ const ForgetPasswordDialog: React.FC<ForgetPasswordDialogState> = ({
 
     const handleClickSubmitBtn = () => {
         if (forgetPasswordEmail === '') {
-            return setErrorMsg('邮箱不能为空');
+            return setErrorMsg(t("form_alert_msg.email_not_null"));
         }
         if (!emailReg.test(forgetPasswordEmail)) {
-            return setErrorMsg('邮箱格式错误');
+            return setErrorMsg(t("form_alert_msg.email_format_error"));
         }
         setErrorMsg('');
         return handleClose();
@@ -334,14 +342,15 @@ const ForgetPasswordDialog: React.FC<ForgetPasswordDialogState> = ({
 
     return (
         <DialogBox
+            boxSize={'xs'}
             open={open}
-            title={'找回密码'}
+            title={t("login.find_password_title")}
             contain={
                 <form noValidate autoComplete="off" style={{ width: '100%' }}>
-                    <div>输入您的邮箱，我们将会设置随机的新密码，并发送到您的邮箱。<br />使用随机密码登录后，请立即重新设置密码！</div>
+                    <div>{t("login.find_password_msg")}</div>
                     <TextFieldWithVerification
                         id={'reset-email'}
-                        label={'邮箱'}
+                        label={t("login.email")}
                         color={'secondary'}
                         value={forgetPasswordEmail}
                         handleChangeText={handleForgetPasswordEmail}
@@ -353,10 +362,10 @@ const ForgetPasswordDialog: React.FC<ForgetPasswordDialogState> = ({
             actions={
                 <React.Fragment>
                     <Button onClick={handleClose} color="secondary">
-                        取消
+                        {t("common.btn_cancel")}
                     </Button>
                     <Button onClick={handleClickSubmitBtn} color="primary" autoFocus>
-                        确定
+                        {t("common.btn_confirm")}
                     </Button>
                 </React.Fragment>
             }

@@ -10,6 +10,8 @@ import { useHistory } from 'react-router';
 import { TextFieldWithVerification, PasswordWithVerification, SnackbarAlert } from '../../components/common';
 // import customize hook
 import { useKeyPress } from '../../hooks';
+// import i18next
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -95,6 +97,7 @@ interface RegisterState {
 
 export const Register: React.FC = () => {
     const classes = useStyles();
+    const { t } = useTranslation();
     const match = useMediaQuery('(min-width:600px)');
     const [values, setValues] = React.useState<RegisterState>({
         userName: '',
@@ -126,7 +129,7 @@ export const Register: React.FC = () => {
         if (values.userName === '') {
             return setValues({
                 ...values,
-                userNameErrorMsg: '用户名不能为空',
+                userNameErrorMsg: t("form_alert_msg.user_not_null"),
                 emailErrorMsg: '',
                 passwordErrorMsg: '',
                 repPasswordErrorMsg: '',
@@ -137,7 +140,7 @@ export const Register: React.FC = () => {
             return setValues({
                 ...values,
                 userNameErrorMsg: '',
-                emailErrorMsg: '邮箱不能为空',
+                emailErrorMsg: t("form_alert_msg.email_not_null"),
                 passwordErrorMsg: '',
                 repPasswordErrorMsg: '',
             });
@@ -147,7 +150,7 @@ export const Register: React.FC = () => {
             return setValues({
                 ...values,
                 userNameErrorMsg: '',
-                emailErrorMsg: '邮箱格式错误',
+                emailErrorMsg: t("form_alert_msg.email_format_error"),
                 passwordErrorMsg: '',
                 repPasswordErrorMsg: '',
             });
@@ -158,7 +161,7 @@ export const Register: React.FC = () => {
                 ...values,
                 userNameErrorMsg: '',
                 emailErrorMsg: '',
-                passwordErrorMsg: '密码不能为空',
+                passwordErrorMsg: t("form_alert_msg.password_not_null"),
                 repPasswordErrorMsg: '',
             });
         }
@@ -169,7 +172,7 @@ export const Register: React.FC = () => {
                 userNameErrorMsg: '',
                 emailErrorMsg: '',
                 passwordErrorMsg: '',
-                repPasswordErrorMsg: '密码不能为空',
+                repPasswordErrorMsg: t("form_alert_msg.password_not_null"),
             });
         }
 
@@ -179,7 +182,7 @@ export const Register: React.FC = () => {
                 userNameErrorMsg: '',
                 emailErrorMsg: '',
                 passwordErrorMsg: '',
-                repPasswordErrorMsg: '两次密码不一致',
+                repPasswordErrorMsg: t("form_alert_msg.password_repeat_error"),
             });
         }
 
@@ -191,10 +194,10 @@ export const Register: React.FC = () => {
             repPasswordErrorMsg: '',
             openSnackbar: true,
             systemAlertSnackType: 'success',
-            systemAlertSnackMsg: '注册成功',
+            systemAlertSnackMsg: t("snackbar_msg.register_success"),
         });
 
-        setTimeout(()=>{
+        setTimeout(() => {
             history.push('/user/login');
         }, 2000);
     }
@@ -223,10 +226,10 @@ export const Register: React.FC = () => {
                 [classes.infoBoxFullScreen]: !match
             })}>
                 <form className={classes.forms} noValidate autoComplete="off">
-                    <Typography variant={'h4'} style={{ marginTop: 24, letterSpacing: 15 }}>用户注册</Typography>
+                    <Typography variant={'h4'} style={{ marginTop: 24, letterSpacing: 15 }}>{t("register.register_title")}</Typography>
                     <TextFieldWithVerification
                         id={'register-username'}
-                        label={'用户名'}
+                        label={t("register.username")}
                         color={'secondary'}
                         value={values.userName}
                         handleChangeText={handleChange('userName')}
@@ -234,7 +237,7 @@ export const Register: React.FC = () => {
                     />
                     <TextFieldWithVerification
                         id={'register-email'}
-                        label={'邮箱'}
+                        label={t("register.email")}
                         color={'secondary'}
                         value={values.email}
                         handleChangeText={handleChange('email')}
@@ -242,7 +245,7 @@ export const Register: React.FC = () => {
                     />
                     <PasswordWithVerification
                         id={'register-password'}
-                        label={'密码'}
+                        label={t("register.password")}
                         color={'secondary'}
                         value={values.password}
                         handleChangeText={handleChange('password')}
@@ -250,7 +253,7 @@ export const Register: React.FC = () => {
                     />
                     <PasswordWithVerification
                         id={'register-repPassword'}
-                        label={'确认密码'}
+                        label={t("register.confirm_password")}
                         color={'secondary'}
                         value={values.repPassword}
                         handleChangeText={handleChange('repPassword')}
@@ -264,12 +267,12 @@ export const Register: React.FC = () => {
                         endIcon={<ExitToAppIcon />}
                         onClick={handleClickRegisterBtn}
                     >
-                        注册账号
+                        {t("register.register_btn")}
                     </Button>
 
                     {/* register enter */}
                     <Paper elevation={0} className={classes.loginRegister}>
-                        已经拥有账号？立即登录！
+                        {t("register.login_alert")}
                         <br />
                         <Button
                             color="secondary" className={classes.registerBtn}
@@ -277,7 +280,7 @@ export const Register: React.FC = () => {
                                 history.push('/user/login');
                             }}
                         >
-                            立即登录
+                            {t("register.login_btn")}
                         </Button>
                     </Paper>
                 </form>

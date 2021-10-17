@@ -1,0 +1,40 @@
+{
+    "login": {
+        "welcome": "欢迎登录",
+        "email": "邮箱",
+        "password": "密码",
+        "remember_me": "记住我",
+        "forget_password": "忘记密码",
+        "login_btn": "登录",
+        "register_alert": "还未拥有账号？立刻注册新账号！",
+        "register_btn": "注册账号",
+        "find_password": "找回密码",
+        "find_password_msg": "输入您的邮箱，我们将会设置随机的新密码，并发送到您的邮箱。\n使用随机密码登录后，请立即重新设置密码！"
+    },
+    "register": {
+        "register_title": "用户注册",
+        "username": "用户名",
+        "email": "邮箱",
+        "password": "密码",
+        "confirm_password": "确认密码",
+        "register_btn": "注册账号",
+        "login_alert": "已经拥有账号？立即登录！",
+        "login_btn": "立即登录"
+    },
+    "common": {
+        "btn_cancel": "取消",
+        "btn_confirm": "确认"
+    },
+    "form_alert_msg": {
+        "email_not_null": "邮箱不能为空",
+        "email_format_error": "邮箱格式错误",
+        "password_not_null": "密码不能为空",
+        "user_not_null": "用户名不能为空",
+        "password_repeat_error": "两次密码不一致"
+    },
+    "snackbar_msg": {
+        "login_success": "登录成功",
+        "login_fail": "登录失败",
+        "register_success": "注册成功"
+    }
+}
