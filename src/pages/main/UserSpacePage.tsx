@@ -389,7 +389,10 @@ const DailySpace = () => {
     return (
         <React.Fragment>
             <h2>日志空间</h2>
-            <TinyMCE />
+            <TinyMCE 
+                text={'测试'}
+                handleChangeTinyText={()=>{}}
+            />
         </React.Fragment>
     );
 }

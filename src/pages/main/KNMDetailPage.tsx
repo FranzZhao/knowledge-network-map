@@ -337,8 +337,6 @@ export const KNMDetailPage: React.FC = () => {
     });
 
     useEffect(() => {
-        console.log('here');
-        console.log(currentOpenPage.icon);
         setProjectInfo({
             icon: currentOpenPage.icon,
             title: currentOpenPage.title,

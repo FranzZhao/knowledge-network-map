@@ -21,6 +21,9 @@
         "login_alert": "已经拥有账号？立即登录！",
         "login_btn": "立即登录"
     },
+    "home": {
+        "welcome": "欢迎使用知识网络笔记工具"
+    },
     "common": {
         "btn_cancel": "取消",
         "btn_confirm": "确认"

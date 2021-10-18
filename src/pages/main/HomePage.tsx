@@ -1,6 +1,8 @@
 import React from 'react';
 // import MD components & components
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+// import i18next
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     main: {
@@ -20,11 +22,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 export const HomePage: React.FC = () => {
     const classes = useStyles();
-
+    const { t } = useTranslation();
     return (
         <div className={classes.main}>
             <div className={classes.text}>
-                欢迎使用知识网络笔记工具
+                {t("home.welcome")}
             </div>
         </div>
     )
