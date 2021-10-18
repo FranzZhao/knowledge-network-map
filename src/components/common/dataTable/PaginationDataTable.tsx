@@ -9,11 +9,13 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
+import Chip from '@material-ui/core/Chip';
 
 const useStyles1 = makeStyles((theme: Theme) =>
     createStyles({
@@ -101,19 +103,27 @@ const useStyles2 = makeStyles((theme: Theme) => createStyles({
         '&::-webkit-scrollbar-thumb': {
             background: theme.palette.type === 'light' ? '#cecdcdb8' : '#444a53a6',
             borderRadius: '6px',
-            
+
         },
     },
+    tableRowHover: {
+        "&>*:hover": {
+            backgroundColor: theme.palette.action.hover,
+            cursor: 'pointer',
+        },
+    }
 }));
 
 interface PaginationDataTableState {
     isSmall?: boolean;
     header: any[];
     rows: any[];
+    buttons?: any[];
+    actions?: any[];
 };
 
 export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
-    isSmall=false, header, rows
+    isSmall = false, header, rows, buttons = [], actions = []
 }) => {
     const classes = useStyles2();
     const [page, setPage] = React.useState(0);
@@ -145,7 +155,7 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
 
     return (
         <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="custom pagination table" size={isSmall?"small":"medium"}>
+            <Table className={classes.table} aria-label="custom pagination table" size={isSmall ? "small" : "medium"}>
                 <TableHead className={classes.tableHead}>
                     <TableRow>
                         <TableCell>#</TableCell>
@@ -158,21 +168,44 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
                         }
                     </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody className={classes.tableRowHover}>
                     {(rowsPerPage > 0
                         ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         : rows
                     ).map((row, index) => (
                         <TableRow key={`row-${index}`}>
+                            {/* index count */}
                             <TableCell component="th" scope="row">
-                                {index + 1}
+                                {(page * rowsPerPage) + (index + 1)}
                             </TableCell>
+                            {/* main content */}
                             {
                                 row.map((item, index) => {
                                     return (
                                         <TableCell key={`${item}-${index}`}>{item}</TableCell>
                                     );
                                 })
+                            }
+                            {/* table action */}
+                            {
+                                buttons.length !== 0 &&
+                                <TableCell>
+                                    {
+                                        buttons.map((button, index) => {
+                                            return (
+                                                <>
+                                                    &nbsp;<Button
+                                                        key={`button-${index}`}
+                                                        color="secondary"
+                                                        variant="outlined"
+                                                        size="small"
+                                                        onClick={actions[index]}
+                                                    >{button}</Button>
+                                                </>
+                                            );
+                                        })
+                                    }
+                                </TableCell>
                             }
                         </TableRow>
                     ))}

@@ -145,8 +145,8 @@ export const NewNoteBookView = () => {
     const handleAddNewProperty = () => {
         let newTitles = values.selfDefineTitle;
         let newContains = values.selfDefineContain;
-        newTitles.push('new自定义');
-        newContains.push('new自定义的内容');
+        newTitles.push('');
+        newContains.push('');
         setValues({
             ...values,
             selfDefineTitle: newTitles,
@@ -284,7 +284,7 @@ export const NewNoteBookView = () => {
                             <TextField
                                 size="small"
                                 autoComplete="off"
-                                placeholder="test字段"
+                                placeholder="自定义字段名"
                                 value={title}
                                 onChange={handleChangeSelfDefinedTitle(index)}
                             />
@@ -293,7 +293,7 @@ export const NewNoteBookView = () => {
                             id={`selfDefined-text-${index}`}
                             size="small"
                             autoComplete="off"
-                            placeholder="自定义属性内容"
+                            placeholder="请输入自定义字段内容"
                             value={values.selfDefineContain[index]}
                             style={{ width: '100%', flex: 1 }}  // setting flex:1 to control width unchangeable in flex display
                             onChange={handleChangeSelfDefinedContain(index)}

@@ -45,7 +45,7 @@ const Index: React.FC = () => {
                 selected: 'rgb(0 0 0 / 12%)',  //8
             },
             background:{
-                paper: currentTheme === 'light'? '#fff':'#2e3642',
+                paper: currentTheme === 'light'? '#fafafa':'#2e3642',
                 default: currentTheme === 'light'? '#f7f7f7':'#1f2733',
             }
         },

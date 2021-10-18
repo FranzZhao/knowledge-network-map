@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     textPlaceholder: {
-        position: 'fixed',
+        position: 'absolute',
         marginTop: 20,
         marginLeft: 5,
         color: theme.palette.grey[400],

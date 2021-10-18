@@ -7,6 +7,8 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+import PaymentIcon from '@material-ui/icons/Payment';
+import ControlPointIcon from '@material-ui/icons/ControlPoint';
 // customize component
 import { PaginationDataTable } from '../../components/common/dataTable';
 // get mock data
@@ -31,6 +33,33 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: '100%',
         },
     },
+    notebookProperty: {
+        display: 'flex',
+        marginTop: 5,
+        marginBottom: 15,
+        "& > *": {
+            padding: '5px 3px',
+        }
+    },
+    notebookPropertyLeft: {
+        width: 310,
+        marginRight: 10,
+        fontSize: 16,
+        display: 'flex',
+        "& > *": {
+            marginTop: 'auto',
+            marginBottom: 'auto',
+        },
+        "& svg": {
+            marginRight: 15,
+            marginLeft: 5,
+        },
+        "&:hover": {
+            backgroundColor: '#4e4e4e4d',
+            cursor: 'pointer',
+            borderRadius: '8px',
+        }
+    }
 }));
 
 interface SearchState {
@@ -80,8 +109,8 @@ export const SearchPage: React.FC = () => {
     return (
         <div style={{ padding: '10px 30px' }}>
             <h1>知识地图与笔记搜索</h1>
-            <Paper style={{padding: '10px 40px', marginBottom: 20}}>
-                <h3 style={{padding: 0, marginTop: 10, marginBottom: 5,}}>检索条件编辑</h3>
+            <Paper style={{ padding: '10px 40px', marginBottom: 20 }}>                    
+                <h3 style={{ padding: 0, marginTop: 10, marginBottom: 5, }}>检索条件编辑</h3>
                 <form className={classes.infoPanelForms} noValidate autoComplete="off" style={{ display: 'flex' }}>
                     <div style={{ width: 60, marginRight: 10, }}></div>
                     <FormControl style={{ width: '35%' }}>
@@ -227,9 +256,9 @@ export const SearchPage: React.FC = () => {
                         />
                     </FormControl>
                 </form>
-                <Button color="primary" variant="outlined" style={{width: '100%'}}>检索</Button>
+                <Button color="primary" variant="outlined" style={{ width: '100%' }}>检索</Button>
             </Paper>
-            <PaginationDataTable 
+            <PaginationDataTable
                 header={["知识地图标题", "标签", "创建者", "创建时间"]}
                 rows={DefaultKNM}
             />
