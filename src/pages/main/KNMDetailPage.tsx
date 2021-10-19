@@ -24,13 +24,16 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import MapIcon from '@material-ui/icons/Map';
 import BookIcon from '@material-ui/icons/Book';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 // import redux
 import { useSelector } from '../../redux/hooks';
 // import mock data
 import { rows } from '../../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
-// import react-full-screen
-import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 // import panel page
 import {
     NodeInfoEditPanel,
@@ -83,7 +86,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: 40,
         minHeight: 40,
         borderRadius: 20,
-        // marginRight: 10,
+        marginRight: 10,
     },
     hiddenToolBar: {
         zIndex: 10,
@@ -91,6 +94,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     hiddenToolBarBtn: {
         marginTop: 4,
         zIndex: 20,
+        background: theme.palette.background.paper,
+        borderRadius: 10,
+        padding: 5,
         "& > *": {
             color: theme.palette.grey[500],
             minWidth: 40,
@@ -220,6 +226,7 @@ export const KNMDetailPage: React.FC = () => {
 
     // open Graph Basic Info Edit Panel
     const handleOpenGraphBasicInfoEditPanel = () => {
+        setOpenHiddenToolBar(false);
         setOpenInfoPanel({
             graphBasicInfoEditPanel: true,
             addNewNodePanel: false,
@@ -231,6 +238,7 @@ export const KNMDetailPage: React.FC = () => {
 
     // open Add New Node Panel
     const handleOpenAddNewNodePanel = () => {
+        setOpenHiddenToolBar(false);
         setOpenInfoPanel({
             graphBasicInfoEditPanel: false,
             addNewNodePanel: true,
@@ -242,6 +250,7 @@ export const KNMDetailPage: React.FC = () => {
 
     // open Add New Link Panel
     const handleOpenAddNewLinkPanel = () => {
+        setOpenHiddenToolBar(false);
         setOpenInfoPanel({
             graphBasicInfoEditPanel: false,
             addNewNodePanel: false,
@@ -253,6 +262,7 @@ export const KNMDetailPage: React.FC = () => {
 
     // open Modify Graph Theme Panel
     const handleOpenModifyGraphThemePanel = () => {
+        setOpenHiddenToolBar(false);
         setOpenInfoPanel({
             graphBasicInfoEditPanel: false,
             addNewNodePanel: false,
@@ -321,13 +331,12 @@ export const KNMDetailPage: React.FC = () => {
         });
     };
 
-    const handleFullScreen = useFullScreenHandle();
-
     // switch view
     const [views, setViews] = useState<string>('graphView');
     const handleSwitchViews = (newView) => {
         if (newView !== null) {
             setViews(newView);
+            setOpenHiddenToolBar(false);
         }
     };
 
@@ -351,8 +360,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     return (
-        // Full Screen Control
-        <FullScreen handle={handleFullScreen}>
+        <>
             {/* tool bar button */}
             <Paper className={classes.toolBarPaper}>
                 {
@@ -422,16 +430,16 @@ export const KNMDetailPage: React.FC = () => {
                                                     variant="contained"
                                                     onClick={() => handleSwitchViews('notebookListView')}
                                                 >
-                                                    <BookIcon />
+                                                    <ListAltIcon />
                                                 </Button>
                                             ) : (
-                                                <Tooltip title='知识笔记视图' arrow>
+                                                <Tooltip title='知识列表视图' arrow>
                                                     <Button
                                                         value="notebookListView"
                                                         aria-label="centered"
                                                         onClick={() => handleSwitchViews('notebookListView')}
                                                     >
-                                                        <BookIcon />
+                                                        <ListAltIcon />
                                                     </Button>
                                                 </Tooltip>
                                             )
@@ -446,39 +454,16 @@ export const KNMDetailPage: React.FC = () => {
                                                     variant="contained"
                                                     onClick={() => handleSwitchViews('newNotebookView')}
                                                 >
-                                                    <NoteAddIcon />
+                                                    <BookIcon />
                                                 </Button>
                                             ) : (
-                                                <Tooltip title='新建知识笔记' arrow>
+                                                <Tooltip title='知识笔记视图' arrow>
                                                     <Button
                                                         value="newNotebookView"
                                                         aria-label="centered"
                                                         onClick={() => handleSwitchViews('newNotebookView')}
                                                     >
-                                                        <NoteAddIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                            )
-                                        }
-                                    </ToggleButtonGroup>
-                                    <Divider flexItem orientation="vertical" className={classes.divider} />
-                                    <ToggleButtonGroup
-                                        size="small"
-                                        exclusive
-                                        aria-label="text alignment"
-                                        className={classes.toolBarButtons}
-                                    >
-                                        {
-                                            handleFullScreen.active ? (
-                                                <Tooltip title="退出全屏" arrow placement="bottom">
-                                                    <Button value="退出全屏" aria-label="centered" onClick={handleFullScreen.exit}>
-                                                        <PhotoSizeSelectSmallIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                            ) : (
-                                                <Tooltip title="全屏" arrow placement="bottom">
-                                                    <Button value="全屏" aria-label="centered" onClick={handleFullScreen.enter}>
-                                                        <ZoomOutMapIcon />
+                                                        <BookIcon />
                                                     </Button>
                                                 </Tooltip>
                                             )
@@ -531,8 +516,12 @@ export const KNMDetailPage: React.FC = () => {
                             <Grid item>
                                 <Paper className={classes.paper}>
                                     <Grid container spacing={2} className={classes.graphTitle}>
-                                        <Grid item>
-                                            {/* <Emoji emoji={'books'} set='twitter' size={26} /> */}
+                                        <Grid item style={{ paddingTop: 14 }}>
+                                            {
+                                                (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
+                                                    <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                                ) : ''
+                                            }
                                         </Grid>
                                         <Grid item>{projectInfo.title}</Grid>
                                     </Grid>
@@ -549,44 +538,106 @@ export const KNMDetailPage: React.FC = () => {
                                         >
                                             <MoreIcon />
                                         </Button>
-                                        <Fade in={openHiddenToolBar}>
+                                        <Fade in={openHiddenToolBar} style={{display: openHiddenToolBar?'flex':'none'}}>
                                             <Grid container direction="column" className={classes.hiddenToolBarBtn}>
-                                                <Tooltip title="修改基本信息" placement="left" arrow>
-                                                    <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
-                                                        <AssignmentIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="添加知识节点" placement="left" arrow>
-                                                    <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
-                                                        <AddCircleOutlineIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="添加节点关联" placement="left" arrow>
-                                                    <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
-                                                        <AccountTreeIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="修改主题风格" placement="left" arrow>
-                                                    <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
-                                                        <FormatColorFillIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="放大" placement="left" arrow>
-                                                    <Button value="放大" aria-label="centered">
-                                                        <ZoomInIcon />
-                                                    </Button>
-                                                </Tooltip>
-
-                                                <Tooltip title="缩小" placement="left" arrow>
-                                                    <Button value="缩小" aria-label="centered">
-                                                        <ZoomOutIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="全屏" placement="left" arrow>
-                                                    <Button value="全屏" aria-label="centered">
-                                                        <ZoomOutMapIcon />
-                                                    </Button>
-                                                </Tooltip>
+                                                {
+                                                    views === 'graphView' ? (
+                                                        <Button
+                                                            className={classes.viewButtonSelected}
+                                                            value="graphView"
+                                                            aria-label="centered"
+                                                            disabled
+                                                            variant="contained"
+                                                            onClick={() => handleSwitchViews('graphView')}
+                                                        >
+                                                            <MapIcon />
+                                                        </Button>
+                                                    ) : (
+                                                        <Tooltip title='知识地图视图' arrow>
+                                                            <Button
+                                                                value="graphView"
+                                                                aria-label="centered"
+                                                                onClick={() => handleSwitchViews('graphView')}
+                                                            >
+                                                                <MapIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )
+                                                }
+                                                {
+                                                    views === 'notebookListView' ? (
+                                                        <Button
+                                                            className={classes.viewButtonSelected}
+                                                            value="notebookListView"
+                                                            aria-label="centered"
+                                                            disabled
+                                                            variant="contained"
+                                                            onClick={() => handleSwitchViews('notebookListView')}
+                                                        >
+                                                            <ListAltIcon />
+                                                        </Button>
+                                                    ) : (
+                                                        <Tooltip title='知识列表视图' arrow>
+                                                            <Button
+                                                                value="notebookListView"
+                                                                aria-label="centered"
+                                                                onClick={() => handleSwitchViews('notebookListView')}
+                                                            >
+                                                                <ListAltIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )
+                                                }
+                                                {
+                                                    views === 'newNotebookView' ? (
+                                                        <Button
+                                                            className={classes.viewButtonSelected}
+                                                            value="newNotebookView"
+                                                            aria-label="centered"
+                                                            disabled
+                                                            variant="contained"
+                                                            onClick={() => handleSwitchViews('newNotebookView')}
+                                                        >
+                                                            <BookIcon />
+                                                        </Button>
+                                                    ) : (
+                                                        <Tooltip title='知识笔记视图' arrow>
+                                                            <Button
+                                                                value="newNotebookView"
+                                                                aria-label="centered"
+                                                                onClick={() => handleSwitchViews('newNotebookView')}
+                                                            >
+                                                                <BookIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )
+                                                }
+                                                {
+                                                    views === 'graphView' &&
+                                                    <>
+                                                        <div style={{ borderTop: '1px solid', borderRadius: 0, marginBottom: -35}}></div>
+                                                        <Tooltip title="修改基本信息" arrow>
+                                                            <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                                                <AssignmentIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                        <Tooltip title="添加知识节点" arrow>
+                                                            <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                                                <AddCircleOutlineIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                        <Tooltip title="添加节点关联" arrow>
+                                                            <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
+                                                                <AccountTreeIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                        <Tooltip title="修改主题风格" arrow>
+                                                            <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                                <FormatColorFillIcon />
+                                                            </Button>
+                                                        </Tooltip>
+                                                    </>
+                                                }
                                             </Grid>
                                         </Fade>
                                     </div>
@@ -597,7 +648,7 @@ export const KNMDetailPage: React.FC = () => {
                 }
             </Paper>
             {/* graph */}
-            <div style={{ backgroundColor: currentTheme === 'light' ? '#fbfbfb' : '#1f2733', height: '100%' }}>
+            <div style={{ backgroundColor: currentTheme === 'light' ? '#f7f7f7' : '#1f2733' }}>
                 {
                     views === 'graphView' &&
                     <>
@@ -617,7 +668,6 @@ export const KNMDetailPage: React.FC = () => {
                             layout={graph.layout}
                             forcePower={graph.forcePower}
                             echartsClick={echartsClick}
-                            isFullScreen={handleFullScreen.active}
                         />
                         {/* node info edit panel */}
                         {
@@ -630,7 +680,6 @@ export const KNMDetailPage: React.FC = () => {
                                         nodeName={nodeName}
                                     />
                                 }
-                                isFullScreen={handleFullScreen.active}
                             />
                         }
                         {/* graph info edit panel */}
@@ -646,7 +695,6 @@ export const KNMDetailPage: React.FC = () => {
                                         handleChangeProjectInfo={handleChangeProjectInfo}
                                     />
                                 }
-                                isFullScreen={handleFullScreen.active}
                             />
                         }
                         {/* add new node panel */}
@@ -661,7 +709,6 @@ export const KNMDetailPage: React.FC = () => {
                                         handleAddNode={handleAddNode}
                                     />
                                 }
-                                isFullScreen={handleFullScreen.active}
                             />
                         }
                         {/* add new link panel */}
@@ -675,7 +722,6 @@ export const KNMDetailPage: React.FC = () => {
                                         handleAddNewLink={handleAddNewLink}
                                     />
                                 }
-                                isFullScreen={handleFullScreen.active}
                             />
                         }
                         {/* modify graph theme panel */}
@@ -692,7 +738,6 @@ export const KNMDetailPage: React.FC = () => {
                                         handleModifyGraph={handleModifyGraph}
                                     />
                                 }
-                                isFullScreen={handleFullScreen.active}
                             />
                         }
                     </>
@@ -700,12 +745,19 @@ export const KNMDetailPage: React.FC = () => {
                 {
                     views === 'notebookListView' &&
                     <div style={{ padding: '10px 30px' }}>
-                        <h1>知识地图笔记列表</h1>
+                        <h1>知识地图信息列表</h1>
+                        <FormControl component="fieldset" style={{ marginBottom: 20 }}>
+                            <RadioGroup row aria-label="position" name="position" defaultValue="all-notebook">
+                                <FormControlLabel value="all-notebook" control={<Radio color="primary" />} label="知识笔记列表" />
+                                <FormControlLabel value="all-node" control={<Radio color="primary" />} label="知识节点列表" />
+                                <FormControlLabel value="all-link" control={<Radio color="primary" />} label="知识关联列表" />
+                            </RadioGroup>
+                        </FormControl>
                         <PaginationDataTable
                             header={["笔记标题", "引用", "标签", "时间", "操作"]}
                             rows={rows}
                             buttons={["查看"]}
-                            actions={[()=>{alert('查看');}]}
+                            actions={[() => { alert('查看'); }]}
                         />
                     </div>
                 }
@@ -716,6 +768,6 @@ export const KNMDetailPage: React.FC = () => {
                     </div>
                 }
             </div>
-        </FullScreen>
+        </>
     )
 }

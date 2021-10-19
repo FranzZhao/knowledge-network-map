@@ -8,21 +8,21 @@ interface InfoPanelState {
     title: any;
     contain: any;
     handleClosePanel: () => void;
-    isFullScreen?: boolean;
 }
 export const InfoPanel: React.FC<InfoPanelState> = ({
-    title, contain, handleClosePanel, isFullScreen = false,
+    title, contain, handleClosePanel
 }) => {
     const useStyles = makeStyles((theme: Theme) => createStyles({
         infoPanel: {
             flex: 'flow',
             position: 'fixed',
-            top: isFullScreen ? 47 : 97,
+            top: 97,
             right: 0,
             padding: 20,
-            backgroundColor: theme.palette.type === "light" ? '#e3eded' : '#303030',
+            backgroundColor: theme.palette.type === "light" ? '#e3eded' : '#273244',
+            // backgroundColor: theme.palette.background.paper,
             width: 400,
-            height: isFullScreen ?'calc(100vh - 47px)':'calc(100vh - 97px)',
+            height: 'calc(100vh - 97px)',
             borderRadius: 0,
             boxShadow: 'none',
             overflow: 'auto',
@@ -42,7 +42,7 @@ export const InfoPanel: React.FC<InfoPanelState> = ({
             marginTop: 3,
             "&:hover": {
                 cursor: 'pointer',
-                color: theme.palette.error.main,
+                color: theme.palette.secondary.main,
             }
         },
     }));

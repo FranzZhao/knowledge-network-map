@@ -8,8 +8,6 @@ import {
     LeftDrawer,
     PageTabs
 } from '../../components/layout';
-// import Redux
-// import { useSelector } from '../../redux/hooks';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -17,22 +15,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     main: {
         flexGrow: 1,
-        // padding: theme.spacing(3),
-        // paddingBottom: 0,
     },
-    // mainContent: {
-    //     marginTop: 50,
-    //     width: 'calc(100vw - 240px)',
-    // },
-    // mainContentSmallScreen: {
-    //     marginTop: 50,
-    //     width: 'calc(100vw - 57px)',
-    // },
 }));
 
 export const MainLayout: React.FC = ({ children }) => {
     const classes = useStyles();
-    // const leftDrawerOpenState = useSelector(state => state.openLeftDrawer.drawerOpen);
 
     return (
         <div className={classes.root}>

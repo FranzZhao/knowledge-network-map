@@ -87,14 +87,12 @@ interface KnowledgeGraphState {
     layout: 'force' | 'circular';
     forcePower: number;
     echartsClick: {};
-    isFullScreen?: boolean;
 };
 
 export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
     nodeData, linkData, relations,
     themeColor, lineStyleType, lineStyleColor, lineStyleWidth, lineStyleOpacity, lineStyleCurveness,
-    labelFontSize, labelPosition, edgeLabelFontSize, layout, forcePower,
-    echartsClick, isFullScreen = false
+    labelFontSize, labelPosition, edgeLabelFontSize, layout, forcePower, echartsClick,
 }) => {
 
     // echarts option
@@ -138,13 +136,13 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
             echarts={echarts}
             option={options}
             style={{
-                height: isFullScreen ? 'calc(100vh - 47px)' : 'calc(100vh - 98px)',
+                height: 'calc(100vh - 98px)',
                 width: '100%',
             }}
             onEvents={echartsClick}
             lazyUpdate={true}
         />
-    ), [options, isFullScreen]);
+    ), [options]);
 
     return (
         <React.Fragment>
