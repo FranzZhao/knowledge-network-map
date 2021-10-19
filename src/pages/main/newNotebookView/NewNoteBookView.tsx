@@ -313,6 +313,7 @@ export const NewNoteBookView = () => {
             </div>
 
             <TinyMCE
+                type="inline"
                 text={values.text}
                 handleChangeTinyText={handleChangeTinyText}
             />

@@ -6,3 +6,9 @@ export const mockTags = [
     { title: '知识观' },
     { title: '概念转变' },
 ];
+
+export const mockDiaryTags = [
+    {title: '学习计划'},
+    {title: '学习收获'},
+    {title: '学习反思'}
+]

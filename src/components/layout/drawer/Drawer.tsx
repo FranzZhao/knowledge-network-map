@@ -221,7 +221,7 @@ export const LeftDrawer = () => {
     const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
     // drawer open state & style
     const [open, setOpen] = useState(true);
-    const matches = useMediaQuery('(min-width:950px)');
+    const matches = useMediaQuery('(min-width:1000px)');
     const matches600 = useMediaQuery('(min-width:600px)');
     // open add new knm dialog
     const [openDialog, setOpenDialog] = useState(false);

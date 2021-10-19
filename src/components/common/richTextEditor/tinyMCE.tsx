@@ -27,16 +27,22 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     hidden: {
         display: 'none',
+    },
+    classicalEditor: {
+        "& .tox .tox-edit-area__iframe": {
+            backgroundColor: '#c9c9c9'
+        }
     }
 }));
 
 interface TinyMCEState {
+    type: 'inline' | 'classical';
     text: any;
-    handleChangeTinyText: (text: any)=>void;
+    handleChangeTinyText: (text: any) => void;
 }
 
-export const TinyMCE:React.FC<TinyMCEState> = ({
-    text, handleChangeTinyText
+export const TinyMCE: React.FC<TinyMCEState> = ({
+    type, text, handleChangeTinyText
 }) => {
     const classes = useStyles();
     // tinymce
@@ -44,66 +50,103 @@ export const TinyMCE:React.FC<TinyMCEState> = ({
     // const [textValue, setTextValue] = useState('');
     const [showPlaceholder, setShowPlaceholder] = useState(true);
 
-    useEffect(()=>{
-        if(text === '') {
+    useEffect(() => {
+        if (text === '') {
             return setShowPlaceholder(true);
         }
         return setShowPlaceholder(false);
-    },[text]);
+    }, [text]);
 
     const log = () => {
         console.log(text);
     };
 
+    if (type === 'inline') {
+        return (
+            <div>
+                <div className={clsx(classes.textPlaceholder, {
+                    [classes.hidden]: !showPlaceholder
+                })}>
+                    请在此处编辑知识笔记内容...
+                </div>
+                <div className={classes.textEditor}>
+                    <Editor
+                        id={"tinyEditor"}
+                        apiKey="e8qwinb1sfamvkk0hlrn41enu1tq0ev7othbjylgbgc2iqy4"
+                        inline={true}  //行内编辑器
+                        init={{
+                            language: "zh_CN",
+                            content_css: false,
+                            skin_url: 'tinymce/skins/ui/oxide-dark',
+                            height: 500,
+                            menubar: false,
+                            toolbar_location: 'bottom',
+                            plugins: [
+                                'advlist autolink lists link image charmap print preview anchor',
+                                'searchreplace visualblocks code fullscreen',
+                                'insertdatetime media table paste code help wordcount',
+                                'kityformula-editor',
+                            ],
+                            toolbar: "formatgroup paragraphgroup insertgroup",
+                            toolbar_groups: {
+                                formatgroup: {
+                                    icon: "format",
+                                    tooltip: "文本样式",
+                                    items:
+                                        "bold italic underline strikethrough | forecolor backcolor | superscript subscript | removeformat"
+                                },
+                                paragraphgroup: {
+                                    icon: "paragraph",
+                                    tooltip: "段落样式",
+                                    items:
+                                        "h1 h2 h3 | bullist numlist | alignleft aligncenter alignright | indent outdent"
+                                },
+                                insertgroup: {
+                                    icon: "plus",
+                                    tooltip: "插入",
+                                    items: "link image emoticons charmap hr kityformula-editor"
+                                }
+                            },
+                            // toolbar: 'undo redo | formatselect | ' +
+                            //     'bold italic backcolor | alignleft aligncenter ' +
+                            //     'alignright alignjustify | bullist numlist outdent indent | ' +
+                            //     'removeformat | fullscreen review',
+                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }'
+                        }}
+                        value={text}
+                        onEditorChange={handleChangeTinyText}
+                    />
+                </div>
+            </div>
+        );
+    }
     return (
         <div>
-            <div className={clsx(classes.textPlaceholder,{
+            <div className={clsx(classes.textPlaceholder, {
                 [classes.hidden]: !showPlaceholder
             })}>
                 请在此处编辑知识笔记内容...
             </div>
-            <div className={classes.textEditor}>
+            <div className={classes.classicalEditor}>
                 <Editor
                     id={"tinyEditor"}
                     apiKey="e8qwinb1sfamvkk0hlrn41enu1tq0ev7othbjylgbgc2iqy4"
-                    inline={true}  //行内编辑器
                     init={{
                         language: "zh_CN",
                         content_css: false,
                         skin_url: 'tinymce/skins/ui/oxide-dark',
                         height: 500,
                         menubar: false,
-                        toolbar_location: 'bottom',
                         plugins: [
                             'advlist autolink lists link image charmap print preview anchor',
                             'searchreplace visualblocks code fullscreen',
                             'insertdatetime media table paste code help wordcount',
                             'kityformula-editor',
                         ],
-                        toolbar: "formatgroup paragraphgroup insertgroup",
-                        toolbar_groups: {
-                            formatgroup: {
-                                icon: "format",
-                                tooltip: "文本样式",
-                                items:
-                                    "bold italic underline strikethrough | forecolor backcolor | superscript subscript | removeformat"
-                            },
-                            paragraphgroup: {
-                                icon: "paragraph",
-                                tooltip: "段落样式",
-                                items:
-                                    "h1 h2 h3 | bullist numlist | alignleft aligncenter alignright | indent outdent"
-                            },
-                            insertgroup: {
-                                icon: "plus",
-                                tooltip: "插入",
-                                items: "link image emoticons charmap hr kityformula-editor"
-                            }
-                        },
-                        // toolbar: 'undo redo | formatselect | ' +
-                        //     'bold italic backcolor | alignleft aligncenter ' +
-                        //     'alignright alignjustify | bullist numlist outdent indent | ' +
-                        //     'removeformat | fullscreen review',
+                        toolbar: 'undo redo | formatselect | ' +
+                            'bold italic backcolor | alignleft aligncenter ' +
+                            'alignright alignjustify | bullist numlist outdent indent | ' +
+                            'removeformat | fullscreen review',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }'
                     }}
                     value={text}
