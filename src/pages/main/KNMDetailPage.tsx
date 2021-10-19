@@ -702,8 +702,10 @@ export const KNMDetailPage: React.FC = () => {
                     <div style={{ padding: '10px 30px' }}>
                         <h1>知识地图笔记列表</h1>
                         <PaginationDataTable
-                            header={["笔记标题", "引用", "标签", "时间"]}
+                            header={["笔记标题", "引用", "标签", "时间", "操作"]}
                             rows={rows}
+                            buttons={["查看"]}
+                            actions={[()=>{alert('查看');}]}
                         />
                     </div>
                 }
