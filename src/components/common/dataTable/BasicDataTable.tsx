@@ -8,6 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     tableContainer: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     table: {
-        minWidth: 650,
+        minWidth: 800,
     },
     tableHead: {
         backgroundColor: theme.palette.primary.dark,
@@ -41,10 +42,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface DataTableState {
     header: any[];
     rows: any[];
+    isSmall?: boolean;
+    buttons?: any[];
+    actions?: any[];
 }
 
 export const BasicDataTable: React.FC<DataTableState> = ({
-    header, rows
+    header, rows, isSmall=false, buttons=[], actions=[]
 }) => {
     const classes = useStyles();
 
@@ -53,7 +57,7 @@ export const BasicDataTable: React.FC<DataTableState> = ({
             <Table
                 className={classes.table}
                 aria-label="simple table"
-                size="small"
+                size={isSmall ? "small" : "medium"}
             >
                 <TableHead className={classes.tableHead}>
                     <TableRow>
@@ -68,11 +72,34 @@ export const BasicDataTable: React.FC<DataTableState> = ({
                 <TableBody className={classes.tableBody}>
                     {rows.map((row, index) => (
                         <TableRow key={`${index + 1}`}>
+                            {/* count */}
                             <TableCell component="th" scope="row">{index + 1}</TableCell>
+                            {/* main contain */}
                             {
                                 row.map((item) => (
                                     <TableCell key={`${item}-${index + 1}`}>{item}</TableCell>
                                 ))
+                            }
+                            {/* table action */}
+                            {
+                                buttons.length !== 0 &&
+                                <TableCell>
+                                    {
+                                        buttons.map((button, index) => {
+                                            return (
+                                                <>
+                                                    &nbsp;<Button
+                                                        key={`button-${index}`}
+                                                        color="secondary"
+                                                        variant="outlined"
+                                                        size="small"
+                                                        onClick={actions[index]}
+                                                    >{button}</Button>
+                                                </>
+                                            );
+                                        })
+                                    }
+                                </TableCell>
                             }
                         </TableRow>
                     ))}

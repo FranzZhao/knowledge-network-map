@@ -17,7 +17,7 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import { PaginationDataTable } from '../../components/common/dataTable';
 // get mock data
 import { DefaultKNM } from '../../settings/mocks/DefaultKNM';
-import { Button } from '@material-ui/core';
+import { Button, Divider, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
 
@@ -42,7 +42,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     searchBoolean: {
         width: 45,
         marginRight: 10,
-    }
+    },
+    searchSubTitle: {
+        marginLeft: 15,
+        lineHeight: '20px',
+        color: theme.palette.grey[500],
+        display: 'block',
+        marginTop: 5,
+    },
 }));
 
 interface SearchState {
@@ -161,20 +168,28 @@ export const SearchPage: React.FC = () => {
                                     onChange={handleSearchPositionSelect(index)}
                                 >
                                     <MenuItem value={'all'}>全局检索</MenuItem>
+                                    <Divider />
+                                    <Typography variant="overline" className={classes.searchSubTitle}>知识地图检索</Typography>
                                     <MenuItem value={'map-title'}>知识地图标题</MenuItem>
                                     <MenuItem value={'map-intro'}>知识地图简介</MenuItem>
                                     <MenuItem value={'map-tags'}>知识地图标签</MenuItem>
                                     <MenuItem value={'map-all'}>知识地图所有位置</MenuItem>
+                                    <Divider />
+                                    <Typography variant="overline" className={classes.searchSubTitle}>知识笔记检索</Typography>
                                     <MenuItem value={'notebook-title'}>知识笔记标题</MenuItem>
                                     <MenuItem value={'notebook-tags'}>知识笔记标签</MenuItem>
                                     <MenuItem value={'notebook-quote'}>知识笔记引用</MenuItem>
                                     <MenuItem value={'notebook-intro'}>知识笔记简介</MenuItem>
                                     <MenuItem value={'notebook-content'}>知识笔记内容</MenuItem>
                                     <MenuItem value={'notebook-all'}>知识笔记所有位置</MenuItem>
+                                    <Divider />
+                                    <Typography variant="overline" className={classes.searchSubTitle}>知识节点检索</Typography>
                                     <MenuItem value={'node-title'}>知识节点标题</MenuItem>
                                     <MenuItem value={'node-tags'}>知识节点标签</MenuItem>
                                     <MenuItem value={'node-intro'}>知识节点简介</MenuItem>
                                     <MenuItem value={'node-all'}>知识节点所有位置</MenuItem>
+                                    <Divider />
+                                    <Typography variant="overline" className={classes.searchSubTitle}>知识关联检索</Typography>
                                     <MenuItem value={'link-title'}>知识关联标题</MenuItem>
                                     <MenuItem value={'link-tags'}>知识关联标签</MenuItem>
                                     <MenuItem value={'link-intro'}>知识关联简介</MenuItem>

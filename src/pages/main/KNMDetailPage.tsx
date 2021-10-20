@@ -678,6 +678,7 @@ export const KNMDetailPage: React.FC = () => {
                                 contain={
                                     <NodeInfoEditPanel
                                         nodeName={nodeName}
+                                        materialColor={materialColor}
                                     />
                                 }
                             />

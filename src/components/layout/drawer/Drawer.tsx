@@ -195,6 +195,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     bottomNavIcon: {
         color: theme.palette.type === 'light' ? '#848484' : '#f2f2f2',
+        "& .MuiSvgIcon-root": {
+            width: 22,
+        }
     },
     emojiPicker: {
         "& .emoji-mart-scroll": {
