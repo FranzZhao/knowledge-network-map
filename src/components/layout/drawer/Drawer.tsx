@@ -26,6 +26,7 @@ import Brightness4Icon from '@material-ui/icons/Brightness4';
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 import AddIcon from '@material-ui/icons/Add';
+import LanguageIcon from '@material-ui/icons/Language';
 // import MockData
 import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
 // import Redux
@@ -34,6 +35,7 @@ import { useDispatch } from 'react-redux';
 import { openItemToPageTab, openUserSpace } from '../../../redux/openPageTabs/slice';
 import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
+import { changeLanguage } from '../../../redux/language/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -169,6 +171,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         zIndex: theme.zIndex.drawer + 1,
         width: 240,
         backgroundColor: '#f3f2f2',
+        "& .MuiBottomNavigationAction-root": {
+            minWidth: 60,
+        }
     },
     bottomNavDark: {
         overflow: 'hidden',
@@ -178,6 +183,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: 240,
         color: theme.palette.common.white,
         backgroundColor: '#202b3b',
+        "& .MuiBottomNavigationAction-root": {
+            minWidth: 60,
+        }
     },
     nested: {
         paddingLeft: theme.spacing(4),
@@ -217,6 +225,7 @@ export const LeftDrawer = () => {
     // redux
     const dispatch = useDispatch();
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentLanguage = useSelector(state => state.language.language);
     const currentActivatedNavItem = useSelector(state => state.openPage.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
     // drawer open state & style
@@ -268,7 +277,11 @@ export const LeftDrawer = () => {
         } else {
             dispatch(changeCurrentTheme('light'));
         }
-    }
+    };
+
+    const handleChangeLanguage = () => {
+        dispatch(changeLanguage(currentLanguage));
+    };
 
     // logout
     const handleLogout = () => {
@@ -434,6 +447,13 @@ export const LeftDrawer = () => {
                         </Tooltip>
                     )
                 }
+                <Tooltip title="语言切换" arrow>
+                    {/* LanguageIcon */}
+                    <BottomNavigationAction
+                        icon={<LanguageIcon />} className={classes.bottomNavIcon} key={'语言切换'}
+                        onClick={handleChangeLanguage}
+                    />
+                </Tooltip>
                 <Tooltip title="退出" arrow>
                     <BottomNavigationAction
                         icon={<ExitToAppIcon />} className={classes.bottomNavIcon} key={'退出'}

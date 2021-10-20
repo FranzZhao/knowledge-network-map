@@ -7,6 +7,7 @@ import storage from "redux-persist/lib/storage";
 import { OpenPageSlice } from './openPageTabs/slice';
 import { OpenLeftDrawerSlice } from './openLeftDrawer/slice';
 import { ChangeThemeSlice } from "./changeTheme/slice";
+import { Language } from "./language/slice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -15,7 +16,8 @@ const persistConfig = {
     key: "root",    //数据根目录
     storage,        //数据保存方法: local-storage(默认) || session-storage
     whitelist: [    //白名单, 指明保存的store中的特定数据
-        "changeTheme"      //保存theme主题颜色
+        "changeTheme",      //save theme changed
+        // "language",         //save language changed
     ],
     // 黑名单, 指除了不保存store中的指定数据外, 其他均保存
 }
@@ -25,6 +27,7 @@ const rootReducer = combineReducers({
     openPage: OpenPageSlice.reducer,
     openLeftDrawer: OpenLeftDrawerSlice.reducer,
     changeTheme: ChangeThemeSlice.reducer,
+    language: Language.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

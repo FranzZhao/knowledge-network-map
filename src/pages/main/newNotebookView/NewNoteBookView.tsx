@@ -15,10 +15,17 @@ import PaymentIcon from '@material-ui/icons/Payment';
 import ControlPointIcon from '@material-ui/icons/ControlPoint';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-// import mock data
-import { mockTags } from '../../../settings/mocks/DefaultTags';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import { Tooltip } from '@material-ui/core';
+// import mock data
+import { mockTags } from '../../../settings/mocks/DefaultTags';
+import { relations, nodeData } from '../../../settings/mocks/DefaultGraph';
+
+
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -200,6 +207,31 @@ export const NewNoteBookView = () => {
                         onClick={handleOutput}
                     >保存笔记</Button>
                 </div>
+            </div>
+            <div className={classes.notebookProperty}>
+                <div
+                    className={classes.notebookPropertyLeft}
+                >
+                    <AccountTreeIcon fontSize="small" />
+                    <p>关联节点</p>
+                </div>
+                <FormControl style={{width: '100%', flex: 1,}}>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        defaultValue={'导数的定义'}
+                        // value={values.nodeSize}
+                        // onChange={handleChangeNodeSize}
+                    >
+                        {
+                            nodeData.map((node, index) => {
+                                return (
+                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                );
+                            })
+                        }
+                    </Select>
+                </FormControl>
             </div>
             <div className={classes.notebookProperty}>
                 <div

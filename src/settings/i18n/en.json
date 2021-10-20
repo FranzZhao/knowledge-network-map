@@ -21,6 +21,9 @@
         "login_alert": "Already have an account? Log in immediately!",
         "login_btn": "LOGIN NOW"
     },
+    "home": {
+        "welcome": "Welcome to use KNM notebook!"
+    },
     "common": {
         "btn_cancel": "CANCEL",
         "btn_confirm": "CONFIRM"
