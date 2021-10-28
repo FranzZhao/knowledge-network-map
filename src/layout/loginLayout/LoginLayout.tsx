@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // import MD
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 // import img
-import bgImg from '../../assets/image/loginBackground.png';
+import bgImg from '../../assets/image/bg2.png';
 // import redux
 import { useDispatch } from 'react-redux';
 import { useSelector } from '../../redux/hooks';

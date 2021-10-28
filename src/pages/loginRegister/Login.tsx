@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     infoBox: {
         margin: 'auto',
         display: 'flex',
-        backgroundColor: theme.palette.primary.dark,
+        backgroundColor: '#182b36',
         textAlign: 'center',
         padding: 20,
         opacity: 0.9,
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         letterSpacing: '15px'
     },
     loginRegister: {
-        backgroundColor: '#4d7e9f75',
+        backgroundColor: '#273a4775',
         color: '#ffffffa6',
         paddingTop: 22,
         paddingBottom: 10,
