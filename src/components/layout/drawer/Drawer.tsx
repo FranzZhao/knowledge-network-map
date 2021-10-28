@@ -289,7 +289,6 @@ export const LeftDrawer = () => {
 
     // logout
     const handleLogout = () => {
-        console.log('here!');
         dispatch(UserSlice.actions.logout());
         // 重定向到登录页面
         history.push('/user/login');

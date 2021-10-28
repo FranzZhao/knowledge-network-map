@@ -175,7 +175,7 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
                     ).map((row, index) => (
                         <TableRow key={`row-${index}`}>
                             {/* index count */}
-                            <TableCell component="th" scope="row">
+                            <TableCell component="th" scope="row" key={`row-${index}-number`}>
                                 {(page * rowsPerPage) + (index + 1)}
                             </TableCell>
                             {/* main content */}
@@ -189,11 +189,11 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
                             {/* table action */}
                             {
                                 buttons.length !== 0 &&
-                                <TableCell>
+                                <TableCell key={`${index}-button`}>
                                     {
                                         buttons.map((button, index) => {
                                             return (
-                                                <>
+                                                <React.Fragment key={`${index}-fragment`}>
                                                     &nbsp;<Button
                                                         key={`button-${index}`}
                                                         color="secondary"
@@ -201,7 +201,7 @@ export const PaginationDataTable: React.FC<PaginationDataTableState> = ({
                                                         size="small"
                                                         onClick={actions[index]}
                                                     >{button}</Button>
-                                                </>
+                                                </React.Fragment>
                                             );
                                         })
                                     }

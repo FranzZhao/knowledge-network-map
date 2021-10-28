@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 // import MD
 import clsx from 'clsx';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { userLogin } from '../../redux/user/slice';
 import { useSelector } from '../../redux/hooks';
+import { userJWTVerify } from '../../redux/user/slice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -111,7 +112,7 @@ export const Login: React.FC<LoginPageState> = ({
     // screen
     const match = useMediaQuery('(min-width:600px)');
     // user login value React State
-    const [values, setValues] = React.useState<LoginState>({
+    const [values, setValues] = useState<LoginState>({
         email: '',
         emailErrorMsg: '',
         password: '',
@@ -133,6 +134,7 @@ export const Login: React.FC<LoginPageState> = ({
     // redux
     const dispatch = useDispatch();
     const loginLoading = useSelector(state => state.user.loading);
+    const jwt = useSelector(state => state.user.token);
 
     const handleOpenDialog = () => {
         setOpen(true);
@@ -204,21 +206,28 @@ export const Login: React.FC<LoginPageState> = ({
             }
             // login success
             if (result['type'] === 'user/Login/fulfilled') {
-                setValues({
-                    ...values,
-                    emailErrorMsg: '',
-                    passwordErrorMsg: '',
-                    openSnackbar: true,
-                    systemAlertSnackType: 'success',
-                    systemAlertSnackMsg: t("snackbar_msg.login_success"),
-                });
-                // redirect to home page
-                setTimeout(() => {
-                    handleLogin();
-                }, 2000);
+                
             }
         }
     };
+
+    // listener: whether jwt changed
+    useEffect(() => {
+        // redirect to home page
+        if (jwt !== null) {
+            setValues({
+                ...values,
+                emailErrorMsg: '',
+                passwordErrorMsg: '',
+                openSnackbar: true,
+                systemAlertSnackType: 'success',
+                systemAlertSnackMsg: t("snackbar_msg.login_success"),
+            });
+            setTimeout(() => { 
+                handleLogin();
+            }, 1000);
+        }
+    }, [jwt]);
 
     // listener: enter key press
     useEffect(() => {
@@ -309,7 +318,7 @@ export const Login: React.FC<LoginPageState> = ({
                         <br />
                         <Button
                             color="secondary" className={classes.registerBtn}
-                            onClick={() => {
+                            onClick={async () => {
                                 history.push('/user/register');
                             }}
                         >

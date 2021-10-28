@@ -135,7 +135,7 @@ export const SearchPage: React.FC = () => {
                 <h3 style={{ padding: 0, marginTop: 10, marginBottom: 5, }}>检索条件编辑</h3>
                 {
                     values.searchTexts.map((text, index) => (
-                        <form className={classes.searchForm} noValidate autoComplete="off">
+                        <form className={classes.searchForm} noValidate autoComplete="off" key={`${index}-form`}>
                             {
                                 index > 0 &&
                                 <FormControl className={classes.searchBoolean}>

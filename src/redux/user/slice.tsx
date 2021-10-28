@@ -57,6 +57,27 @@ export const userRegister = createAsyncThunk(
             );
             return data;
         } catch (error) {
+
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+// action: verify whether user jwt is expired
+export const userJWTVerify = createAsyncThunk(
+    'user/JWTVerify',
+    async (params: { jwt: string | null }, thunkAPI) => {
+        try {
+            const { data } = await axios.get(
+                'http://localhost:3001/user/jwt',
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );    
+            return data;
+        } catch (error) {
             return thunkAPI.rejectWithValue(error);
         }
     }
@@ -98,6 +119,19 @@ export const UserSlice = createSlice({
         [userRegister.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
-        }
+        },
+        // user jwt verify
+        [userJWTVerify.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [userJWTVerify.fulfilled.type]: (state) => {
+            state.loading = false;
+            state.error = null;
+        },
+        [userJWTVerify.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.token = null;     // 一定要把token清空! 要不会出大事!
+            state.error = action.payload;
+        },
     },
 });

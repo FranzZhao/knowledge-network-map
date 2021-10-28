@@ -73,7 +73,7 @@ export const BasicDataTable: React.FC<DataTableState> = ({
                     {rows.map((row, index) => (
                         <TableRow key={`${index + 1}`}>
                             {/* count */}
-                            <TableCell component="th" scope="row">{index + 1}</TableCell>
+                            <TableCell component="th" key={`${index}-number`} scope="row">{index + 1}</TableCell>
                             {/* main contain */}
                             {
                                 row.map((item) => (
@@ -83,11 +83,11 @@ export const BasicDataTable: React.FC<DataTableState> = ({
                             {/* table action */}
                             {
                                 buttons.length !== 0 &&
-                                <TableCell>
+                                <TableCell key={`${index}-button`}>
                                     {
                                         buttons.map((button, index) => {
                                             return (
-                                                <>
+                                                <React.Fragment key={`${index}-fragment`}>
                                                     &nbsp;<Button
                                                         key={`button-${index}`}
                                                         color="secondary"
@@ -95,7 +95,7 @@ export const BasicDataTable: React.FC<DataTableState> = ({
                                                         size="small"
                                                         onClick={actions[index]}
                                                     >{button}</Button>
-                                                </>
+                                                </React.Fragment>
                                             );
                                         })
                                     }

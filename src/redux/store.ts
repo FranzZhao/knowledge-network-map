@@ -17,7 +17,8 @@ const persistConfig = {
     key: "root",    //数据根目录
     storage,        //数据保存方法: local-storage(默认) || session-storage
     whitelist: [    //白名单, 指明保存的store中的特定数据
-        "changeTheme",      //save theme changed
+        "user",             // save user jwt
+        "changeTheme",      // save theme changed
         // "language",         //save language changed
     ],
     // 黑名单, 指除了不保存store中的指定数据外, 其他均保存
