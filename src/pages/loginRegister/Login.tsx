@@ -5,6 +5,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import { Button, Checkbox, FormControlLabel, FormGroup, Grid, Paper, Typography, useMediaQuery } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // import customize
 import { DialogBox, TextFieldWithVerification, PasswordWithVerification, SnackbarAlert } from '../../components/common';
 // import router
@@ -13,6 +14,10 @@ import { useHistory } from 'react-router';
 import { useKeyPress } from '../../hooks';
 // import i18next
 import { useTranslation } from 'react-i18next';
+// import redux
+import { useDispatch } from 'react-redux';
+import { userLogin } from '../../redux/user/slice';
+import { useSelector } from '../../redux/hooks';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -105,6 +110,7 @@ export const Login: React.FC<LoginPageState> = ({
     const { t } = useTranslation();
     // screen
     const match = useMediaQuery('(min-width:600px)');
+    // user login value React State
     const [values, setValues] = React.useState<LoginState>({
         email: '',
         emailErrorMsg: '',
@@ -116,6 +122,7 @@ export const Login: React.FC<LoginPageState> = ({
         systemAlertSnackType: 'success',
         systemAlertSnackMsg: '',
     });
+    // router
     const history = useHistory();
     // email Reg. verification code
     const emailReg = /^([a-zA-Z]|[0-9])(\w|)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
@@ -123,6 +130,9 @@ export const Login: React.FC<LoginPageState> = ({
     const [open, setOpen] = React.useState(false);
     // key press hook
     const enterPressed = useKeyPress(13);
+    // redux
+    const dispatch = useDispatch();
+    const loginLoading = useSelector(state => state.user.loading);
 
     const handleOpenDialog = () => {
         setOpen(true);
@@ -145,9 +155,10 @@ export const Login: React.FC<LoginPageState> = ({
         });
     };
 
-    // handle click login button
-    const handleClickLoginButton = () => {
+    // * handle click login button
+    const handleClickLoginButton = async () => {
         // info verification
+        // email is null
         if (values.email === '') {
             return setValues({
                 ...values,
@@ -155,6 +166,7 @@ export const Login: React.FC<LoginPageState> = ({
                 passwordErrorMsg: '',
             });
         }
+        // email format error
         if (!emailReg.test(values.email)) {
             return setValues({
                 ...values,
@@ -162,6 +174,7 @@ export const Login: React.FC<LoginPageState> = ({
                 passwordErrorMsg: '',
             });
         }
+        // password is null
         if (values.password === '') {
             return setValues({
                 ...values,
@@ -170,29 +183,41 @@ export const Login: React.FC<LoginPageState> = ({
             });
         }
 
-        if (values.email === '1234@1234.com' && values.password === '1234') {
-            setValues({
-                ...values,
-                emailErrorMsg: '',
-                passwordErrorMsg: '',
-                openSnackbar: true,
-                systemAlertSnackType: 'success',
-                systemAlertSnackMsg: t("snackbar_msg.login_success"),
-            });
-        } else {
-            setValues({
-                ...values,
-                emailErrorMsg: '',
-                passwordErrorMsg: '',
-                openSnackbar: true,
-                systemAlertSnackType: 'error',
-                systemAlertSnackMsg: t("snackbar_msg.login_fail"),
-            });
+        // redux: send the user info to server
+        if (!loginLoading) {
+            const result = await dispatch(userLogin({
+                email: values.email,
+                password: values.password
+            }));
+            // get redux return data
+            // login error
+            if (result['type'] === 'user/Login/rejected') {
+                return setValues({
+                    ...values,
+                    emailErrorMsg: '',
+                    passwordErrorMsg: '',
+                    openSnackbar: true,
+                    systemAlertSnackType: 'error',
+                    systemAlertSnackMsg: result['payload'].response.data.message,
+                    // systemAlertSnackMsg: t("snackbar_msg.login_fail"),
+                });
+            }
+            // login success
+            if (result['type'] === 'user/Login/fulfilled') {
+                setValues({
+                    ...values,
+                    emailErrorMsg: '',
+                    passwordErrorMsg: '',
+                    openSnackbar: true,
+                    systemAlertSnackType: 'success',
+                    systemAlertSnackMsg: t("snackbar_msg.login_success"),
+                });
+                // redirect to home page
+                setTimeout(() => {
+                    handleLogin();
+                }, 2000);
+            }
         }
-        // login success
-        setTimeout(() => {
-            handleLogin();
-        }, 2000);
     };
 
     // listener: enter key press
@@ -268,7 +293,11 @@ export const Login: React.FC<LoginPageState> = ({
                         variant="contained"
                         color="secondary"
                         className={classes.loginBtn}
-                        endIcon={<ExitToAppIcon />}
+                        endIcon={loginLoading ? (
+                            <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                        ) : (
+                            <ExitToAppIcon />
+                        )}
                         onClick={handleClickLoginButton}
                     >
                         {t("login.login_btn")}
@@ -305,7 +334,7 @@ export const Login: React.FC<LoginPageState> = ({
                 autoClose={true}
                 duration={1000}
             />
-        </div>
+        </div >
     )
 };
 

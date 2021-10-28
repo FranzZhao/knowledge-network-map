@@ -36,6 +36,7 @@ import { openItemToPageTab, openUserSpace } from '../../../redux/openPageTabs/sl
 import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
+import { UserSlice } from '../../../redux/user/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -288,6 +289,9 @@ export const LeftDrawer = () => {
 
     // logout
     const handleLogout = () => {
+        console.log('here!');
+        dispatch(UserSlice.actions.logout());
+        // 重定向到登录页面
         history.push('/user/login');
     };
 

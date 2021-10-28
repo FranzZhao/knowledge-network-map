@@ -195,7 +195,7 @@ export const KNMDetailPage: React.FC = () => {
         node: nodeData,
         link: linkData,
         relations: relations,
-        themeColor: graphColorTheme[11], // 主题颜色
+        themeColor: graphColorTheme[19], // 主题颜色
         lineStyleType: 'dashed',   //关联线样式
         lineStyleColor: '#ffffff',     // 关联线颜色
         lineStyleWidth: 1.6,     // 关联线宽度

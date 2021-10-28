@@ -4,6 +4,7 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 // import Slice
+import { UserSlice } from './user/slice';
 import { OpenPageSlice } from './openPageTabs/slice';
 import { OpenLeftDrawerSlice } from './openLeftDrawer/slice';
 import { ChangeThemeSlice } from "./changeTheme/slice";
@@ -24,6 +25,7 @@ const persistConfig = {
 
 // 将所有的Reducer捆绑起来
 const rootReducer = combineReducers({
+    user: UserSlice.reducer,
     openPage: OpenPageSlice.reducer,
     openLeftDrawer: OpenLeftDrawerSlice.reducer,
     changeTheme: ChangeThemeSlice.reducer,

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import { Button, Paper, Typography, useMediaQuery } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // import router
 import { useHistory } from 'react-router';
 // import customize component
@@ -12,6 +13,10 @@ import { TextFieldWithVerification, PasswordWithVerification, SnackbarAlert } fr
 import { useKeyPress } from '../../hooks';
 // import i18next
 import { useTranslation } from 'react-i18next';
+// import redux
+import { useDispatch } from 'react-redux';
+import { useSelector } from '../../redux/hooks';
+import { userRegister } from '../../redux/user/slice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -119,12 +124,15 @@ export const Register: React.FC = () => {
     const emailReg = /^([a-zA-Z]|[0-9])(\w|)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
     // enter key press
     const enterPressed = useKeyPress(13);
+    // redux
+    const dispatch = useDispatch();
+    const registerLoading = useSelector(state => state.user.loading);
 
     const handleChange = (prop: keyof RegisterState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [prop]: event.target.value });
     };
 
-    const handleClickRegisterBtn = () => {
+    const handleClickRegisterBtn = async () => {
         // register info error msg verification
         if (values.userName === '') {
             return setValues({
@@ -186,20 +194,44 @@ export const Register: React.FC = () => {
             });
         }
 
-        setValues({
-            ...values,
-            userNameErrorMsg: '',
-            emailErrorMsg: '',
-            passwordErrorMsg: '',
-            repPasswordErrorMsg: '',
-            openSnackbar: true,
-            systemAlertSnackType: 'success',
-            systemAlertSnackMsg: t("snackbar_msg.register_success"),
-        });
-
-        setTimeout(() => {
-            history.push('/user/login');
-        }, 2000);
+        // redux: register user - when is loading
+        if (!registerLoading){
+            const result = await dispatch(userRegister({
+                username: values.userName,
+                email: values.email,
+                password: values.password,
+            }));
+            // register error
+            if (result['type'] === 'user/Register/rejected') {
+                return setValues({
+                    ...values,
+                    userNameErrorMsg: '',
+                    emailErrorMsg: '',
+                    passwordErrorMsg: '',
+                    repPasswordErrorMsg: '',
+                    openSnackbar: true,
+                    systemAlertSnackType: 'error',
+                    systemAlertSnackMsg: result['payload'].response.data.message,
+                });
+            }
+            // register success
+            if (result['type'] === 'user/Register/fulfilled') {
+                setValues({
+                    ...values,
+                    userNameErrorMsg: '',
+                    emailErrorMsg: '',
+                    passwordErrorMsg: '',
+                    repPasswordErrorMsg: '',
+                    openSnackbar: true,
+                    systemAlertSnackType: 'success',
+                    systemAlertSnackMsg: t("snackbar_msg.register_success"),
+                });
+    
+                setTimeout(() => {
+                    history.push('/user/login');
+                }, 2000);
+            }
+        }
     }
 
     const handleCloseSnackbar = (event?: React.SyntheticEvent, reason?: string) => {
@@ -264,7 +296,13 @@ export const Register: React.FC = () => {
                         variant="contained"
                         color="secondary"
                         className={classes.loginBtn}
-                        endIcon={<ExitToAppIcon />}
+                        endIcon={
+                            registerLoading ? (
+                                <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                            ) : (
+                                <ExitToAppIcon />
+                            )
+                        }
                         onClick={handleClickRegisterBtn}
                     >
                         {t("register.register_btn")}

@@ -9,7 +9,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { Provider } from "react-redux";
 import rootStore from "./redux/store";
 import { useSelector } from './redux/hooks';
-// import i18next, 它会自动设置context
+// import i18next, setting context automatic
 import "./settings/i18n/config";
 
 const Index: React.FC = () => {

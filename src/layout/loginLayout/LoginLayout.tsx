@@ -32,7 +32,7 @@ export const LoginLayout: React.FC = ({children}) => {
     const [changeColor, setChangeColor] = useState(false);
 
     useEffect(()=>{
-        console.log(currentRouter);
+        // console.log(currentRouter);
         if (currentTheme === 'light'){
             dispatch(changeCurrentTheme('dark'));
             setChangeColor(true);
