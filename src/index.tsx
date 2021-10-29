@@ -6,11 +6,13 @@ import App from './App';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 // import redux
+import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import rootStore from "./redux/store";
 import { useSelector } from './redux/hooks';
 // import i18next, setting context automatic
 import "./settings/i18n/config";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const Index: React.FC = () => {
     const currentTheme = useSelector(state => state.changeTheme.currentTheme);
@@ -44,9 +46,9 @@ const Index: React.FC = () => {
                 hover: 'rgb(0 0 0 / 4%)',  //4
                 selected: 'rgb(0 0 0 / 12%)',  //8
             },
-            background:{
-                paper: currentTheme === 'light'? '#fafafa':'#2e3642',
-                default: currentTheme === 'light'? '#f7f7f7':'#1f2733',
+            background: {
+                paper: currentTheme === 'light' ? '#fafafa' : '#2e3642',
+                default: currentTheme === 'light' ? '#f7f7f7' : '#1f2733',
             }
         },
 
@@ -65,7 +67,9 @@ ReactDOM.render(
     // <React.StrictMode>
     // 全局链接Redux
     <Provider store={rootStore.store}>
-        <Index />
+        <PersistGate loading={null} persistor={rootStore.persistor}>
+            <Index />
+        </PersistGate>
     </Provider>
     // </React.StrictMode>,
     , document.getElementById('root')

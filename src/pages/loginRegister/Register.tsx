@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: '#182b36',
         textAlign: 'center',
         padding: 20,
-        opacity: 0.9,
+        opacity: 0.8,
     },
     infoBoxNormal: {
         width: 500,

@@ -7,7 +7,7 @@ interface State {
     open: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
     msg: string;
-    handleCloseSnackbar: (event?: React.SyntheticEvent, reason?: string)=>void;
+    handleCloseSnackbar?: (event?: React.SyntheticEvent, reason?: string)=>void;
     autoClose?: boolean;
     duration?: number;
 };

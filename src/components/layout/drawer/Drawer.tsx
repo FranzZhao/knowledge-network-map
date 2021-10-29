@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         flexShrink: 0,
         whiteSpace: 'nowrap',
         "& .MuiDrawer-paper": {
-            backgroundColor: '#233044',
+            backgroundColor: theme.palette.type === 'light' ? '#ffffff' : '#233044',
         },
         "& .MuiDrawer-paperAnchorDockedLeft": {
             borderRight: 0,

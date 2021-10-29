@@ -19,14 +19,15 @@ const initialUserState: UserState = {
 export const userLogin = createAsyncThunk(
     'user/Login',
     async (params: {
-        email: string, password: string
+        email: string, password: string, rememberMe: boolean
     }, thunkAPI) => {
         try {
             const { data } = await axios.post(
                 'http://localhost:3001/user/login',
                 {
                     e_mail: params.email,
-                    password: params.password
+                    password: params.password,
+                    remember_me: params.rememberMe,
                 }
             );
             return {

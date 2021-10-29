@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { userLogin } from '../../redux/user/slice';
 import { useSelector } from '../../redux/hooks';
-import { userJWTVerify } from '../../redux/user/slice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {
@@ -34,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: '#182b36',
         textAlign: 'center',
         padding: 20,
-        opacity: 0.9,
+        opacity: 0.8,
     },
     infoBoxNormal: {
         width: 500,
@@ -189,9 +188,9 @@ export const Login: React.FC<LoginPageState> = ({
         if (!loginLoading) {
             const result = await dispatch(userLogin({
                 email: values.email,
-                password: values.password
+                password: values.password,
+                rememberMe: values.rememberMe
             }));
-            // get redux return data
             // login error
             if (result['type'] === 'user/Login/rejected') {
                 return setValues({
@@ -205,9 +204,9 @@ export const Login: React.FC<LoginPageState> = ({
                 });
             }
             // login success
-            if (result['type'] === 'user/Login/fulfilled') {
+            // if (result['type'] === 'user/Login/fulfilled') {
                 
-            }
+            // }
         }
     };
 
@@ -382,7 +381,7 @@ const ForgetPasswordDialog: React.FC<ForgetPasswordDialogState> = ({
         <DialogBox
             boxSize={'xs'}
             open={open}
-            title={t("login.find_password_title")}
+            title={t("login.find_password")}
             contain={
                 <form noValidate autoComplete="off" style={{ width: '100%' }}>
                     <div>{t("login.find_password_msg")}</div>

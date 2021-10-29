@@ -13,12 +13,14 @@ import { SingleTab } from './SingleTab';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
+import { userJWTVerify } from '../../../redux/user/slice';
 import {
     openItemToPageTab,
     closePageTab,
 } from '../../../redux/openPageTabs/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
+import { SnackbarAlert } from '../../common';
 
 // Current Page Style
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -51,6 +53,11 @@ interface OpenPageTabsState {
     openTab: string;
     alreadyOpenedTabsLength: number;
 };
+interface AlertState {
+    openSnackbar: boolean;
+    systemAlertSnackType: 'success' | 'error' | 'warning' | 'info';
+    systemAlertSnackMsg: string;
+};
 
 export const PageTabs = () => {
     // style
@@ -68,6 +75,36 @@ export const PageTabs = () => {
         openTab: currentActivatedTab.title,
         alreadyOpenedTabsLength: alreadyOpenedTabs.length,
     });
+    // jwt verify
+    const jwt = useSelector(state => state.user.token);
+    const [jwtAlert, setJwtAlert] = useState<AlertState>({
+        openSnackbar: false,
+        systemAlertSnackType: 'success',
+        systemAlertSnackMsg: '',
+    });
+    const jwtVerify = async () => {
+        const data = await dispatch(userJWTVerify({
+            jwt: jwt
+        }));
+        console.log(data['type']);
+        if (data['type'] === 'user/JWTVerify/rejected') {
+            setJwtAlert({
+                openSnackbar: true,
+                systemAlertSnackType: 'warning',
+                systemAlertSnackMsg: '您的登录信息已过期，请重新登录！',
+            });
+            setTimeout(() => {
+                history.push('/user/login');
+            }, 2000);
+        }
+    };
+    // close Snackbar alert
+    const handleCloseSnackbar = () => {
+        setJwtAlert({
+            ...jwtAlert,
+            openSnackbar: false,
+        });
+    };
 
     // handle click page tab: Activated Tab & Router Change
     const handleClickPageTab = (tab: any) => {
@@ -79,10 +116,12 @@ export const PageTabs = () => {
 
     // change of alreadyOpenedTabsLength & current open pageTab
     useEffect(() => {
+        // jwt verify: if jwt expired, then redirect to login page
+        jwtVerify();
         // move the PageTabs components to slice to opened tab
         let openTabID = 0;
         let newMargin = 40;
-        alreadyOpenedTabs.map((tab:any, index:number) => {
+        alreadyOpenedTabs.map((tab: any, index: number) => {
             if (tab.title === currentActivatedTab.title) {
                 openTabID = index + 1;
             }
@@ -194,6 +233,12 @@ export const PageTabs = () => {
             >
                 <KeyboardArrowRightIcon fontSize="small" />
             </div>
+            {/* System snackbar alert msg: whether user login success */}
+            <SnackbarAlert
+                open={jwtAlert.openSnackbar}
+                type={jwtAlert.systemAlertSnackType}
+                msg={jwtAlert.systemAlertSnackMsg}
+            />
         </div>
     );
 };
