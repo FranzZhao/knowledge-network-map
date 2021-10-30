@@ -33,13 +33,12 @@ import { mockTags } from '../../../settings/mocks/DefaultTags';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { openItemToPageTab, openUserSpace } from '../../../redux/pageTabs/slice';
+import { openItemToPageTab, openUserSpace, updateSystemNavItem } from '../../../redux/pageTabs/slice';
 import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
 import { UserSlice } from '../../../redux/user/slice';
-import { knmList } from '../../../redux/knm/knmMapSlice';
-import { knmCreate } from '../../../redux/knm/knmMapSlice';
+import { knmList, knmCreate, knmDetail } from '../../../redux/knm/knmMapSlice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -235,6 +234,7 @@ export const LeftDrawer = () => {
     const jwt = useSelector(state => state.user.token);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentLanguage = useSelector(state => state.language.language);
+    const currentSystemNavItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     const currentActivatedNavItem = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
     const knmListInfo = useSelector(state => state.knmMap.info);
@@ -289,18 +289,42 @@ export const LeftDrawer = () => {
             });
         });
         setCurrentKnmList(newList);
+        dispatch(updateSystemNavItem({
+            knmNavItems: knmListInfo
+        }));
     }, [knmListInfo]);
+
+    // handle open detail knm page
+    const handleOpenDetailKnmPage = async (knmId: string) => {
+        const openKnmPage = await dispatch(knmDetail({
+            knmId: knmId, jwt: jwt
+        }));
+        // console.log(openKnmPage['payload']['title']);
+        // console.log(knmListInfo);
+
+        dispatch(openItemToPageTab({
+            openItemName: openKnmPage['payload']['title'],
+            alreadyOpenedTabs: alreadyOpenedTabs,
+            projectNavMenuItems: currentSystemNavItems,
+        }));
+        history.push('/main/detail');
+    }
 
     // click nav item: Activate Left Drawer Nav Item
     const handleClickNavItem = (title: string, router: string) => {
-        // dispatch(activateLeftDrawerNavItem(title));
         dispatch(openItemToPageTab({
-            openItemName: title, alreadyOpenedTabs: alreadyOpenedTabs
+            openItemName: title,
+            alreadyOpenedTabs: alreadyOpenedTabs,
+            projectNavMenuItems: currentSystemNavItems,
         }));
         history.push(router);
     };
 
     // bottom btn: enter user space
+    const handleClickUserSpace = () => {
+        dispatch(openUserSpace(alreadyOpenedTabs));
+        history.push('/main/userSpace');
+    };
 
     // bottom btn: change system theme
     const handleChangeTheme = () => {
@@ -404,28 +428,6 @@ export const LeftDrawer = () => {
                     key={`knm-list`}
                 />
                 {
-                    SystemNavItems.map((item) => {
-                        if (item.type === 'UserKNMNavItems') {
-                            return (
-                                <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
-                                    <ListItem
-                                        button
-                                        key={`${item.id}-item`}
-                                        className={classes.menuList}
-                                        selected={currentActivatedNavItem.title === item.title ? true : false}
-                                        onClick={() => handleClickNavItem(item.title, item.router)}
-                                    >
-                                        <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
-                                            <Emoji emoji={item.icon as string} set='twitter' size={20} />
-                                        </ListItemIcon>
-                                        <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
-                                    </ListItem>
-                                </Tooltip>
-                            );
-                        }
-                    })
-                }
-                {
                     currentKnmList.map((item) => {
                         return (
                             <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
@@ -434,7 +436,7 @@ export const LeftDrawer = () => {
                                     key={`${item.id}-item`}
                                     className={classes.menuList}
                                     selected={currentActivatedNavItem.title === item.title ? true : false}
-                                // onClick={() => handleClickNavItem(item.title, item.router)}
+                                    onClick={() => handleOpenDetailKnmPage(item.id)}
                                 >
                                     <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
                                         <Emoji emoji={item.icon} set='twitter' size={20} />
@@ -478,10 +480,7 @@ export const LeftDrawer = () => {
                         icon={<CloudQueueIcon />}
                         className={classes.bottomNavIcon}
                         key={'设置'}
-                        onClick={() => {
-                            dispatch(openUserSpace(alreadyOpenedTabs));
-                            history.push('/main/userSpace');
-                        }}
+                        onClick={handleClickUserSpace}
                     />
                 </Tooltip>
                 {

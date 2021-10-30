@@ -68,6 +68,7 @@ export const PageTabs = () => {
     // redux
     const dispatch = useDispatch();
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
+    const currentSystemNavItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
     const projectNavMenuItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     // component state
@@ -100,18 +101,20 @@ export const PageTabs = () => {
         }
     };
     // close Snackbar alert
-    const handleCloseSnackbar = () => {
-        setJwtAlert({
-            ...jwtAlert,
-            openSnackbar: false,
-        });
-    };
+    // const handleCloseSnackbar = () => {
+    //     setJwtAlert({
+    //         ...jwtAlert,
+    //         openSnackbar: false,
+    //     });
+    // };
 
     // handle click page tab: Activated Tab & Router Change
     const handleClickPageTab = async (tab: any) => {
-        dispatch(openItemToPageTab(
-            { openItemName: tab.title, alreadyOpenedTabs: alreadyOpenedTabs }
-        ));
+        dispatch(openItemToPageTab({ 
+            openItemName: tab.title, 
+            alreadyOpenedTabs: alreadyOpenedTabs,
+            projectNavMenuItems: currentSystemNavItems,
+        }));
         history.push(tab.router);
     }
 

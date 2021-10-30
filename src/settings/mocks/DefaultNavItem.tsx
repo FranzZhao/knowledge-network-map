@@ -24,11 +24,11 @@ export const SystemNavItems = [
         type: 'SystemNavItems',
         router: '/main/search',
     },
-    {
-        id: 'knm1',
-        title: "学习科学地图",
-        icon: 'books',
-        type: 'UserKNMNavItems',
-        router: '/main/detail',
-    },
+    // {
+    //     id: 'knm1',
+    //     title: "学习科学地图",
+    //     icon: 'books',
+    //     type: 'UserKNMNavItems',
+    //     router: '/main/detail',
+    // },
 ];

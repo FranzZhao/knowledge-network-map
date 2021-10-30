@@ -5,25 +5,27 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 // api
-import {API} from '../../settings/api';
+import { API } from '../../settings/api';
 
 interface KnmMapState {
     loading: boolean;
     error: string | null;
     info: [];
+    currentOpaMapInfo: {};
 };
 
 const initialKnmMapState: KnmMapState = {
     loading: false,
     error: null,
     info: [],
+    currentOpaMapInfo: {},
 };
 
 // action: get all knm map lists -> user own
 export const knmList = createAsyncThunk(
     'knmMap/list',
-    async (params: {jwt: string | null}, ThunkAPI) => {
-        try{
+    async (params: { jwt: string | null }, ThunkAPI) => {
+        try {
             const knmMapsList = await axios.get(
                 API.map,
                 {
@@ -44,7 +46,7 @@ export const knmList = createAsyncThunk(
 export const knmCreate = createAsyncThunk(
     'knmMap/create',
     async (params: {
-        currentKnmMaps: [], jwt:string|null, title: string, tags: string[], introduction: string, emoji: string
+        currentKnmMaps: [], jwt: string | null, title: string, tags: string[], introduction: string, emoji: string
     }, ThunkAPI) => {
         try {
             const newKnm = await axios.post(
@@ -76,8 +78,21 @@ export const knmCreate = createAsyncThunk(
 // action: get a detail knm map, with full info
 export const knmDetail = createAsyncThunk(
     'knmMap/detail',
-    async () => {
-
+    async (params: { knmId: string, jwt: string | null }, ThunkAPI) => {
+        try {
+            const detailKnm = await axios.get(
+                `${API.map}/${params.knmId}`,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                }
+            );
+            // console.log(detailKnm.data);
+            return detailKnm.data;
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
     }
 );
 
@@ -118,6 +133,19 @@ export const KnmMapSlice = createSlice({
             state.error = null;
         },
         [knmCreate.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // get a knm map with detail info
+        [knmDetail.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [knmDetail.fulfilled.type]: (state, action) => {
+            state.currentOpaMapInfo = action.payload;
+            state.loading = false;
+            state.error = null;
+        },
+        [knmDetail.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

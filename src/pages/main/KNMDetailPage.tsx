@@ -172,6 +172,7 @@ export const KNMDetailPage: React.FC = () => {
     // component class style
     const classes = useStyles();
     // redux
+    const currentKnmMapInfo = useSelector(state => state.knmMap.currentOpaMapInfo);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentOpenPage = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     // media query
@@ -340,9 +341,15 @@ export const KNMDetailPage: React.FC = () => {
         }
     };
 
+    // useEffect(()=>{
+    //     // console.log("current => ",currentKnmMapInfo['emoji']);
+    // },[currentKnmMapInfo]);
+
     const [projectInfo, setProjectInfo] = useState({
-        icon: '',
-        title: '',
+        icon: 'books',
+        title: '学习科学地图'
+        // icon: currentKnmMapInfo['emoji'],
+        // title: currentKnmMapInfo['title'],
     });
 
     useEffect(() => {
@@ -377,11 +384,12 @@ export const KNMDetailPage: React.FC = () => {
                                     <Grid container spacing={2} className={classes.graphTitle}>
                                         <Grid item style={{ paddingTop: 14 }}>
                                             {/* a strange bug 😕 */}
-                                            {
+                                            {/* {
                                                 (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
-                                                    <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                                    <Emoji emoji={projectInfo.icon} set='twitter' size={24} />
                                                 ) : ''
-                                            }
+                                            } */}
+                                            {/* <Emoji emoji={projectInfo.icon} set='twitter' size={24} /> */}
                                         </Grid>
                                         <Grid item>{projectInfo.title}</Grid>
                                     </Grid>
@@ -652,7 +660,7 @@ export const KNMDetailPage: React.FC = () => {
                 {
                     views === 'graphView' &&
                     <>
-                        <KnowledgeGraph
+                        {/* <KnowledgeGraph
                             nodeData={graph.node}
                             linkData={graph.link}
                             relations={graph.relations}
@@ -668,7 +676,7 @@ export const KNMDetailPage: React.FC = () => {
                             layout={graph.layout}
                             forcePower={graph.forcePower}
                             echartsClick={echartsClick}
-                        />
+                        /> */}
                         {/* node info edit panel */}
                         {
                             openInfoPanel.nodeInfoEditPanel &&
