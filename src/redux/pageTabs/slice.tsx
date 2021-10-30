@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // import Project Setting
-import { DefaultNavItems } from '../../settings/mocks/DefaultNavItem';
+import { SystemNavItems } from '../../settings/mocks/DefaultNavItem';
 
 // Project Nav Menu State
 interface PageTabsState {
@@ -12,7 +12,7 @@ interface PageTabsState {
 
 // Default State
 const initialState: PageTabsState = {
-    projectNavMenuItems: DefaultNavItems,
+    projectNavMenuItems: SystemNavItems,
     leftDrawerActivatedItem: {},
     alreadyOpenedTabs: [],
     currentActivatedTab: {},
@@ -24,7 +24,7 @@ export const openItemToPageTab = createAsyncThunk(
     (params: {openItemName: string, alreadyOpenedTabs: any}) => {
         let newOpenItem;            // new open item Object with full info
         let hadItem = false;        // only write new item into, if alearly had? return the old tabs
-        DefaultNavItems.map(item => {
+        SystemNavItems.map(item => {
             // find the active item
             if (item.title === params.openItemName){
                 newOpenItem = item;
@@ -110,7 +110,7 @@ export const closePageTab = createAsyncThunk(
 export const openUserSpace = createAsyncThunk(
     'pageTabs/openUserSpace',
     (alreadyOpenedTabs: any)=>{
-        const userSpaceItem = DefaultNavItems[0];
+        const userSpaceItem = SystemNavItems[0];
         // judge whether user space already opened
         let isUserSpaceOpened = false;
         alreadyOpenedTabs.map((tab) => {

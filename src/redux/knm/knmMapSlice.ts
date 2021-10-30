@@ -43,8 +43,33 @@ export const knmList = createAsyncThunk(
 // action: create a new knm map
 export const knmCreate = createAsyncThunk(
     'knmMap/create',
-    async () => {
-
+    async (params: {
+        currentKnmMaps: [], jwt:string|null, title: string, tags: string[], introduction: string, emoji: string
+    }, ThunkAPI) => {
+        try {
+            const newKnm = await axios.post(
+                API.map,
+                {
+                    "title": params.title,
+                    "tags": params.tags,
+                    "introduction": params.introduction,
+                    "emoji": params.emoji,
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                }
+            );
+            const newKnmMapsInfo = [
+                ...params.currentKnmMaps,
+                newKnm.data
+            ];
+            // console.log(newKnmMapsInfo);
+            return newKnmMapsInfo;
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
     }
 );
 
@@ -70,6 +95,7 @@ export const KnmMapSlice = createSlice({
     initialState: initialKnmMapState,
     reducers: {},
     extraReducers: {
+        // get all knm map lists
         [knmList.pending.type]: (state) => {
             state.loading = true;
         },
@@ -81,6 +107,19 @@ export const KnmMapSlice = createSlice({
         [knmList.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
-        }
+        },
+        // create a new knm map
+        [knmCreate.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [knmCreate.fulfilled.type]: (state, action) => {
+            state.info = action.payload;
+            state.loading = false;
+            state.error = null;
+        },
+        [knmCreate.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
     }
 });

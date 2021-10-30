@@ -28,7 +28,7 @@ import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 import AddIcon from '@material-ui/icons/Add';
 import LanguageIcon from '@material-ui/icons/Language';
 // import MockData
-import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
+import { SystemNavItems } from '../../../settings/mocks/DefaultNavItem';
 import { mockTags } from '../../../settings/mocks/DefaultTags';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
@@ -39,6 +39,7 @@ import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
 import { UserSlice } from '../../../redux/user/slice';
 import { knmList } from '../../../redux/knm/knmMapSlice';
+import { knmCreate } from '../../../redux/knm/knmMapSlice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -372,7 +373,7 @@ export const LeftDrawer = () => {
                 </div>
                 {/* Project Nav Menu*/}
                 {
-                    DefaultNavItems.map((item) => {
+                    SystemNavItems.map((item) => {
                         if (item.type === 'SystemNavItems') {
                             return (
                                 <Tooltip title={open ? "" : item.title} arrow placement="right" key={`${item.id}-tooltip`}>
@@ -403,7 +404,7 @@ export const LeftDrawer = () => {
                     key={`knm-list`}
                 />
                 {
-                    DefaultNavItems.map((item) => {
+                    SystemNavItems.map((item) => {
                         if (item.type === 'UserKNMNavItems') {
                             return (
                                 <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
@@ -433,7 +434,7 @@ export const LeftDrawer = () => {
                                     key={`${item.id}-item`}
                                     className={classes.menuList}
                                     selected={currentActivatedNavItem.title === item.title ? true : false}
-                                    // onClick={() => handleClickNavItem(item.title, item.router)}
+                                // onClick={() => handleClickNavItem(item.title, item.router)}
                                 >
                                     <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
                                         <Emoji emoji={item.icon} set='twitter' size={20} />
@@ -524,16 +525,25 @@ interface AddKNMDialogState {
 }
 interface NewKNMInfoState {
     title: string;
+    tags: any[];
     intro: string;
+    emoji: string;
 }
 const AddKNMDialog: React.FC<AddKNMDialogState> = ({
     openDialog, handleCloseDialog
 }) => {
-    const classes = useStyles();
+    // redux
+    const dispatch = useDispatch();
     const currentTheme = useSelector(state => state.theme.currentTheme);
+    const jwt = useSelector(state => state.user.token);
+    const currentKnmMaps = useSelector(state => state.knmMap.info);
+    // style
+    const classes = useStyles();
     const [values, setValues] = useState<NewKNMInfoState>({
         title: '',
+        tags: [mockTags[1].title],
         intro: '',
+        emoji: 'books',
     });
     // emoji i18n
     const emojiI18n = {
@@ -566,23 +576,31 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
         },
     };
 
-    const handleChange = (prop: keyof NewKNMInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeValues = (prop: keyof NewKNMInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
             ...values,
             [prop]: event.target.value
         });
     };
 
-    const [showEmoji, setShowEmoji] = useState('books');
     const handleChangeEmoji = (emoji) => {
-        setShowEmoji(emoji.id);
+        setValues({
+            ...values,
+            emoji: emoji.id
+        });
     };
 
     const handleNewKNM = () => {
+        dispatch(knmCreate({
+            currentKnmMaps: currentKnmMaps,
+            jwt: jwt,
+            title: values.title,
+            tags: values.tags,
+            introduction: values.intro,
+            emoji: values.emoji
+        }));
         handleCloseDialog();
     };
-
-    const [tags, setTags] = useState([mockTags[1].title]);
 
     return (
         <DialogBox
@@ -596,7 +614,7 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         label="知识地图标题"
                         size="small"
                         value={values.title}
-                        onChange={handleChange('title')}
+                        onChange={handleChangeValues('title')}
                         style={{ width: '100%', marginBottom: 10 }}
                     />
                     <Autocomplete
@@ -604,9 +622,12 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         multiple
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
-                        value={tags}
+                        value={values.tags}
                         onChange={(event, newValue) => {
-                            setTags(newValue);
+                            setValues({
+                                ...values,
+                                tags: newValue
+                            });
                         }}
                         renderTags={(value: string[], getTagProps) => (
                             value.map((option: string, index: number) => (
@@ -625,12 +646,12 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         label="知识节点简介"
                         size="small"
                         value={values.intro}
-                        onChange={handleChange('intro')}
+                        onChange={handleChangeValues('intro')}
                         multiline
                         style={{ width: '100%', marginBottom: 10 }}
                     />
                     <div className={classes.emojiStyle} style={{ width: '100%', marginBottom: 20, fontSize: 16 }}>
-                        知识地图小图标: <Emoji emoji={showEmoji} set='twitter' size={30} /> &nbsp;&nbsp;（请选择合适的emoji）
+                        知识地图小图标: <Emoji emoji={values.emoji} set='twitter' size={30} /> &nbsp;&nbsp;（请选择合适的emoji）
                     </div>
                     <div className={classes.emojiPicker}>
                         <Picker

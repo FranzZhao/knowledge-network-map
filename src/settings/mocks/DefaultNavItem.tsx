@@ -2,7 +2,7 @@ import ArtTrackIcon from '@material-ui/icons/ArtTrack';
 import SearchIcon from '@material-ui/icons/Search';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 
-export const DefaultNavItems = [
+export const SystemNavItems = [
     {
         id: "userSpace",
         title: "用户空间",

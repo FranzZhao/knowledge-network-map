@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 // import MD
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -25,10 +24,10 @@ export const KNMListPage: React.FC = () => {
     // 获得知识地图knm列表
     useEffect(() => {
         let newList: any[] = [];
-        knmListInfo.map(item => {
+        knmListInfo.map((item, index) => {
             // emoji + title_text
             let title = (
-                <React.Fragment>
+                <React.Fragment key={`title-${index}`}>
                     <div style={{ display: 'flex' }}>
                         <div style={{ marginTop: -2, marginRight: 10 }}>
                             <Emoji emoji={item['emoji']} set='twitter' size={20} />
@@ -38,12 +37,14 @@ export const KNMListPage: React.FC = () => {
                 </React.Fragment>
             );
             // tags with Clips
-            let tagsText:string[] = item['tags'];
+            let tagsText: string[] = item['tags'];
             let tags = (
                 <React.Fragment>
                     {
                         tagsText.map((tag, index) => (
-                            <><Chip key={`tag-${index}`} label={tag} color="secondary" size="small" variant="outlined" />&nbsp;</>
+                            <React.Fragment key={`tag-${index}`}>
+                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                            </React.Fragment>
                         ))
                     }
                 </React.Fragment>
