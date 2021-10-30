@@ -22,7 +22,7 @@ export const changeLanguage = createAsyncThunk(
 );
 
 // slice
-export const Language = createSlice({
+export const LanguageSlice = createSlice({
     name: 'language',
     initialState,
     reducers: {},

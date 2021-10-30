@@ -8,7 +8,8 @@ import { UserSlice } from './user/slice';
 import { PageTabsSlice } from './pageTabs/slice';
 import { LeftDrawerSlice } from './leftDrawer/slice';
 import { ThemeSlice } from "./theme/slice";
-import { Language } from "./language/slice";
+import { LanguageSlice } from "./language/slice";
+import { KnmMapSlice } from "./knm/knmMapSlice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -30,7 +31,8 @@ const rootReducer = combineReducers({
     pageTabs: PageTabsSlice.reducer,
     leftDrawer: LeftDrawerSlice.reducer,
     theme: ThemeSlice.reducer,
-    language: Language.reducer,
+    language: LanguageSlice.reducer,
+    knmMap: KnmMapSlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

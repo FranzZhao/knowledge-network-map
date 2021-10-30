@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 // axios
 import axios from 'axios';
+// api
+import {API} from '../../settings/api';
 
 // User State
 interface UserState {
@@ -23,7 +25,7 @@ export const userLogin = createAsyncThunk(
     }, thunkAPI) => {
         try {
             const { data } = await axios.post(
-                'http://localhost:3001/user/login',
+                API.user.login,
                 {
                     e_mail: params.email,
                     password: params.password,
@@ -49,7 +51,7 @@ export const userRegister = createAsyncThunk(
     }, thunkAPI) => {
         try {
             const { data } = await axios.post(
-                'http://localhost:3001/user/register',
+                API.user.register,
                 {
                     username: params.username,
                     e_mail: params.email,
@@ -70,7 +72,7 @@ export const userJWTVerify = createAsyncThunk(
     async (params: { jwt: string | null }, thunkAPI) => {
         try {
             const { data } = await axios.get(
-                'http://localhost:3001/user/jwt',
+                API.user.jwtVerify,
                 {
                     headers: {
                         Authorization: `bearer ${params.jwt}`

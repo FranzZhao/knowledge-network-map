@@ -12,6 +12,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { SingleTab } from './SingleTab';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
+import { knmList } from '../../../redux/knm/knmMapSlice';
 import { useDispatch } from 'react-redux';
 import { userJWTVerify } from '../../../redux/user/slice';
 import {
@@ -86,7 +87,7 @@ export const PageTabs = () => {
         const data = await dispatch(userJWTVerify({
             jwt: jwt
         }));
-        console.log(data['type']);
+        // console.log(data['type']);
         if (data['type'] === 'user/JWTVerify/rejected') {
             setJwtAlert({
                 openSnackbar: true,
@@ -107,7 +108,7 @@ export const PageTabs = () => {
     };
 
     // handle click page tab: Activated Tab & Router Change
-    const handleClickPageTab = (tab: any) => {
+    const handleClickPageTab = async (tab: any) => {
         dispatch(openItemToPageTab(
             { openItemName: tab.title, alreadyOpenedTabs: alreadyOpenedTabs }
         ));
@@ -118,6 +119,13 @@ export const PageTabs = () => {
     useEffect(() => {
         // jwt verify: if jwt expired, then redirect to login page
         jwtVerify();
+
+        // send request to server when enter specific page
+        const currentRouter = currentActivatedTab.router;
+        if (currentRouter === '/main/list'){
+            dispatch(knmList({jwt: jwt}));
+        }
+
         // move the PageTabs components to slice to opened tab
         let openTabID = 0;
         let newMargin = 40;
@@ -129,6 +137,14 @@ export const PageTabs = () => {
         if (openTabID > 5) {
             newMargin = 40 - 80 * 4 * (Math.floor(openTabID / 2) - 1);
         }
+
+        // update state
+        setValues({
+            ...values,
+            tabSlice: newMargin,
+            alreadyOpenedTabsLength: alreadyOpenedTabs.length,
+            openTab: currentActivatedTab.title,
+        });
 
         // change router, so that the page content can change while close the tab
         // if don't have open page? then open the welcome/main/home page => router = '/main/home'
@@ -143,14 +159,6 @@ export const PageTabs = () => {
             });
             history.push(pageRouter);
         }
-
-        // update state
-        setValues({
-            ...values,
-            tabSlice: newMargin,
-            alreadyOpenedTabsLength: alreadyOpenedTabs.length,
-            openTab: currentActivatedTab.title,
-        });
     }, [alreadyOpenedTabs, currentActivatedTab]);
 
     // top pageTab slice to left
