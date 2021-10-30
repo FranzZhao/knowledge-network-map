@@ -1,12 +1,12 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 
-interface ChangeThemeState {
+interface ThemeState {
     currentTheme: 'light' | 'dark';
     loading: boolean;
     error: string | null;
 }
 
-const initialState: ChangeThemeState = {
+const initialState: ThemeState = {
     currentTheme: 'dark',
     loading: false,
     error: null,
@@ -14,15 +14,15 @@ const initialState: ChangeThemeState = {
 
 // action: change system theme to light or dark
 export const changeCurrentTheme = createAsyncThunk(
-    'changeTheme/changeCurrentTheme',
+    'theme/changeCurrentTheme',
     (newTheme: 'light' | 'dark')=>{
         return newTheme;
     }
 );
 
 // slice
-export const ChangeThemeSlice = createSlice({
-    name: 'changeTheme',
+export const ThemeSlice = createSlice({
+    name: 'theme',
     initialState,
     reducers: {},
     extraReducers: {

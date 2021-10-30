@@ -1,20 +1,24 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import SaveIcon from '@material-ui/icons/Save';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 // import redux
 import { useSelector } from '../../../redux/hooks';
+import Chip from '@material-ui/core/Chip';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {
         fontSize: '18px !important',
-    },    
+    },
     infoPanelForms: {
         // marginBottom: theme.spacing(2),
         '&>*': {
@@ -39,7 +43,7 @@ interface GraphBasicInfoState {
 interface GraphBasicInfoEditPanelState {
     graphTitle: string;
     graphIcon: any;
-    handleChangeProjectInfo: (target: string, newValue: any)=>void;
+    handleChangeProjectInfo: (target: string, newValue: any) => void;
 }
 export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = ({
     graphTitle, graphIcon, handleChangeProjectInfo
@@ -47,7 +51,7 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
     const classes = useStyles();
     // redux
     // const currentTag = useSelector(state => state.openPage.currentActivatedTab);
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
     // component state
     const [values, setValues] = useState<GraphBasicInfoState>({
         title: graphTitle,
@@ -57,7 +61,7 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
 
     const handleChange = (prop: keyof GraphBasicInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [prop]: event.target.value });
-        if (prop === 'title'){
+        if (prop === 'title') {
             handleChangeProjectInfo(prop, event.target.value);
         }
     };
@@ -117,6 +121,8 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
         setOpenEmojiPicker(false);
     };
 
+    const [tags, setTags] = useState([mockTags[1].title]);
+
     return (
         <React.Fragment>
             <form className={classes.infoPanelForms} noValidate autoComplete="off">
@@ -149,6 +155,27 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
                         />
                     }
                 </div>
+                <Autocomplete
+                    style={{ width: '100%', flex: 1, }}
+                    multiple
+                    id="tags-filled"
+                    options={mockTags.map((option) => option.title)}
+                    value={tags}
+                    onChange={(event, newValue) => {
+                        setTags(newValue);
+                    }}
+                    renderTags={(value: string[], getTagProps) => (
+                        value.map((option: string, index: number) => (
+                            (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
+                        ))
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            placeholder="选择或输入新标签"
+                        />
+                    )}
+                />
                 <TextField
                     id="knm-node-name"
                     label="知识地图标题"

@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { DefaultNavItems } from '../../settings/mocks/DefaultNavItem';
 
 // Project Nav Menu State
-interface OpenPageTabsState {
+interface PageTabsState {
     projectNavMenuItems: any;
     leftDrawerActivatedItem: any;
     alreadyOpenedTabs: any;
@@ -11,7 +11,7 @@ interface OpenPageTabsState {
 }
 
 // Default State
-const initialState: OpenPageTabsState = {
+const initialState: PageTabsState = {
     projectNavMenuItems: DefaultNavItems,
     leftDrawerActivatedItem: {},
     alreadyOpenedTabs: [],
@@ -20,7 +20,7 @@ const initialState: OpenPageTabsState = {
 
 // action: Open Item To PageTabs
 export const openItemToPageTab = createAsyncThunk(
-    'openPage/openItemToPageTab',
+    'pageTabs/openItemToPageTab',
     (params: {openItemName: string, alreadyOpenedTabs: any}) => {
         let newOpenItem;            // new open item Object with full info
         let hadItem = false;        // only write new item into, if alearly had? return the old tabs
@@ -56,7 +56,7 @@ export const openItemToPageTab = createAsyncThunk(
 
 // action: Close already opened Item In PageTabs
 export const closePageTab = createAsyncThunk(
-    'openPage/closePageTab',
+    'pageTabs/closePageTab',
     (params:{closeItemName: string, alreadyOpenedTabs: any, currentOpenedTab: any}) => {
         let newOpenPagesTabs:any = [];
         let newCurrentOpenedTab:any;
@@ -108,7 +108,7 @@ export const closePageTab = createAsyncThunk(
 
 // action: open user space
 export const openUserSpace = createAsyncThunk(
-    'openPage/openUserSpace',
+    'pageTabs/openUserSpace',
     (alreadyOpenedTabs: any)=>{
         const userSpaceItem = DefaultNavItems[0];
         // judge whether user space already opened
@@ -134,8 +134,8 @@ export const openUserSpace = createAsyncThunk(
 );
 
 // slice: combine of Reducer & Action
-export const OpenPageSlice = createSlice({
-    name: 'openPage',
+export const PageTabsSlice = createSlice({
+    name: 'pageTabs',
     initialState,
     reducers:{},
     extraReducers:{

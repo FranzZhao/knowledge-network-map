@@ -5,9 +5,9 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 // import Slice
 import { UserSlice } from './user/slice';
-import { OpenPageSlice } from './openPageTabs/slice';
-import { OpenLeftDrawerSlice } from './openLeftDrawer/slice';
-import { ChangeThemeSlice } from "./changeTheme/slice";
+import { PageTabsSlice } from './pageTabs/slice';
+import { LeftDrawerSlice } from './leftDrawer/slice';
+import { ThemeSlice } from "./theme/slice";
 import { Language } from "./language/slice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
@@ -18,7 +18,7 @@ const persistConfig = {
     storage,        //数据保存方法: local-storage(默认) || session-storage
     whitelist: [    //白名单, 指明保存的store中的特定数据
         "user",             // save user jwt
-        "changeTheme",      // save theme changed
+        "theme",      // save theme changed
         // "language",         //save language changed
     ],
     // 黑名单, 指除了不保存store中的指定数据外, 其他均保存
@@ -27,9 +27,9 @@ const persistConfig = {
 // 将所有的Reducer捆绑起来
 const rootReducer = combineReducers({
     user: UserSlice.reducer,
-    openPage: OpenPageSlice.reducer,
-    openLeftDrawer: OpenLeftDrawerSlice.reducer,
-    changeTheme: ChangeThemeSlice.reducer,
+    pageTabs: PageTabsSlice.reducer,
+    leftDrawer: LeftDrawerSlice.reducer,
+    theme: ThemeSlice.reducer,
     language: Language.reducer,
 })
 

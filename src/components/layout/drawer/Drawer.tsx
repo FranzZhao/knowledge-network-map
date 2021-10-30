@@ -16,7 +16,7 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Button, List, ListItem, ListItemIcon, ListItemText, ListSubheader, TextField, Typography } from '@material-ui/core';
+import { Button, Chip, List, ListItem, ListItemIcon, ListItemText, ListSubheader, TextField, Typography } from '@material-ui/core';
 // import MD icons
 import MenuIcon from '@material-ui/icons/Menu';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -29,12 +29,13 @@ import AddIcon from '@material-ui/icons/Add';
 import LanguageIcon from '@material-ui/icons/Language';
 // import MockData
 import { DefaultNavItems } from '../../../settings/mocks/DefaultNavItem';
+import { mockTags } from '../../../settings/mocks/DefaultTags';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { openItemToPageTab, openUserSpace } from '../../../redux/openPageTabs/slice';
-import { leftDrawerStateChange } from '../../../redux/openLeftDrawer/slice';
-import { changeCurrentTheme } from '../../../redux/changeTheme/slice';
+import { openItemToPageTab, openUserSpace } from '../../../redux/pageTabs/slice';
+import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
+import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
 import { UserSlice } from '../../../redux/user/slice';
 // import Router
@@ -42,6 +43,7 @@ import { useHistory } from 'react-router-dom';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
 import { Emoji, Picker } from 'emoji-mart';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 // Current Page Style
 const drawerWidth = 240;
@@ -228,10 +230,10 @@ export const LeftDrawer = () => {
     const history = useHistory();
     // redux
     const dispatch = useDispatch();
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentLanguage = useSelector(state => state.language.language);
-    const currentActivatedNavItem = useSelector(state => state.openPage.leftDrawerActivatedItem);
-    const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
+    const currentActivatedNavItem = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
+    const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
     // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:1000px)');
@@ -483,7 +485,7 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
     openDialog, handleCloseDialog
 }) => {
     const classes = useStyles();
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
     const [values, setValues] = useState<NewKNMInfoState>({
         title: '',
         intro: '',
@@ -535,6 +537,8 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
         handleCloseDialog();
     };
 
+    const [tags, setTags] = useState([mockTags[1].title]);
+
     return (
         <DialogBox
             boxSize={'lg'}
@@ -549,6 +553,27 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         value={values.title}
                         onChange={handleChange('title')}
                         style={{ width: '100%', marginBottom: 10 }}
+                    />
+                    <Autocomplete
+                        style={{ width: '100%', flex: 1, marginBottom: 10}}
+                        multiple
+                        id="tags-filled"
+                        options={mockTags.map((option) => option.title)}
+                        value={tags}
+                        onChange={(event, newValue) => {
+                            setTags(newValue);
+                        }}
+                        renderTags={(value: string[], getTagProps) => (
+                            value.map((option: string, index: number) => (
+                                (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
+                            ))
+                        )}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder="选择或输入新标签"
+                            />
+                        )}
                     />
                     <TextField
                         id="knm-node-intro"

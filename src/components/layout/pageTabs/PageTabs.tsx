@@ -17,7 +17,7 @@ import { userJWTVerify } from '../../../redux/user/slice';
 import {
     openItemToPageTab,
     closePageTab,
-} from '../../../redux/openPageTabs/slice';
+} from '../../../redux/pageTabs/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
 import { SnackbarAlert } from '../../common';
@@ -66,9 +66,9 @@ export const PageTabs = () => {
     const history = useHistory();
     // redux
     const dispatch = useDispatch();
-    const alreadyOpenedTabs = useSelector(state => state.openPage.alreadyOpenedTabs);
-    const currentActivatedTab = useSelector(state => state.openPage.currentActivatedTab);
-    const projectNavMenuItems = useSelector(state => state.openPage.projectNavMenuItems);
+    const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
+    const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
+    const projectNavMenuItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     // component state
     const [values, setValues] = useState<OpenPageTabsState>({
         tabSlice: 40,

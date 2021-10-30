@@ -15,7 +15,7 @@ import "./settings/i18n/config";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 const Index: React.FC = () => {
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
 
     // System Default Theme
     const theme = createTheme({

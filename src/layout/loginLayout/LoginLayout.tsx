@@ -6,7 +6,7 @@ import bgImg from '../../assets/image/bg2.png';
 // import redux
 import { useDispatch } from 'react-redux';
 import { useSelector } from '../../redux/hooks';
-import { changeCurrentTheme } from '../../redux/changeTheme/slice';
+import { changeCurrentTheme } from '../../redux/theme/slice';
 // router
 import { useHistory, useLocation } from 'react-router-dom';
 // import page
@@ -27,7 +27,7 @@ export const LoginLayout: React.FC = ({children}) => {
     const currentRouter = useLocation().pathname;
     const history = useHistory();
     // change login page to dark theme => let the form show white color
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
     const dispatch = useDispatch();
     const [changeColor, setChangeColor] = useState(false);
 

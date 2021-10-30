@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-interface OpenLeftDrawerState {
+interface LeftDrawerState {
     drawerOpen: boolean;
 };
 
-const initialState: OpenLeftDrawerState = {
+const initialState: LeftDrawerState = {
     drawerOpen: true
 }
 
 // action: left Drawer State Change
 export const leftDrawerStateChange = createAsyncThunk(
-    'openLeftDrawer/leftDrawerStateChange',
+    'leftDrawer/leftDrawerStateChange',
     (newDrawerState: boolean)=>{
         return {
             drawerOpen: newDrawerState
@@ -19,8 +19,8 @@ export const leftDrawerStateChange = createAsyncThunk(
 );
 
 // slice
-export const OpenLeftDrawerSlice = createSlice({
-    name: 'openLeftDrawer',
+export const LeftDrawerSlice = createSlice({
+    name: 'leftDrawer',
     initialState,
     reducers:{},
     extraReducers:{

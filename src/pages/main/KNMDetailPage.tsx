@@ -172,8 +172,8 @@ export const KNMDetailPage: React.FC = () => {
     // component class style
     const classes = useStyles();
     // redux
-    const currentTheme = useSelector(state => state.changeTheme.currentTheme);
-    const currentOpenPage = useSelector(state => state.openPage.leftDrawerActivatedItem);
+    const currentTheme = useSelector(state => state.theme.currentTheme);
+    const currentOpenPage = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     // media query
     const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
