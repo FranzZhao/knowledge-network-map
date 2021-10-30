@@ -38,6 +38,7 @@ import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
 import { UserSlice } from '../../../redux/user/slice';
+import { knmList } from '../../../redux/knm/knmMapSlice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -230,16 +231,25 @@ export const LeftDrawer = () => {
     const history = useHistory();
     // redux
     const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentLanguage = useSelector(state => state.language.language);
     const currentActivatedNavItem = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
+    const knmListInfo = useSelector(state => state.knmMap.info);
     // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:1000px)');
     const matches600 = useMediaQuery('(min-width:600px)');
     // open add new knm dialog
     const [openDialog, setOpenDialog] = useState(false);
+    // knm List with detail info
+    const [currentKnmList, setCurrentKnmList] = useState<any[]>([]);
+
+    // get current knm list: when drawer dom show
+    useEffect(() => {
+        dispatch(knmList({ jwt: jwt }));
+    }, []);
 
     // open add new knm dialog
     const handleOpenAddKNMDialog = () => {
@@ -267,6 +277,19 @@ export const LeftDrawer = () => {
         }
     }, [matches]);
 
+    // listener: current knm list -> listen whether list have changed
+    useEffect(() => {
+        let newList: any[] = [];
+        knmListInfo.map(item => {
+            newList.push({
+                id: item['_id'],
+                title: item['title'],
+                icon: item['emoji'],
+            });
+        });
+        setCurrentKnmList(newList);
+    }, [knmListInfo]);
+
     // click nav item: Activate Left Drawer Nav Item
     const handleClickNavItem = (title: string, router: string) => {
         // dispatch(activateLeftDrawerNavItem(title));
@@ -276,7 +299,9 @@ export const LeftDrawer = () => {
         history.push(router);
     };
 
-    // change system theme
+    // bottom btn: enter user space
+
+    // bottom btn: change system theme
     const handleChangeTheme = () => {
         if (currentTheme === 'light') {
             dispatch(changeCurrentTheme('dark'));
@@ -285,11 +310,12 @@ export const LeftDrawer = () => {
         }
     };
 
+    // bottom btn: change system language
     const handleChangeLanguage = () => {
         dispatch(changeLanguage(currentLanguage));
     };
 
-    // logout
+    // bottom btn: logout
     const handleLogout = () => {
         dispatch(UserSlice.actions.logout());
         // 重定向到登录页面
@@ -389,7 +415,6 @@ export const LeftDrawer = () => {
                                         onClick={() => handleClickNavItem(item.title, item.router)}
                                     >
                                         <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
-                                            {/* {item.icon} */}
                                             <Emoji emoji={item.icon as string} set='twitter' size={20} />
                                         </ListItemIcon>
                                         <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
@@ -397,6 +422,26 @@ export const LeftDrawer = () => {
                                 </Tooltip>
                             );
                         }
+                    })
+                }
+                {
+                    currentKnmList.map((item) => {
+                        return (
+                            <Tooltip title={open ? "" : item.title} key={`${item.id}-tooltip`} arrow placement="right">
+                                <ListItem
+                                    button
+                                    key={`${item.id}-item`}
+                                    className={classes.menuList}
+                                    selected={currentActivatedNavItem.title === item.title ? true : false}
+                                    // onClick={() => handleClickNavItem(item.title, item.router)}
+                                >
+                                    <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
+                                        <Emoji emoji={item.icon} set='twitter' size={20} />
+                                    </ListItemIcon>
+                                    <ListItemText primary={item.title} key={`${item.id}-text`} className={clsx({ [classes.hide]: !open })} />
+                                </ListItem>
+                            </Tooltip>
+                        );
                     })
                 }
                 <ListItem
@@ -555,7 +600,7 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         style={{ width: '100%', marginBottom: 10 }}
                     />
                     <Autocomplete
-                        style={{ width: '100%', flex: 1, marginBottom: 10}}
+                        style={{ width: '100%', flex: 1, marginBottom: 10 }}
                         multiple
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
