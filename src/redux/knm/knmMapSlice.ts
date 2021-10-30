@@ -99,8 +99,27 @@ export const knmDetail = createAsyncThunk(
 // action: update a knm map
 export const knmUpdate = createAsyncThunk(
     'knmMap/update',
-    async () => {
-
+    async (params: { knmId: string, jwt: string|null, updateKnmInfo: any }, ThunkAPI) => {
+        try {
+            const newKnmInfo = await axios.patch(
+                `${API.map}/${params.knmId}`,
+                {
+                    title: params.updateKnmInfo.title,
+                    tags: params.updateKnmInfo.tags,
+                    introduction: params.updateKnmInfo.introduction,
+                    emoji: params.updateKnmInfo.emoji,
+                    state: params.updateKnmInfo.state,
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                }
+            );
+            console.log(newKnmInfo);
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
     }
 );
 

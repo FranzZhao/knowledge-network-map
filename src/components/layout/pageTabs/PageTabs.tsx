@@ -15,9 +15,11 @@ import { useSelector } from '../../../redux/hooks';
 import { knmList } from '../../../redux/knm/knmMapSlice';
 import { useDispatch } from 'react-redux';
 import { userJWTVerify } from '../../../redux/user/slice';
+import { knmDetail } from '../../../redux/knm/knmMapSlice';
 import {
     openItemToPageTab,
     closePageTab,
+    updateSystemNavItem,
 } from '../../../redux/pageTabs/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
@@ -71,6 +73,7 @@ export const PageTabs = () => {
     const currentSystemNavItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
     const projectNavMenuItems = useSelector(state => state.pageTabs.projectNavMenuItems);
+    const knmListInfo = useSelector(state => state.knmMap.info);
     // component state
     const [values, setValues] = useState<OpenPageTabsState>({
         tabSlice: 40,
@@ -110,11 +113,23 @@ export const PageTabs = () => {
 
     // handle click page tab: Activated Tab & Router Change
     const handleClickPageTab = async (tab: any) => {
-        dispatch(openItemToPageTab({ 
-            openItemName: tab.title, 
+        // check whether the knm nav had changed
+        // await dispatch(knmList({ jwt: jwt }));    // change knmInfo
+        // await dispatch(updateSystemNavItem({      // get new changed in the knmInfo and update the system nav
+        //     knmNavItems: knmListInfo,
+        //     currentOpenedTabs: alreadyOpenedTabs,
+        //     // currentActivatedTab: currentActivatedNavItem,
+        // }));
+        dispatch(openItemToPageTab({
+            openItemName: tab.title,
             alreadyOpenedTabs: alreadyOpenedTabs,
             projectNavMenuItems: currentSystemNavItems,
         }));
+        if (tab.type === 'UserKNMNavItems') {
+            dispatch(knmDetail({
+                knmId: tab.id, jwt: jwt
+            }));
+        }
         history.push(tab.router);
     }
 
@@ -125,8 +140,8 @@ export const PageTabs = () => {
 
         // send request to server when enter specific page
         const currentRouter = currentActivatedTab.router;
-        if (currentRouter === '/main/list'){
-            dispatch(knmList({jwt: jwt}));
+        if (currentRouter === '/main/list') {
+            dispatch(knmList({ jwt: jwt }));
         }
 
         // move the PageTabs components to slice to opened tab

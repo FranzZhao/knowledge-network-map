@@ -290,18 +290,26 @@ export const LeftDrawer = () => {
         });
         setCurrentKnmList(newList);
         dispatch(updateSystemNavItem({
-            knmNavItems: knmListInfo
+            knmNavItems: knmListInfo,
+            currentOpenedTabs: alreadyOpenedTabs,
+            // currentActivatedTab: currentActivatedNavItem,
         }));
     }, [knmListInfo]);
 
     // handle open detail knm page
     const handleOpenDetailKnmPage = async (knmId: string) => {
+        // check whether the knm nav had changed
+        await dispatch(knmList({ jwt: jwt }));    // change knmInfo
+        await dispatch(updateSystemNavItem({      // get new changed in the knmInfo and update the system nav
+            knmNavItems: knmListInfo,
+            currentOpenedTabs: alreadyOpenedTabs,
+            // currentActivatedTab: currentActivatedNavItem,
+        }));
+        // set open knm page
         const openKnmPage = await dispatch(knmDetail({
             knmId: knmId, jwt: jwt
         }));
-        // console.log(openKnmPage['payload']['title']);
-        // console.log(knmListInfo);
-
+        // open to page tab
         dispatch(openItemToPageTab({
             openItemName: openKnmPage['payload']['title'],
             alreadyOpenedTabs: alreadyOpenedTabs,

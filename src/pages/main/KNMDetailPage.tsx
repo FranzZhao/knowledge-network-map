@@ -341,19 +341,15 @@ export const KNMDetailPage: React.FC = () => {
         }
     };
 
-    // useEffect(()=>{
-    //     // console.log("current => ",currentKnmMapInfo['emoji']);
-    // },[currentKnmMapInfo]);
-
     const [projectInfo, setProjectInfo] = useState({
         icon: 'books',
         title: '学习科学地图'
-        // icon: currentKnmMapInfo['emoji'],
-        // title: currentKnmMapInfo['title'],
     });
 
     useEffect(() => {
         setProjectInfo({
+            // icon: currentKnmMapInfo['emoji'],
+            // title: currentKnmMapInfo['title'],
             icon: currentOpenPage.icon,
             title: currentOpenPage.title,
         });
@@ -384,11 +380,11 @@ export const KNMDetailPage: React.FC = () => {
                                     <Grid container spacing={2} className={classes.graphTitle}>
                                         <Grid item style={{ paddingTop: 14 }}>
                                             {/* a strange bug 😕 */}
-                                            {/* {
+                                            {
                                                 (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
                                                     <Emoji emoji={projectInfo.icon} set='twitter' size={24} />
                                                 ) : ''
-                                            } */}
+                                            }
                                             {/* <Emoji emoji={projectInfo.icon} set='twitter' size={24} /> */}
                                         </Grid>
                                         <Grid item>{projectInfo.title}</Grid>

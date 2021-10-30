@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -7,13 +7,14 @@ import TextField from '@material-ui/core/TextField';
 import SaveIcon from '@material-ui/icons/Save';
 import { mockTags } from '../../../settings/mocks/DefaultTags';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-
+import Chip from '@material-ui/core/Chip';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 // import redux
 import { useSelector } from '../../../redux/hooks';
-import Chip from '@material-ui/core/Chip';
+import { knmUpdate } from '../../../redux/knm/knmMapSlice';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {
@@ -34,9 +35,43 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
+
+// emoji i18n
+const emojiI18n = {
+    search: '搜索',
+    clear: '清空', // Accessible label on "clear" button
+    notfound: '没有找到Emoji',
+    skintext: '选择你的默认肤色',
+    categories: {
+        search: '搜索结果',
+        recent: '常用',
+        smileys: '笑脸 & 表情',
+        people: '人 & 身体',
+        nature: '动物 & 自然',
+        foods: '食物 & 饮品',
+        activity: '活动',
+        places: '旅行 & 场地',
+        objects: '物品',
+        symbols: '符号',
+        flags: '旗帜',
+        custom: '自定义',
+    },
+    categorieslabel: 'Emoji类别', // Accessible title for the list of categories
+    skintones: {
+        1: '默认肤色',
+        2: '浅肤色',
+        3: '适中浅肤色',
+        4: '适中肤色',
+        5: '适中深肤色',
+        6: '深肤色',
+    },
+
+};
+
 interface GraphBasicInfoState {
     title: string;
     icon: any;
+    tags: any[];
     intro: string;
 };
 
@@ -50,14 +85,25 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
 }) => {
     const classes = useStyles();
     // redux
+    const dispatch = useDispatch();
+    const currentOpaMapInfo = useSelector(state => state.knmMap.currentOpaMapInfo);
+    const jwt = useSelector(state => state.user.token);
     // const currentTag = useSelector(state => state.openPage.currentActivatedTab);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     // component state
     const [values, setValues] = useState<GraphBasicInfoState>({
         title: graphTitle,
         icon: graphIcon,
-        intro: '这是一段关于“学习科学知识地图”的简单描述，你可以在这里写下任何有关这一知识地图的相关信息...'
+        tags: currentOpaMapInfo['tags'],
+        intro: currentOpaMapInfo['introduction'],
     });
+    const [projectEmoji, setProjectEmoji] = useState(graphIcon);
+    const [showEmoji, setShowEmoji] = useState(projectEmoji);
+    const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+
+    // useEffect(()=>{
+    //     console.log(currentOpaMapInfo);
+    // },[currentOpaMapInfo]);
 
     const handleChange = (prop: keyof GraphBasicInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [prop]: event.target.value });
@@ -66,46 +112,10 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
         }
     };
 
-    // emoji i18n
-    const emojiI18n = {
-        search: '搜索',
-        clear: '清空', // Accessible label on "clear" button
-        notfound: '没有找到Emoji',
-        skintext: '选择你的默认肤色',
-        categories: {
-            search: '搜索结果',
-            recent: '常用',
-            smileys: '笑脸 & 表情',
-            people: '人 & 身体',
-            nature: '动物 & 自然',
-            foods: '食物 & 饮品',
-            activity: '活动',
-            places: '旅行 & 场地',
-            objects: '物品',
-            symbols: '符号',
-            flags: '旗帜',
-            custom: '自定义',
-        },
-        categorieslabel: 'Emoji类别', // Accessible title for the list of categories
-        skintones: {
-            1: '默认肤色',
-            2: '浅肤色',
-            3: '适中浅肤色',
-            4: '适中肤色',
-            5: '适中深肤色',
-            6: '深肤色',
-        },
-
-    };
-
-    const [projectEmoji, setProjectEmoji] = useState(graphIcon);
-    const [showEmoji, setShowEmoji] = useState(projectEmoji);
     const handleChangeEmoji = (emoji) => {
         console.log(emoji.id);
         setShowEmoji(emoji.id);
     };
-
-    const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
     const handleOpenEmojiPicker = () => {
         // if close the picker, means to change the project emoji
@@ -121,7 +131,21 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
         setOpenEmojiPicker(false);
     };
 
-    const [tags, setTags] = useState([mockTags[1].title]);
+    const handleUpdateKnmInfo = () => {
+        let newKnmInfo = {
+            title: values.title,
+            tags: values.tags,
+            introduction: values.intro,
+            emoji: showEmoji,
+            state: 1,
+        };
+        console.log(newKnmInfo);
+        dispatch(knmUpdate({
+            knmId: currentOpaMapInfo["_id"],
+            jwt: jwt,
+            updateKnmInfo: newKnmInfo,
+        }));
+    };
 
     return (
         <React.Fragment>
@@ -156,13 +180,16 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
                     }
                 </div>
                 <Autocomplete
-                    style={{ width: '100%', flex: 1, }}
+                    style={{ width: '100%', flex: 1, marginBottom: 10 }}
                     multiple
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
-                    value={tags}
+                    value={values.tags}
                     onChange={(event, newValue) => {
-                        setTags(newValue);
+                        setValues({
+                            ...values,
+                            tags: newValue
+                        });
                     }}
                     renderTags={(value: string[], getTagProps) => (
                         value.map((option: string, index: number) => (
@@ -195,6 +222,7 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
                     variant="contained"
                     color="primary"
                     startIcon={<SaveIcon />}
+                    onClick={handleUpdateKnmInfo}
                 >
                     保存基本信息
                 </Button>

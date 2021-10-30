@@ -107,6 +107,11 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
         });
     };
 
+    // handle click update node info
+    const handleUpdateKnmInfo = () => {
+        console.log(values);
+    };
+
     return (
         <React.Fragment>
             <ToggleButtonGroup
@@ -187,6 +192,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         variant="contained"
                         color="primary"
                         startIcon={<SaveIcon />}
+                        onClick={handleUpdateKnmInfo}
                     >
                         保存节点信息
                     </Button>

@@ -21,10 +21,13 @@ const initialState: PageTabsState = {
 // action: update system nav item -> add users knm page to system nav item(only had 3 foundation page)
 export const updateSystemNavItem = createAsyncThunk(
     'pageTabs/updateSystemNavItem',
-    (params: { knmNavItems: any[] }) => {
-        // console.log("params => ", params.knmNavItems[0]["_id"]);
+    (params: { 
+        knmNavItems: any[], 
+        currentOpenedTabs: [], 
+        // currentActivatedTab: {} 
+    }) => {
+        // update system nav item
         let newNavItems: {}[] = [...SystemNavItems];
-        // console.log("system => ",newNavItems);
         params.knmNavItems.map((item) => {
             newNavItems.push({
                 id: item['_id'],
@@ -34,8 +37,22 @@ export const updateSystemNavItem = createAsyncThunk(
                 router: '/main/detail',
             });
         });
-        // console.log("update => ",newNavItems);
-        return newNavItems;
+        // checked whether should update alreadyOpenedTabs
+        let newAlreadyOpenedTabs:any[] = [];
+        let currentActivatedTab = {};
+        params.currentOpenedTabs.map(tab => {
+            newNavItems.map(item => {
+                if (item['id'] === tab['id']){
+                    newAlreadyOpenedTabs.push(item);
+                }
+            })
+        });
+        return {
+            projectNavMenuItems: newNavItems,
+            alreadyOpenedTabs: newAlreadyOpenedTabs,
+            // currentActivatedTab: currentActivatedTab,
+            // leftDrawerActivatedItem: currentActivatedTab,
+        };
     }
 );
 
@@ -183,7 +200,8 @@ export const PageTabsSlice = createSlice({
         },
         // update system nav item
         [updateSystemNavItem.fulfilled.type]: (state, action) => {
-            state.projectNavMenuItems = action.payload;
+            state.projectNavMenuItems = action.payload.projectNavMenuItems;
+            state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
         }
     }
 });
