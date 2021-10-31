@@ -6,7 +6,7 @@ import { Button, Paper, Typography, useMediaQuery } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CircularProgress from '@material-ui/core/CircularProgress';
 // import router
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 // import customize component
 import { TextFieldWithVerification, PasswordWithVerification, SnackbarAlert } from '../../components/common';
 // import customize hook

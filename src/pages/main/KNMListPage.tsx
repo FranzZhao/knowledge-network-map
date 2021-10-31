@@ -23,7 +23,7 @@ export const KNMListPage: React.FC = () => {
 
     // 获得知识地图knm列表
     useEffect(() => {
-        // console.log(knmListInfo);
+        console.log(knmListInfo);
         let newList: any[] = [];
         knmListInfo.map((item, index) => {
             // emoji + title_text

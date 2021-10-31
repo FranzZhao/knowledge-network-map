@@ -9,7 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 // import customize
 import { DialogBox, TextFieldWithVerification, PasswordWithVerification, SnackbarAlert } from '../../components/common';
 // import router
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 // import customize hook
 import { useKeyPress } from '../../hooks';
 // import i18next
