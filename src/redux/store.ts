@@ -12,6 +12,7 @@ import { LanguageSlice } from "./language/slice";
 import { KnmMapSlice } from "./knm/knmMapSlice";
 import { GraphSlice } from "./knm/graphSlice";
 import { NodeSlice } from "./knm/nodeSlice";
+import { LinkSlice } from "./knm/linkSlice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
     knmMap: KnmMapSlice.reducer,
     graph: GraphSlice.reducer,
     node: NodeSlice.reducer,
+    link: LinkSlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -10,9 +10,15 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
+import { CircularProgress } from '@material-ui/core';
 // import mock data
 import { mockTags } from '../../../settings/mocks/DefaultTags';
 import { relations, nodeData } from '../../../settings/mocks/DefaultGraph';
+// redux
+import { useSelector } from '../../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { createLink } from '../../../redux/knm/linkSlice';
+import { getGraphDetail } from '../../../redux/knm/graphSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {
@@ -46,6 +52,24 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
         linkStart: '',
         linkEnd: '',
     });
+    const [nodes, setNodes] = useState<any[]>([]);
+    // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+    const currentOpenMapId = useSelector(state => state.knmMap.currentOpenMapInfo)['_id'];
+    const linkLoading = useSelector(state => state.link.loading);
+
+    useEffect(() => {
+        let graphNodes: any[] = [];
+        currentOpenGraphInfo['nodes'].map(node => {
+            graphNodes.push({
+                id: node['_id'],
+                name: node['name'],
+            });
+        });
+        setNodes(graphNodes);
+    }, [currentOpenGraphInfo]);
 
     const handleChangeText = (prop: keyof AddNewLinkState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
@@ -61,20 +85,27 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
         });
     };
 
-    const handleAddNewLinkClick = () => {
-        let newRelations = relations;
-        if (relations.indexOf(values.linkName) === -1){
-            // new link name
-            newRelations.push(values.linkName);
-        }
-        let newLink = {
-            source: values.linkStart,
-            target: values.linkEnd,
-            value: values.linkName,
-        };
-        // console.log(newRelations);
-        // console.log(newLink);
-        handleAddNewLink(newLink, newRelations);
+    const handleAddNewLinkClick = async () => {
+        // console.log(values);
+        // create link to mongodb
+        await dispatch(createLink({
+            jwt: jwt,
+            linkInfo: values,
+            graphId: currentOpenGraphInfo['_id'],
+        }));
+        // update currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapId,
+            jwt: jwt,
+        }));
+        // 清空表单内容
+        setValues({
+            linkName: '',
+            linkTags: [],
+            linkIntro: '',
+            linkStart: '',
+            linkEnd: '',
+        });
     };
 
     return (
@@ -88,6 +119,30 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                     onChange={handleChangeText('linkName')}
                 />
                 <Autocomplete
+                    style={{ width: '100%', flex: 1, marginBottom: 10 }}
+                    multiple
+                    id="tags-filled"
+                    options={mockTags.map((option) => option.title)}
+                    value={values.linkTags}
+                    onChange={(event, newValue) => {
+                        setValues({
+                            ...values,
+                            linkTags: newValue
+                        });
+                    }}
+                    renderTags={(value: string[], getTagProps) => (
+                        value.map((option: string, index: number) => (
+                            (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
+                        ))
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            placeholder="选择或输入新标签"
+                        />
+                    )}
+                />
+                {/* <Autocomplete
                     multiple
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
@@ -101,7 +156,7 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                     renderInput={(params) => (
                         <TextField {...params} label="知识关联标签" placeholder="选择或输入标签" />
                     )}
-                />
+                /> */}
                 <TextField
                     id="knm-node-intro"
                     label="知识关联简介"
@@ -119,9 +174,9 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                         onChange={handleChangeLinkNodes('linkStart')}
                     >
                         {
-                            nodeData.map((node, index) => {
+                            nodes.map((node, index) => {
                                 return (
-                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                    <MenuItem value={node.id} key={`${node.id}`}>{node.name}</MenuItem>
                                 );
                             })
                         }
@@ -136,9 +191,9 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                         onChange={handleChangeLinkNodes('linkEnd')}
                     >
                         {
-                            nodeData.map((node, index) => {
+                            nodes.map((node, index) => {
                                 return (
-                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                    <MenuItem value={node.id} key={`${node.id}`}>{node.name}</MenuItem>
                                 );
                             })
                         }
@@ -147,7 +202,13 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                 <Button
                     variant="contained"
                     color="primary"
-                    startIcon={<QueuePlayNextIcon />}
+                    endIcon={
+                        linkLoading ? (
+                            <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                        ) : (
+                            <QueuePlayNextIcon />
+                        )
+                    }
                     onClick={handleAddNewLinkClick}
                 >
                     新建知识关联

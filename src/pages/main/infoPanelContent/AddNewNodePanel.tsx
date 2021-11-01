@@ -95,12 +95,19 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
             nodeInfo: values,
             graphId: currentOpenGraphInfo,
         }));
-        // update graph
         // update currentOpenGraphInfo
         dispatch(getGraphDetail({
             currentOpenMapId: currentOpenMapId,
             jwt: jwt,
         }));
+        // 清空表单内容
+        setValues({
+            nodeName: '',
+            nodeTags: [],
+            nodeIntro: '',
+            nodeSize: '',
+            nodeColor: materialColor[0],
+        });
     };
 
     return (
