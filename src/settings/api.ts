@@ -8,4 +8,9 @@ export const API = {
     "graph": "http://localhost:3001/map/:mapId/graph",
     "node": "http://localhost:3001/graph/:graphId/node",
     "link": "http://localhost:3001/graph/:graphId/link",
+    "notebook": {
+        "all": "http://localhost:3001/graph/:graphId/allNotebook",
+        "node": "http://localhost:3001/graph/:graphId/node/:nodeId/notebook",
+        "link": "http://localhost:3001/graph/:graphId/link/:linkId/notebook",
+    }
 }

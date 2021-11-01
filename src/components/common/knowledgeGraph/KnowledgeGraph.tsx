@@ -145,7 +145,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
                 width: '100%',
             }}
             onEvents={echartsClick}
-            lazyUpdate={true}
+            // lazyUpdate={true}
         />
     ), [options]);
 

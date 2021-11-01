@@ -24,11 +24,12 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import ListAltIcon from '@material-ui/icons/ListAlt';
-import { CircularProgress } from '@material-ui/core';
+import { Chip, CircularProgress } from '@material-ui/core';
 // import redux
 import { useSelector } from '../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { getGraphDetail, updateGraphTheme } from '../../redux/knm/graphSlice';
+import { getMapNotebooks } from '../../redux/knm/notebookSlice';
 // import mock data
 import { rows } from '../../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
@@ -46,6 +47,7 @@ import { NewNoteBookView } from './newNotebookView';
 // import emoji
 import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -178,6 +180,8 @@ export const KNMDetailPage: React.FC = () => {
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
+    const currentMapNotebooks = useSelector(state => state.notebook.currentNotebooksList);
+    const notebooksLoading = useSelector(state => state.notebook.loading);
     // media query
     const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
@@ -202,6 +206,8 @@ export const KNMDetailPage: React.FC = () => {
     }, [currentActivatedTab]);
     // node name show in InfoPanel
     const [nodeName, setNodeName] = useState('');
+    // graph notebooks values
+    const [notebooks, setNotebooks] = useState<any[]>([]);
     // Graph state
     const [graph, setGraph] = useState<KnowledgeGraphState>({
         node: [],
@@ -287,8 +293,42 @@ export const KNMDetailPage: React.FC = () => {
         if (newView !== null) {
             setViews(newView);
             setOpenHiddenToolBar(false);
+            if (newView === 'notebookListView') {
+                dispatch(getMapNotebooks({
+                    jwt: jwt, graphId: currentOpenGraphInfo['_id']
+                }));
+            }
         }
     };
+
+    // when switch to notebooks list view -> get notebook from current node
+    useEffect(() => {
+        let newNotebooks: any[] = [];
+        currentMapNotebooks.map(note => {
+            // tags with Clips
+            let tagsText: string[] = note['tags'];
+            let tags = (
+                <React.Fragment>
+                    {
+                        tagsText.map((tag, index) => (
+                            <React.Fragment key={`tag-${index}`}>
+                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                            </React.Fragment>
+                        ))
+                    }
+                </React.Fragment>
+            );
+            let updateTime = new Date(note['updatedAt']).toLocaleString();
+            // push into newNotebooks
+            newNotebooks.push([
+                note['title'],
+                note['quotes'],
+                tags,
+                updateTime,
+            ]);
+        });
+        setNotebooks(newNotebooks);
+    }, [currentMapNotebooks]);
 
     // open hidden tool bar when media width less than 950px
     const handleToolBarOpen = () => {
@@ -358,7 +398,6 @@ export const KNMDetailPage: React.FC = () => {
             linkInfoEditPanel: false,
         });
     };
-
 
     // handle graph elements click
     const echartsClick = {
@@ -849,12 +888,18 @@ export const KNMDetailPage: React.FC = () => {
                                 <FormControlLabel value="all-link" control={<Radio color="primary" />} label="知识关联列表" />
                             </RadioGroup>
                         </FormControl>
-                        <PaginationDataTable
-                            header={["笔记标题", "引用", "标签", "时间", "操作"]}
-                            rows={rows}
-                            buttons={["查看"]}
-                            actions={[() => { alert('查看'); }]}
-                        />
+                        {
+                            notebooksLoading ? (
+                                <Skeleton variant="rect" width={'100%'} height={250} style={{opacity: 0.3}} />
+                            ) : (
+                                <PaginationDataTable
+                                    header={["笔记标题", "引用", "标签", "时间", "操作"]}
+                                    rows={notebooks}
+                                    buttons={["查看"]}
+                                    actions={[() => { alert('查看'); }]}
+                                />
+                            )
+                        }
                     </div>
                 }
                 {

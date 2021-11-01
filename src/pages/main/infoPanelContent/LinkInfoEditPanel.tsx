@@ -17,6 +17,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
 // import Tooltip from '@material-ui/core/Tooltip';
 import FormatShapesIcon from '@material-ui/icons/FormatShapes';
 // import react-color
@@ -29,8 +31,7 @@ import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { updateLinkInfo } from '../../../redux/knm/linkSlice';
 import { getGraphDetail } from '../../../redux/knm/graphSlice';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Grid from '@material-ui/core/Grid';
+import { getLinkNotebooks } from '../../../redux/knm/notebookSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toggleBtn: {
@@ -83,6 +84,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
         linkSource: '',
         linkTarget: '',
     });
+    const [notebooks, setNotebooks] = useState<any[]>([]);
     const [alignment, setAlignment] = React.useState<string>('info');
     // redux
     const dispatch = useDispatch();
@@ -91,6 +93,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
     const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const [nodes, setNodes] = useState<string[]>([]);
     const linkLoading = useSelector(state => state.link.loading);
+    const currentLinkNotebooksList = useSelector(state => state.notebook.currentNotebooksList);
 
     // link info setting
     useEffect(() => {
@@ -105,9 +108,42 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                     linkSource: link['source'],
                     linkTarget: link['target'],
                 });
+                // get notebook
+                dispatch(getLinkNotebooks({
+                    jwt: jwt, graphId: currentOpenGraphInfo['_id'], linkId: link["_id"]
+                }));
             }
         });
     }, [linkName]);
+
+    // get notebook from current link
+    useEffect(() => {
+        let newNotebooks: any[] = [];
+        currentLinkNotebooksList.map(note => {
+            // tags with Clips
+            let tagsText: string[] = note['tags'];
+            let tags = (
+                <React.Fragment>
+                    {
+                        tagsText.map((tag, index) => (
+                            <React.Fragment key={`tag-${index}`}>
+                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                            </React.Fragment>
+                        ))
+                    }
+                </React.Fragment>
+            );
+            // let updateTime = new Date(note['updatedAt']).toLocaleString();
+            // push into newNotebooks
+            newNotebooks.push([
+                note['title'],
+                note['quotes'],
+                tags,
+                // updateTime,
+            ]);
+        });
+        setNotebooks(newNotebooks);
+    }, [currentLinkNotebooksList]);
 
     // get all nodes in the graph
     useEffect(() => {
@@ -276,19 +312,25 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                         alignItems="center"
                     >
                         <Grid item>
-                            <div className={classes.panelSubTitle} style={{ marginBottom: 14, fontSize: 17 }}>知识关联笔记列表</div>
+                            <div className={classes.panelSubTitle} style={{ marginBottom: 14, fontSize: 17 }}>{values.linkName} - 笔记列表</div>
                         </Grid>
                         <Grid item>
                             <Button variant="outlined" color="secondary" size="small">新建笔记</Button>
                         </Grid>
                     </Grid>
-                    <BasicDataTable
-                        isSmall={true}
-                        header={["笔记标题", "引用", "笔记标签", "更新时间", "操作"]}
-                        rows={rows}
-                        buttons={['查看']}
-                        actions={[() => { alert('查看笔记'); }]}
-                    />
+                    {
+                        notebooks.length === 0 ? (
+                            <h2 style={{textAlign: 'center', color: 'grey'}}>该知识节点暂无笔记&nbsp;&nbsp;请新建笔记</h2>
+                        ) : (
+                            <BasicDataTable
+                                isSmall={true}
+                                header={["笔记标题", "引用", "笔记标签", "操作"]}
+                                rows={notebooks}
+                                buttons={['查看']}
+                                actions={[() => { alert('查看笔记'); }]}
+                            />
+                        )
+                    }
                 </div>
             }
         </React.Fragment>
