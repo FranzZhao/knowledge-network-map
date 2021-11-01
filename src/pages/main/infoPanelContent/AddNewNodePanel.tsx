@@ -10,10 +10,16 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
+import { CircularProgress } from '@material-ui/core';
 // import react-color
 import { CirclePicker } from 'react-color';
 // import mock data
 import { mockTags } from '../../../settings/mocks/DefaultTags';
+// redux
+import { useSelector } from '../../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { createNode } from '../../../redux/knm/nodeSlice';
+import { getGraphDetail } from '../../../redux/knm/graphSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {
@@ -43,15 +49,6 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
     materialColor, handleAddNode
 }) => {
     const classes = useStyles();
-    // text state
-    // {
-    //     name: "知识点1：函数的求导",
-    //     draggable: true,
-    //     symbolSize: [100, 100],
-    //     itemStyle: {
-    //         color: '#FF963F'
-    //     },
-    // }
     const [values, setValues] = useState<AddNewNodeState>({
         nodeName: '',
         nodeTags: [],
@@ -59,6 +56,12 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
         nodeSize: '',
         nodeColor: materialColor[0],
     });
+    // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo)['_id'];
+    const currentOpenMapId = useSelector(state => state.knmMap.currentOpenMapInfo)['_id'];
+    const nodeLoading = useSelector(state => state.node.loading);
 
     // text change
     const handleChangeText = (prop: keyof AddNewNodeState) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,17 +88,19 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
     };
 
     // handle add node
-    const handleAddNewNodeClick = () => {
-        // add new node info
-        let newNode = {
-            name: values.nodeName,
-            draggable: true,
-            symbolSize: [values.nodeSize, values.nodeSize],
-            itemStyle: {
-                color: values.nodeColor
-            },
-        };
-        handleAddNode(newNode);
+    const handleAddNewNodeClick = async () => {
+        // add node
+        await dispatch(createNode({
+            jwt: jwt,
+            nodeInfo: values,
+            graphId: currentOpenGraphInfo,
+        }));
+        // update graph
+        // update currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapId,
+            jwt: jwt,
+        }));
     };
 
     return (
@@ -112,15 +117,23 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                     multiple
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
-                    defaultValue={values.nodeTags}
-                    freeSolo
-                    renderTags={(value: string[], getTagProps) =>
+                    value={values.nodeTags}
+                    onChange={(event, newValue) => {
+                        setValues({
+                            ...values,
+                            nodeTags: newValue
+                        });
+                    }}
+                    renderTags={(value: string[], getTagProps) => (
                         value.map((option: string, index: number) => (
-                            <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
+                            (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
                         ))
-                    }
+                    )}
                     renderInput={(params) => (
-                        <TextField {...params} label="知识节点标签" placeholder="选择或输入标签" />
+                        <TextField
+                            {...params}
+                            placeholder="选择或输入新标签"
+                        />
                     )}
                 />
                 <TextField
@@ -158,7 +171,13 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                 <Button
                     variant="contained"
                     color="primary"
-                    startIcon={<QueuePlayNextIcon />}
+                    endIcon={
+                        nodeLoading ? (
+                            <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                        ) : (
+                            <QueuePlayNextIcon />
+                        )
+                    }
                     onClick={handleAddNewNodeClick}
                 >
                     新建知识节点
