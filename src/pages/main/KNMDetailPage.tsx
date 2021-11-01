@@ -24,6 +24,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import ListAltIcon from '@material-ui/icons/ListAlt';
+import { CircularProgress } from '@material-ui/core';
 // import redux
 import { useSelector } from '../../redux/hooks';
 // import mock data
@@ -42,7 +43,6 @@ import { NewNoteBookView } from './newNotebookView';
 // import emoji
 import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { CircularProgress } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

@@ -28,6 +28,7 @@ import { rows } from '../../../settings/mocks/DefaultNotebooks';
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { updateNodeInfo } from '../../../redux/knm/nodeSlice';
+import { getGraphDetail } from '../../../redux/knm/graphSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toggleBtn: {
@@ -83,13 +84,13 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
     const [alignment, setAlignment] = React.useState<string>('info');
     // redux
     const dispatch = useDispatch();
-    const currenOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
-    const jwt = useSelector(state => state.user.token);
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
 
     useEffect(()=>{
         // get node info base nodeName
-        currenOpenGraphInfo['nodes'].map(node => {
+        currentOpenGraphInfo['nodes'].map(node => {
             if (node['name'] === nodeName){
                 setValues({
                     nodeId: node["_id"],
@@ -142,6 +143,11 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
             nodeInfo: values,
             graphId: currentOpenGraphInfo["_id"],
             nodeId: values.nodeId,
+        }));
+        // update currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapInfo["_id"],
+            jwt: jwt,
         }));
     };
 

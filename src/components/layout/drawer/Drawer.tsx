@@ -295,7 +295,7 @@ export const LeftDrawer = () => {
         }));
         const currentOpenMapId = result['payload']['_id'];
         // 2. get the knm graph detail
-        await dispatch(getGraphDetail({
+        dispatch(getGraphDetail({
             currentOpenMapId: currentOpenMapId,
             jwt: jwt,
         }))

@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+// import MD
+import { CircularProgress } from '@material-ui/core';
+// redux
+import { useSelector } from '../../../redux/hooks';
 // import ECharts
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import { GraphChart, } from 'echarts/charts';
@@ -6,10 +10,10 @@ import { LegendComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 
+
 echarts.use(
     [GraphChart, SVGRenderer, LegendComponent]
 );
-
 
 const initialOptions = {
     backgroundColor: '',	// 背景颜色
@@ -94,7 +98,8 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
     themeColor, lineStyleType, lineStyleColor, lineStyleWidth, lineStyleOpacity, lineStyleCurveness,
     labelFontSize, labelPosition, edgeLabelFontSize, layout, forcePower, echartsClick,
 }) => {
-
+    // redux
+    const graphLoading = useSelector(state => state.graph.loading);
     // echarts option
     const [options, setOptions] = useState(initialOptions);
 
@@ -102,7 +107,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
     const showLinkLabel = (param) => {
         return param.data.value;
     }
-
+    
     // listener: whether graph had changed
     useEffect(() => {
         // deep copy
@@ -146,7 +151,15 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
 
     return (
         <React.Fragment>
-            {chart}
+            {
+                graphLoading ? (
+                    <div style={{ display: 'flex', height: 'calc(100vh - 97px)' }}>
+                        <CircularProgress color="secondary" style={{ margin: 'auto', width: 60, height: 60 }} />
+                    </div>
+                ) : (
+                    chart
+                )
+            }
         </React.Fragment>
     )
 };
