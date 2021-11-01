@@ -12,10 +12,6 @@ import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Paper from '@material-ui/core/Paper';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import ZoomInIcon from '@material-ui/icons/ZoomIn';
-import ZoomOutIcon from '@material-ui/icons/ZoomOut';
-import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
-import PhotoSizeSelectSmallIcon from '@material-ui/icons/PhotoSizeSelectSmall';
 import FormatColorFillIcon from '@material-ui/icons/FormatColorFill';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
@@ -23,7 +19,6 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import MapIcon from '@material-ui/icons/Map';
 import BookIcon from '@material-ui/icons/Book';
-import NoteAddIcon from '@material-ui/icons/NoteAdd';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -47,6 +42,7 @@ import { NewNoteBookView } from './newNotebookView';
 // import emoji
 import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
+import { CircularProgress } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -172,9 +168,11 @@ export const KNMDetailPage: React.FC = () => {
     // component class style
     const classes = useStyles();
     // redux
-    const currentKnmMapInfo = useSelector(state => state.knmMap.currentOpaMapInfo);
+    const currentKnmMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
+    const knmInfoLoading = useSelector(state => state.knmMap.loading);
     const currentTheme = useSelector(state => state.theme.currentTheme);
-    const currentOpenPage = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
+    const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+    const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
     // media query
     const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
@@ -182,7 +180,9 @@ export const KNMDetailPage: React.FC = () => {
      */
     // graph edit tool bar
     const [openHiddenToolBar, setOpenHiddenToolBar] = useState(false);
-    // node & link info panel: graph basic info + new node + new link + modify node or link info + ...
+    // switch view
+    const [views, setViews] = useState<string>('graphView');
+    // Edit Panel : node & link info panel: graph basic info + new node + new link + modify node or link info + ...
     const [openInfoPanel, setOpenInfoPanel] = useState({
         graphBasicInfoEditPanel: false,
         addNewNodePanel: false,
@@ -190,24 +190,99 @@ export const KNMDetailPage: React.FC = () => {
         modifyGraphThemePanel: false,
         nodeInfoEditPanel: false,
     });
-    const [nodeName, setNodeName] = useState('');   // node name show in InfoPanel
+    useEffect(() => {
+        // each time when change currenOpenGraphInfo, close the info panel
+        handleCloseInfoPanel();
+    }, [currentActivatedTab]);
+    // node name show in InfoPanel
+    const [nodeName, setNodeName] = useState('');
     // Graph state
     const [graph, setGraph] = useState<KnowledgeGraphState>({
-        node: nodeData,
-        link: linkData,
-        relations: relations,
-        themeColor: graphColorTheme[19], // 主题颜色
-        lineStyleType: 'dashed',   //关联线样式
-        lineStyleColor: '#ffffff',     // 关联线颜色
-        lineStyleWidth: 1.6,     // 关联线宽度
-        lineStyleOpacity: 1,   // 关联线透明度
-        lineStyleCurveness: 0.2, // 关联线曲度
-        labelFontSize: 14,         //节点标签字体大小
-        labelPosition: 'inside',
-        edgeLabelFontSize: 12,
-        layout: 'force',
-        forcePower: 40,
+        node: [],
+        link: [],
+        relations: currentOpenGraphInfo['relations'],
+        themeColor: currentOpenGraphInfo['themeColor'], // 主题颜色
+        lineStyleType: currentOpenGraphInfo['lineStyleType'],   //关联线样式
+        lineStyleColor: currentOpenGraphInfo['lineStyleColor'],     // 关联线颜色
+        lineStyleWidth: currentOpenGraphInfo['lineStyleWidth'],     // 关联线宽度
+        lineStyleOpacity: currentOpenGraphInfo['lineStyleOpacity'],   // 关联线透明度
+        lineStyleCurveness: currentOpenGraphInfo['lineStyleCurveness'], // 关联线曲度
+        labelFontSize: currentOpenGraphInfo['labelFontSize'],         //节点标签字体大小
+        labelPosition: currentOpenGraphInfo['labelPosition'],
+        edgeLabelFontSize: currentOpenGraphInfo['edgeLabelFontSize'],
+        layout: currentOpenGraphInfo['layout'],
+        forcePower: currentOpenGraphInfo['forcePower'],
     });
+    useEffect(() => {
+        // change the format to which echarts could read
+        if (Object.keys(currentOpenGraphInfo).length !== 0) {
+            let graphNode: any[] = [];
+            let graphLink: any[] = [];
+            currentOpenGraphInfo['nodes'].map(node => {
+                graphNode.push({
+                    name: node['name'],
+                    draggable: true,                // 节点是否可拖拽，只在使用力引导布局的时候有用。
+                    symbolSize: [node['size'], node['size']],
+                    itemStyle: {
+                        color: node['color']
+                    },
+                });
+            });
+            currentOpenGraphInfo['links'].map(link => {
+                let source;
+                let target;
+                currentOpenGraphInfo['nodes'].map(node => {
+                    if (node['_id'] === link['source']) {
+                        source = node['name'];
+                    }
+                    if (node['_id'] === link['target']) {
+                        target = node['name'];
+                    }
+                })
+                graphLink.push({
+                    value: link['name'],
+                    source: source,
+                    target: target,
+                });
+            });
+            setGraph({
+                node: graphNode,
+                link: graphLink,
+                relations: currentOpenGraphInfo['relations'],
+                themeColor: currentOpenGraphInfo['themeColor'], // 主题颜色
+                lineStyleType: currentOpenGraphInfo['lineStyleType'],   //关联线样式
+                lineStyleColor: currentOpenGraphInfo['lineStyleColor'],     // 关联线颜色
+                lineStyleWidth: currentOpenGraphInfo['lineStyleWidth'],     // 关联线宽度
+                lineStyleOpacity: currentOpenGraphInfo['lineStyleOpacity'],   // 关联线透明度
+                lineStyleCurveness: currentOpenGraphInfo['lineStyleCurveness'], // 关联线曲度
+                labelFontSize: currentOpenGraphInfo['labelFontSize'],         //节点标签字体大小
+                labelPosition: currentOpenGraphInfo['labelPosition'],
+                edgeLabelFontSize: currentOpenGraphInfo['edgeLabelFontSize'],
+                layout: currentOpenGraphInfo['layout'],
+                forcePower: currentOpenGraphInfo['forcePower'],
+            });
+        }
+    }, [currentOpenGraphInfo]);
+    // detail page info : map title & emoji
+    const [detailPageKnmInfo, setDetailPageKnmInfo] = useState({
+        icon: currentKnmMapInfo['emoji'],
+        title: currentKnmMapInfo['title'],
+    });
+
+    useEffect(() => {
+        setDetailPageKnmInfo({
+            icon: currentKnmMapInfo['emoji'],
+            title: currentKnmMapInfo['title'],
+        });
+    }, [currentKnmMapInfo]);
+
+    // switch view -> graph edit tool bar: three view - graphView & notebookListView & newNotebookView
+    const handleSwitchViews = (newView) => {
+        if (newView !== null) {
+            setViews(newView);
+            setOpenHiddenToolBar(false);
+        }
+    };
 
     // open hidden tool bar when media width less than 950px
     const handleToolBarOpen = () => {
@@ -215,8 +290,8 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     // close all info panel
-    const handleCloseInfoPanel = () => {
-        setOpenInfoPanel({
+    const handleCloseInfoPanel = async () => {
+        await setOpenInfoPanel({
             graphBasicInfoEditPanel: false,
             addNewNodePanel: false,
             addNewLinkPanel: false,
@@ -332,36 +407,6 @@ export const KNMDetailPage: React.FC = () => {
         });
     };
 
-    // switch view
-    const [views, setViews] = useState<string>('graphView');
-    const handleSwitchViews = (newView) => {
-        if (newView !== null) {
-            setViews(newView);
-            setOpenHiddenToolBar(false);
-        }
-    };
-
-    const [projectInfo, setProjectInfo] = useState({
-        icon: 'books',
-        title: '学习科学地图'
-    });
-
-    useEffect(() => {
-        setProjectInfo({
-            // icon: currentKnmMapInfo['emoji'],
-            // title: currentKnmMapInfo['title'],
-            icon: currentOpenPage.icon,
-            title: currentOpenPage.title,
-        });
-    }, [currentOpenPage]);
-
-    const handleChangeProjectInfo = (target: string, newValue: any) => {
-        setProjectInfo({
-            ...projectInfo,
-            [target]: newValue,
-        });
-    };
-
     return (
         <>
             {/* tool bar button */}
@@ -378,16 +423,22 @@ export const KNMDetailPage: React.FC = () => {
                             <Grid item>
                                 <Paper className={classes.paper}>
                                     <Grid container spacing={2} className={classes.graphTitle}>
-                                        <Grid item style={{ paddingTop: 14 }}>
-                                            {/* a strange bug 😕 */}
-                                            {
-                                                (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
-                                                    <Emoji emoji={projectInfo.icon} set='twitter' size={24} />
-                                                ) : ''
-                                            }
-                                            {/* <Emoji emoji={projectInfo.icon} set='twitter' size={24} /> */}
-                                        </Grid>
-                                        <Grid item>{projectInfo.title}</Grid>
+                                        {
+                                            knmInfoLoading ? (
+                                                <CircularProgress color="secondary" style={{ width: 30, height: 30, margin: '16px 10px' }} />
+                                            ) : (
+                                                <React.Fragment>
+                                                    <Grid item style={{ paddingTop: 14 }}>
+                                                        {
+                                                            (detailPageKnmInfo.icon && (typeof detailPageKnmInfo.icon !== 'object')) ? (
+                                                                <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={24} />
+                                                            ) : ''
+                                                        }
+                                                    </Grid>
+                                                    <Grid item>{detailPageKnmInfo.title}</Grid>
+                                                </React.Fragment>
+                                            )
+                                        }
                                     </Grid>
                                 </Paper>
                             </Grid>
@@ -522,12 +573,12 @@ export const KNMDetailPage: React.FC = () => {
                                     <Grid container spacing={2} className={classes.graphTitle}>
                                         <Grid item style={{ paddingTop: 14 }}>
                                             {
-                                                (projectInfo.icon && (typeof projectInfo.icon !== 'object')) ? (
-                                                    <Emoji emoji={projectInfo.icon as string} set='twitter' size={24} />
+                                                (detailPageKnmInfo.icon && (typeof detailPageKnmInfo.icon !== 'object')) ? (
+                                                    <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={24} />
                                                 ) : ''
                                             }
                                         </Grid>
-                                        <Grid item>{projectInfo.title}</Grid>
+                                        <Grid item>{detailPageKnmInfo.title}</Grid>
                                     </Grid>
                                 </Paper>
                             </Grid>
@@ -542,7 +593,7 @@ export const KNMDetailPage: React.FC = () => {
                                         >
                                             <MoreIcon />
                                         </Button>
-                                        <Fade in={openHiddenToolBar} style={{display: openHiddenToolBar?'flex':'none'}}>
+                                        <Fade in={openHiddenToolBar} style={{ display: openHiddenToolBar ? 'flex' : 'none' }}>
                                             <Grid container direction="column" className={classes.hiddenToolBarBtn}>
                                                 {
                                                     views === 'graphView' ? (
@@ -619,7 +670,7 @@ export const KNMDetailPage: React.FC = () => {
                                                 {
                                                     views === 'graphView' &&
                                                     <>
-                                                        <div style={{ borderTop: '1px solid', borderRadius: 0, marginBottom: -35}}></div>
+                                                        <div style={{ borderTop: '1px solid', borderRadius: 0, marginBottom: -35 }}></div>
                                                         <Tooltip title="修改基本信息" arrow>
                                                             <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
                                                                 <AssignmentIcon />
@@ -650,13 +701,13 @@ export const KNMDetailPage: React.FC = () => {
                         </Grid>
                     )
                 }
-            </Paper>
+            </Paper >
             {/* graph */}
             <div style={{ backgroundColor: currentTheme === 'light' ? '#f7f7f7' : '#1f2733' }}>
                 {
                     views === 'graphView' &&
                     <>
-                        {/* <KnowledgeGraph
+                        <KnowledgeGraph
                             nodeData={graph.node}
                             linkData={graph.link}
                             relations={graph.relations}
@@ -672,7 +723,7 @@ export const KNMDetailPage: React.FC = () => {
                             layout={graph.layout}
                             forcePower={graph.forcePower}
                             echartsClick={echartsClick}
-                        /> */}
+                        />
                         {/* node info edit panel */}
                         {
                             openInfoPanel.nodeInfoEditPanel &&
@@ -694,11 +745,7 @@ export const KNMDetailPage: React.FC = () => {
                                 title={'知识笔记 | 基础信息'}
                                 handleClosePanel={handleCloseInfoPanel}
                                 contain={
-                                    <GraphBasicInfoEditPanel
-                                        graphTitle={projectInfo.title}
-                                        graphIcon={projectInfo.icon}
-                                        handleChangeProjectInfo={handleChangeProjectInfo}
-                                    />
+                                    <GraphBasicInfoEditPanel />
                                 }
                             />
                         }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import customize components
 import { BasicDataTable } from '../../../components/common';
 // import MD
@@ -24,7 +24,10 @@ import { CirclePicker } from 'react-color';
 // import mock data
 import { mockTags } from '../../../settings/mocks/DefaultTags';
 import { rows } from '../../../settings/mocks/DefaultNotebooks';
-
+// import redux
+import { useSelector } from '../../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { updateNodeInfo } from '../../../redux/knm/nodeSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toggleBtn: {
@@ -58,6 +61,7 @@ interface NodeInfoEditPanelState {
 };
 
 interface NodeInfoState {
+    nodeId: string;
     nodeName: string;
     nodeTags: any[];
     nodeIntro: string;
@@ -69,6 +73,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
 }) => {
     const classes = useStyles();
     const [values, setValues] = useState<NodeInfoState>({
+        nodeId: '',
         nodeName: nodeName,
         nodeTags: [],
         nodeIntro: '',
@@ -76,6 +81,27 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
         nodeColor: materialColor[0],
     });
     const [alignment, setAlignment] = React.useState<string>('info');
+    // redux
+    const dispatch = useDispatch();
+    const currenOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+
+    useEffect(()=>{
+        // get node info base nodeName
+        currenOpenGraphInfo['nodes'].map(node => {
+            if (node['name'] === nodeName){
+                setValues({
+                    nodeId: node["_id"],
+                    nodeName: node["name"],
+                    nodeTags: node["tags"],
+                    nodeIntro: node["introduction"],
+                    nodeSize: node["size"],
+                    nodeColor: node["color"],
+                });
+            }
+        });
+    },[nodeName]);
 
     const handleAlignment = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -109,7 +135,14 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
 
     // handle click update node info
     const handleUpdateKnmInfo = () => {
-        console.log(values);
+        // console.log(values);
+        // console.log(currentOpenGraphInfo);
+        dispatch(updateNodeInfo({
+            jwt: jwt,
+            nodeInfo: values,
+            graphId: currentOpenGraphInfo["_id"],
+            nodeId: values.nodeId,
+        }));
     };
 
     return (
@@ -145,15 +178,23 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         multiple
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
-                        defaultValue={[mockTags[0].title]}
-                        freeSolo
-                        renderTags={(value: string[], getTagProps) =>
+                        value={values.nodeTags}
+                        onChange={(event, newValue) => {
+                            setValues({
+                                ...values,
+                                nodeTags: newValue
+                            });
+                        }}
+                        renderTags={(value: string[], getTagProps) => (
                             value.map((option: string, index: number) => (
-                                <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
+                                (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
                             ))
-                        }
+                        )}
                         renderInput={(params) => (
-                            <TextField {...params} label="知识节点标签" placeholder="选择或输入标签" />
+                            <TextField
+                                {...params}
+                                placeholder="选择或输入新标签"
+                            />
                         )}
                     />
                     <TextField
@@ -191,7 +232,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={<SaveIcon />}
+                        endIcon={<SaveIcon />}
                         onClick={handleUpdateKnmInfo}
                     >
                         保存节点信息

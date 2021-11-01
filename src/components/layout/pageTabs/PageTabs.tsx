@@ -12,14 +12,13 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { SingleTab } from './SingleTab';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
-import { knmList } from '../../../redux/knm/knmMapSlice';
 import { useDispatch } from 'react-redux';
 import { userJWTVerify } from '../../../redux/user/slice';
-import { knmDetail } from '../../../redux/knm/knmMapSlice';
+import { getKnmDetail } from '../../../redux/knm/knmMapSlice';
+import { getGraphDetail } from '../../../redux/knm/graphSlice';
 import {
     openItemToPageTab,
     closePageTab,
-    updateSystemNavItem,
 } from '../../../redux/pageTabs/slice';
 // import Router
 import { useHistory } from 'react-router-dom';
@@ -69,11 +68,12 @@ export const PageTabs = () => {
     const history = useHistory();
     // redux
     const dispatch = useDispatch();
+    const currentKnmList = useSelector(state => state.knmMap.knmList);
+    // const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
     const currentSystemNavItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
     const projectNavMenuItems = useSelector(state => state.pageTabs.projectNavMenuItems);
-    const knmListInfo = useSelector(state => state.knmMap.info);
     // component state
     const [values, setValues] = useState<OpenPageTabsState>({
         tabSlice: 40,
@@ -103,33 +103,35 @@ export const PageTabs = () => {
             }, 2000);
         }
     };
-    // close Snackbar alert
-    // const handleCloseSnackbar = () => {
-    //     setJwtAlert({
-    //         ...jwtAlert,
-    //         openSnackbar: false,
-    //     });
-    // };
+
+    // listener currentActivatedTab
+    useEffect(() => {
+        // console.log(currentActivatedTab);
+        if (currentActivatedTab.type === 'UserKNMNavItems') {
+            getGraphDetailInfo();
+        }
+    }, [currentActivatedTab]);
+    // get knm graph detail info
+    const getGraphDetailInfo = async () => {
+        // 1. get knm detail
+        const result = await dispatch(getKnmDetail({
+            knmId: currentActivatedTab.id, jwt: jwt, currentKnmList: currentKnmList
+        }));
+        const currentOpenMapId = result['payload']['_id'];
+        // 2. get the knm graph detail
+        await dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapId,
+            jwt: jwt,
+        }))
+    }
 
     // handle click page tab: Activated Tab & Router Change
     const handleClickPageTab = async (tab: any) => {
-        // check whether the knm nav had changed
-        // await dispatch(knmList({ jwt: jwt }));    // change knmInfo
-        // await dispatch(updateSystemNavItem({      // get new changed in the knmInfo and update the system nav
-        //     knmNavItems: knmListInfo,
-        //     currentOpenedTabs: alreadyOpenedTabs,
-        //     // currentActivatedTab: currentActivatedNavItem,
-        // }));
         dispatch(openItemToPageTab({
             openItemName: tab.title,
             alreadyOpenedTabs: alreadyOpenedTabs,
             projectNavMenuItems: currentSystemNavItems,
         }));
-        if (tab.type === 'UserKNMNavItems') {
-            dispatch(knmDetail({
-                knmId: tab.id, jwt: jwt
-            }));
-        }
         history.push(tab.router);
     }
 
@@ -137,12 +139,6 @@ export const PageTabs = () => {
     useEffect(() => {
         // jwt verify: if jwt expired, then redirect to login page
         jwtVerify();
-
-        // send request to server when enter specific page
-        const currentRouter = currentActivatedTab.router;
-        if (currentRouter === '/main/list') {
-            dispatch(knmList({ jwt: jwt }));
-        }
 
         // move the PageTabs components to slice to opened tab
         let openTabID = 0;
@@ -202,7 +198,7 @@ export const PageTabs = () => {
     };
 
     // close page tab
-    const handleClosePageTab = (
+    const handleClosePageTab = async (
         event: React.MouseEvent<HTMLDivElement, MouseEvent>,
         closeItem: string,
     ) => {
@@ -215,7 +211,7 @@ export const PageTabs = () => {
             }
         });
         // dispatch action to reducer
-        dispatch(closePageTab({
+        await dispatch(closePageTab({
             closeItemName: closeItem,
             alreadyOpenedTabs: alreadyOpenedTabs,
             currentOpenedTab: currentOpenedTab,

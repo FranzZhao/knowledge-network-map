@@ -10,19 +10,26 @@ import { API } from '../../settings/api';
 interface KnmMapState {
     loading: boolean;
     error: string | null;
-    info: [];
-    currentOpaMapInfo: {};
+    knmList: [];
+    currentOpenMapInfo: {};
 };
 
 const initialKnmMapState: KnmMapState = {
     loading: false,
     error: null,
-    info: [],
-    currentOpaMapInfo: {},
+    knmList: [],
+    currentOpenMapInfo: {},
 };
 
 // action: get all knm map lists -> user own
-export const knmList = createAsyncThunk(
+/**
+ * ! 可使用getKnmList的地方: 对MongoDB中的map表进行修改时才能够调用此方法, 有以下几个情况
+ * 1. create - create knm => drawer上点击"新建知识地图"之后, 更新redux中的knmList
+ * 2. update - 在KNMDetailPage的Graph Info面板中更新信息后, 更新redux中的knmList
+ * 3. initial - 在初始化项目的时候, 即刚刚进入项目的时候, 使用getKnmList获取 => index.tsx中
+ * ! 其余场景, 均从redux中获取
+ */
+export const getKnmList = createAsyncThunk(
     'knmMap/list',
     async (params: { jwt: string | null }, ThunkAPI) => {
         try {
@@ -76,20 +83,21 @@ export const knmCreate = createAsyncThunk(
 );
 
 // action: get a detail knm map, with full info
-export const knmDetail = createAsyncThunk(
+export const getKnmDetail = createAsyncThunk(
     'knmMap/detail',
-    async (params: { knmId: string, jwt: string | null }, ThunkAPI) => {
+    async (params: { knmId: string, jwt: string | null, currentKnmList: [] }, ThunkAPI) => {
         try {
-            const detailKnm = await axios.get(
-                `${API.map}/${params.knmId}`,
-                {
-                    headers: {
-                        Authorization: `bearer ${params.jwt}`
-                    }
-                }
-            );
-            // console.log(detailKnm.data);
-            return detailKnm.data;
+            const detailKnm = params.currentKnmList.find(knm => knm['_id']===params.knmId);
+            return detailKnm; 
+            // const detailKnm = await axios.get(
+            //     `${API.map}/${params.knmId}`,
+            //     {
+            //         headers: {
+            //             Authorization: `bearer ${params.jwt}`
+            //         }
+            //     }
+            // );
+            // return detailKnm.data;
         } catch (error) {
             return ThunkAPI.rejectWithValue(error);
         }
@@ -99,8 +107,15 @@ export const knmDetail = createAsyncThunk(
 // action: update a knm map
 export const knmUpdate = createAsyncThunk(
     'knmMap/update',
-    async (params: { knmId: string, jwt: string|null, updateKnmInfo: any }, ThunkAPI) => {
+    async (params: {
+        knmId: string,
+        jwt: string | null,
+        updateKnmInfo: any,
+        knmList: [],
+        currentOpenMapInfo: {},
+    }, ThunkAPI) => {
         try {
+            // update current open map info
             const newKnmInfo = await axios.patch(
                 `${API.map}/${params.knmId}`,
                 {
@@ -116,7 +131,32 @@ export const knmUpdate = createAsyncThunk(
                     }
                 }
             );
-            console.log(newKnmInfo);
+            // update system nav & current open map
+            let newKnmList: any[] = [];
+            let newCurrentOpenMap = params.currentOpenMapInfo;
+            params.knmList.map((knm: {}, index) => {
+                if (knm['_id'] === params.knmId) {
+                    // update current open map
+                    newCurrentOpenMap = {
+                        ...newCurrentOpenMap,
+                        title: params.updateKnmInfo.title,
+                        tags: params.updateKnmInfo.tags,
+                        introduction: params.updateKnmInfo.introduction,
+                        emoji: params.updateKnmInfo.emoji,
+                        state: params.updateKnmInfo.state,
+                    }
+                    // update knm
+                    newKnmList.push(newCurrentOpenMap);
+                } else {
+                    newKnmList.push(knm);
+                }
+            });
+            // console.log('knm list => ', newKnmList);
+            // console.log('current open knm => ', newCurrentOpenMap);
+            return ({
+                knmList: newKnmList,
+                currentOpenMapInfo: newCurrentOpenMap,
+            });
         } catch (error) {
             return ThunkAPI.rejectWithValue(error);
         }
@@ -130,15 +170,15 @@ export const KnmMapSlice = createSlice({
     reducers: {},
     extraReducers: {
         // get all knm map lists
-        [knmList.pending.type]: (state) => {
+        [getKnmList.pending.type]: (state) => {
             state.loading = true;
         },
-        [knmList.fulfilled.type]: (state, action) => {
-            state.info = action.payload;
+        [getKnmList.fulfilled.type]: (state, action) => {
+            state.knmList = action.payload;
             state.loading = false;
             state.error = null;
         },
-        [knmList.rejected.type]: (state, action) => {
+        [getKnmList.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
@@ -147,7 +187,7 @@ export const KnmMapSlice = createSlice({
             state.loading = true;
         },
         [knmCreate.fulfilled.type]: (state, action) => {
-            state.info = action.payload;
+            state.knmList = action.payload;
             state.loading = false;
             state.error = null;
         },
@@ -156,15 +196,29 @@ export const KnmMapSlice = createSlice({
             state.error = action.payload;
         },
         // get a knm map with detail info
-        [knmDetail.pending.type]: (state) => {
+        [getKnmDetail.pending.type]: (state) => {
             state.loading = true;
         },
-        [knmDetail.fulfilled.type]: (state, action) => {
-            state.currentOpaMapInfo = action.payload;
+        [getKnmDetail.fulfilled.type]: (state, action) => {
+            state.currentOpenMapInfo = action.payload;
             state.loading = false;
             state.error = null;
         },
-        [knmDetail.rejected.type]: (state, action) => {
+        [getKnmDetail.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // update a knm map with detail info
+        [knmUpdate.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [knmUpdate.fulfilled.type]: (state, action) => {
+            state.knmList = action.payload.knmList;
+            state.currentOpenMapInfo = action.payload.currentOpenMapInfo;
+            state.loading = false;
+            state.error = null;
+        },
+        [knmUpdate.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

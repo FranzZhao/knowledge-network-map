@@ -8,6 +8,8 @@ import SaveIcon from '@material-ui/icons/Save';
 import { mockTags } from '../../../settings/mocks/DefaultTags';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Skeleton } from '@material-ui/lab';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
@@ -34,7 +36,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
 }));
-
 
 // emoji i18n
 const emojiI18n = {
@@ -75,63 +76,64 @@ interface GraphBasicInfoState {
     intro: string;
 };
 
-interface GraphBasicInfoEditPanelState {
-    graphTitle: string;
-    graphIcon: any;
-    handleChangeProjectInfo: (target: string, newValue: any) => void;
-}
-export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = ({
-    graphTitle, graphIcon, handleChangeProjectInfo
-}) => {
+export const GraphBasicInfoEditPanel: React.FC = () => {
     const classes = useStyles();
     // redux
     const dispatch = useDispatch();
-    const currentOpaMapInfo = useSelector(state => state.knmMap.currentOpaMapInfo);
+    const currentKnmList = useSelector(state => state.knmMap.knmList);
+    const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const jwt = useSelector(state => state.user.token);
+    const knmInfoLoading = useSelector(state => state.knmMap.loading);
+    const [isClick, setIsClick] = useState(false);
     // const currentTag = useSelector(state => state.openPage.currentActivatedTab);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     // component state
     const [values, setValues] = useState<GraphBasicInfoState>({
-        title: graphTitle,
-        icon: graphIcon,
-        tags: currentOpaMapInfo['tags'],
-        intro: currentOpaMapInfo['introduction'],
+        title: currentOpenMapInfo['title'],
+        icon: currentOpenMapInfo['emoji'],
+        tags: currentOpenMapInfo['tags'],
+        intro: currentOpenMapInfo['introduction'],
     });
-    const [projectEmoji, setProjectEmoji] = useState(graphIcon);
-    const [showEmoji, setShowEmoji] = useState(projectEmoji);
+    // const [projectEmoji, setProjectEmoji] = useState(graphIcon);
+    const [showEmoji, setShowEmoji] = useState(values.icon);
     const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
-    // useEffect(()=>{
-    //     console.log(currentOpaMapInfo);
-    // },[currentOpaMapInfo]);
+    useEffect(() => {
+        setValues({
+            title: currentOpenMapInfo['title'],
+            icon: currentOpenMapInfo['emoji'],
+            tags: currentOpenMapInfo['tags'],
+            intro: currentOpenMapInfo['introduction'],
+        });
+    }, [currentOpenMapInfo]);
 
     const handleChange = (prop: keyof GraphBasicInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [prop]: event.target.value });
-        if (prop === 'title') {
-            handleChangeProjectInfo(prop, event.target.value);
-        }
     };
 
+    // change emoji when click the picker -> 暂时性
     const handleChangeEmoji = (emoji) => {
-        console.log(emoji.id);
         setShowEmoji(emoji.id);
     };
 
     const handleOpenEmojiPicker = () => {
-        // if close the picker, means to change the project emoji
+        // * if click this button when emoji picker opened, means to change the project emoji
         if (openEmojiPicker) {
-            setProjectEmoji(showEmoji);
-            handleChangeProjectInfo('icon', showEmoji);
+            setValues({
+                ...values,
+                icon: showEmoji
+            });
         }
         setOpenEmojiPicker(!openEmojiPicker);
     }
 
     const handleCancelChangeEmoji = () => {
-        setShowEmoji(projectEmoji);
+        setShowEmoji(values.icon);
         setOpenEmojiPicker(false);
     };
 
-    const handleUpdateKnmInfo = () => {
+    const handleUpdateKnmInfo = async () => {
+        await setIsClick(true);
         let newKnmInfo = {
             title: values.title,
             tags: values.tags,
@@ -139,94 +141,115 @@ export const GraphBasicInfoEditPanel: React.FC<GraphBasicInfoEditPanelState> = (
             emoji: showEmoji,
             state: 1,
         };
-        console.log(newKnmInfo);
-        dispatch(knmUpdate({
-            knmId: currentOpaMapInfo["_id"],
+        await dispatch(knmUpdate({
+            knmId: currentOpenMapInfo["_id"],
             jwt: jwt,
             updateKnmInfo: newKnmInfo,
+            knmList: currentKnmList,
+            currentOpenMapInfo: currentOpenMapInfo,
         }));
+        setIsClick(false);
     };
 
     return (
         <React.Fragment>
-            <form className={classes.infoPanelForms} noValidate autoComplete="off">
-                <div>
-                    <Grid container direction="row" justifyContent="space-between">
-                        <Grid item className={classes.emojiStyle}>
-                            知识地图小图标: <Emoji emoji={openEmojiPicker ? showEmoji : projectEmoji} set='twitter' size={26} />
-                        </Grid>
-                        <Grid item>
-                            <Button color="primary" onClick={handleOpenEmojiPicker}>
-                                {openEmojiPicker ? '确定更换' : '更换图标'}
-                            </Button>
+            {
+                !isClick && knmInfoLoading ? (
+                    <>
+                        <Skeleton variant="rect" style={{ width: '100%', height: 45, marginBottom: 5, backgroundColor: 'rgb(255 255 255 / 5%)', marginTop: 5 }} />
+                        <Skeleton variant="rect" style={{ width: '100%', height: 45, marginBottom: 5, backgroundColor: 'rgb(255 255 255 / 5%)' }} />
+                        <Skeleton variant="rect" style={{ width: '100%', height: 45, marginBottom: 5, backgroundColor: 'rgb(255 255 255 / 5%)' }} />
+                        <Skeleton variant="rect" style={{ width: '100%', height: 45, marginBottom: 5, backgroundColor: 'rgb(255 255 255 / 5%)' }} />
+                        <Skeleton variant="rect" style={{ width: '100%', height: 45, marginBottom: 5, backgroundColor: 'rgb(255 255 255 / 5%)' }} />
+                    </>
+                ) : (
+                    <form className={classes.infoPanelForms} noValidate autoComplete="off">
+                        <div>
+                            <Grid container direction="row" justifyContent="space-between">
+                                <Grid item className={classes.emojiStyle}>
+                                    知识地图小图标: <Emoji emoji={openEmojiPicker ? showEmoji : values.icon} set='twitter' size={26} />
+                                </Grid>
+                                <Grid item>
+                                    <Button color="primary" onClick={handleOpenEmojiPicker}>
+                                        {openEmojiPicker ? '确定更换' : '更换图标'}
+                                    </Button>
+                                    {
+                                        openEmojiPicker &&
+                                        <Button color="secondary" onClick={handleCancelChangeEmoji}>取消更换</Button>
+                                    }
+                                </Grid>
+                            </Grid>
+                            {/* emoji picker*/}
                             {
                                 openEmojiPicker &&
-                                <Button color="secondary" onClick={handleCancelChangeEmoji}>取消更换</Button>
+                                <Picker
+                                    style={{ position: 'absolute', right: 20, top: 100, zIndex: 10, width: 360, }}
+                                    set='twitter'
+                                    title={'选择项目图标'}
+                                    emoji='point_up'
+                                    i18n={emojiI18n}
+                                    onSelect={handleChangeEmoji}
+                                    theme={currentTheme === 'light' ? 'light' : 'dark'}
+                                />
                             }
-                        </Grid>
-                    </Grid>
-                    {/* emoji picker*/}
-                    {
-                        openEmojiPicker &&
-                        <Picker
-                            style={{ position: 'absolute', right: 20, top: 100, zIndex: 10, width: 360, }}
-                            set='twitter'
-                            title={'选择项目图标'}
-                            emoji='point_up'
-                            i18n={emojiI18n}
-                            onSelect={handleChangeEmoji}
-                            theme={currentTheme === 'light' ? 'light' : 'dark'}
+                        </div>
+                        <Autocomplete
+                            style={{ width: '100%', flex: 1, marginBottom: 10 }}
+                            multiple
+                            id="tags-filled"
+                            options={mockTags.map((option) => option.title)}
+                            value={values.tags}
+                            onChange={(event, newValue) => {
+                                setValues({
+                                    ...values,
+                                    tags: newValue
+                                });
+                            }}
+                            renderTags={(value: string[], getTagProps) => (
+                                value.map((option: string, index: number) => (
+                                    (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
+                                ))
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    placeholder="选择或输入新标签"
+                                />
+                            )}
                         />
-                    }
-                </div>
-                <Autocomplete
-                    style={{ width: '100%', flex: 1, marginBottom: 10 }}
-                    multiple
-                    id="tags-filled"
-                    options={mockTags.map((option) => option.title)}
-                    value={values.tags}
-                    onChange={(event, newValue) => {
-                        setValues({
-                            ...values,
-                            tags: newValue
-                        });
-                    }}
-                    renderTags={(value: string[], getTagProps) => (
-                        value.map((option: string, index: number) => (
-                            (<Chip variant="default" label={option} size="small" color="primary" {...getTagProps({ index })} />)
-                        ))
-                    )}
-                    renderInput={(params) => (
                         <TextField
-                            {...params}
-                            placeholder="选择或输入新标签"
+                            id="knm-node-name"
+                            label="知识地图标题"
+                            size="small"
+                            value={values.title}
+                            onChange={handleChange('title')}
                         />
-                    )}
-                />
-                <TextField
-                    id="knm-node-name"
-                    label="知识地图标题"
-                    size="small"
-                    value={values.title}
-                    onChange={handleChange('title')}
-                />
-                <TextField
-                    id="knm-node-intro"
-                    label="知识节点简介"
-                    size="small"
-                    value={values.intro}
-                    onChange={handleChange('intro')}
-                    multiline
-                />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<SaveIcon />}
-                    onClick={handleUpdateKnmInfo}
-                >
-                    保存基本信息
-                </Button>
-            </form>
+                        <TextField
+                            id="knm-node-intro"
+                            label="知识节点简介"
+                            size="small"
+                            value={values.intro}
+                            onChange={handleChange('intro')}
+                            multiline
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            endIcon={
+                                knmInfoLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                                ) : (
+                                    <SaveIcon />
+                                )
+                            }
+                            onClick={handleUpdateKnmInfo}
+                        >
+                            保存基本信息
+                        </Button>
+                    </form>
+                )
+            }
+
         </React.Fragment>
     );
 };

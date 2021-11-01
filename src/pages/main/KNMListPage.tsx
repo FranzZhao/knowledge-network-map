@@ -14,7 +14,7 @@ import { Emoji } from 'emoji-mart';
 import { useSelector } from '../../redux/hooks';
 
 export const KNMListPage: React.FC = () => {
-    const knmListInfo = useSelector(state => state.knmMap.info);
+    const knmListInfo = useSelector(state => state.knmMap.knmList);
     const [currentKnmList, setCurrentKnmList] = useState<any[]>([]);
 
     const sayHello = async () => {
@@ -23,7 +23,7 @@ export const KNMListPage: React.FC = () => {
 
     // 获得知识地图knm列表
     useEffect(() => {
-        console.log(knmListInfo);
+        // console.log(knmListInfo);
         let newList: any[] = [];
         knmListInfo.map((item, index) => {
             // emoji + title_text

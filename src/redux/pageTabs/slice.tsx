@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // import Project Setting
 import { SystemNavItems } from '../../settings/mocks/DefaultNavItem';
+import { getGraphDetail } from '../knm/graphSlice';
+import { getKnmDetail } from '../knm/knmMapSlice';
 
 // Project Nav Menu State
 interface PageTabsState {
@@ -19,16 +21,19 @@ const initialState: PageTabsState = {
 };
 
 // action: update system nav item -> add users knm page to system nav item(only had 3 foundation page)
+/**
+ * ! 只使用在KnmList发生更新的时候,因此只要knmMap.knmList发生变化时,就需要调用这个!记住!这是在本地操作的,不要去数据库操作
+ */
 export const updateSystemNavItem = createAsyncThunk(
     'pageTabs/updateSystemNavItem',
-    (params: { 
-        knmNavItems: any[], 
-        currentOpenedTabs: [], 
-        // currentActivatedTab: {} 
+    (params: {
+        knmList: any[],
+        currentOpenedTabs: [],
+        currentActivatedTab: {}
     }) => {
         // update system nav item
         let newNavItems: {}[] = [...SystemNavItems];
-        params.knmNavItems.map((item) => {
+        params.knmList.map((item) => {
             newNavItems.push({
                 id: item['_id'],
                 title: item['title'],
@@ -38,20 +43,23 @@ export const updateSystemNavItem = createAsyncThunk(
             });
         });
         // checked whether should update alreadyOpenedTabs
-        let newAlreadyOpenedTabs:any[] = [];
+        let newAlreadyOpenedTabs: any[] = [];
         let currentActivatedTab = {};
         params.currentOpenedTabs.map(tab => {
             newNavItems.map(item => {
-                if (item['id'] === tab['id']){
+                if (item['id'] === tab['id']) {
                     newAlreadyOpenedTabs.push(item);
+                }
+                if (item['id'] === params.currentActivatedTab['id']) {
+                    currentActivatedTab = item;
                 }
             })
         });
         return {
             projectNavMenuItems: newNavItems,
             alreadyOpenedTabs: newAlreadyOpenedTabs,
-            // currentActivatedTab: currentActivatedTab,
-            // leftDrawerActivatedItem: currentActivatedTab,
+            currentActivatedTab: currentActivatedTab,
+            leftDrawerActivatedItem: currentActivatedTab,
         };
     }
 );
@@ -99,7 +107,11 @@ export const openItemToPageTab = createAsyncThunk(
 // action: Close already opened Item In PageTabs
 export const closePageTab = createAsyncThunk(
     'pageTabs/closePageTab',
-    (params: { closeItemName: string, alreadyOpenedTabs: any, currentOpenedTab: any }) => {
+    async (params: { 
+        closeItemName: string, 
+        alreadyOpenedTabs: any, 
+        currentOpenedTab: any,
+     }) => {
         let newOpenPagesTabs: any = [];
         let newCurrentOpenedTab: any;
         // if only have one page, then open Home Page, that is clear leftDrawerActivatedItem, alreadyOpenedTabs & currentActivatedTab
@@ -181,6 +193,11 @@ export const PageTabsSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: {
+        // update system nav item
+        [updateSystemNavItem.fulfilled.type]: (state, action) => {
+            state.projectNavMenuItems = action.payload.projectNavMenuItems;
+            state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
+        },
         // open menu item to pageTabs & activated this Menu Item & Activated this Page tabs
         [openItemToPageTab.fulfilled.type]: (state, action) => {
             state.leftDrawerActivatedItem = action.payload.leftDrawerActivatedItem;
@@ -198,10 +215,5 @@ export const PageTabsSlice = createSlice({
             state.currentActivatedTab = action.payload.currentActivatedTab;
             state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
         },
-        // update system nav item
-        [updateSystemNavItem.fulfilled.type]: (state, action) => {
-            state.projectNavMenuItems = action.payload.projectNavMenuItems;
-            state.alreadyOpenedTabs = action.payload.alreadyOpenedTabs;
-        }
     }
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 // import styles from './index.css';
@@ -6,16 +6,37 @@ import App from './App';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 // import redux
+import { useDispatch } from 'react-redux';
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import rootStore from "./redux/store";
 import { useSelector } from './redux/hooks';
+import { getKnmList } from './redux/knm/knmMapSlice';
+import { updateSystemNavItem } from './redux/pageTabs/slice';
 // import i18next, setting context automatic
 import "./settings/i18n/config";
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 const Index: React.FC = () => {
+    const dispatch = useDispatch();
     const currentTheme = useSelector(state => state.theme.currentTheme);
+    const jwt = useSelector(state => state.user.token);
+    const knmList = useSelector(state => state.knmMap.knmList);
+    const currentOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
+    const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
+    const systemNav = useSelector(state => state.pageTabs.projectNavMenuItems);
+    // ! knmList initial -> only user enter the system -> jwt changed
+    useEffect(()=>{
+        dispatch(getKnmList({jwt: jwt}));
+    },[jwt]);
+
+    // ! System Nav Item chang -> when knmList changed
+    useEffect(()=>{
+        dispatch(updateSystemNavItem({
+            knmList: knmList,
+            currentOpenedTabs: currentOpenedTabs,
+            currentActivatedTab: currentActivatedTab,
+        }));
+    },[knmList]);
 
     // System Default Theme
     const theme = createTheme({

@@ -10,6 +10,8 @@ import { LeftDrawerSlice } from './leftDrawer/slice';
 import { ThemeSlice } from "./theme/slice";
 import { LanguageSlice } from "./language/slice";
 import { KnmMapSlice } from "./knm/knmMapSlice";
+import { GraphSlice } from "./knm/graphSlice";
+import { NodeSlice } from "./knm/nodeSlice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -33,6 +35,8 @@ const rootReducer = combineReducers({
     theme: ThemeSlice.reducer,
     language: LanguageSlice.reducer,
     knmMap: KnmMapSlice.reducer,
+    graph: GraphSlice.reducer,
+    node: NodeSlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

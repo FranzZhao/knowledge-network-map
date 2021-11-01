@@ -38,7 +38,8 @@ import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
 import { UserSlice } from '../../../redux/user/slice';
-import { knmList, knmCreate, knmDetail } from '../../../redux/knm/knmMapSlice';
+import { knmCreate, getKnmDetail } from '../../../redux/knm/knmMapSlice';
+import { getGraphDetail } from '../../../redux/knm/graphSlice';
 // import Router
 import { useHistory } from 'react-router-dom';
 // import emoji
@@ -237,7 +238,7 @@ export const LeftDrawer = () => {
     const currentSystemNavItems = useSelector(state => state.pageTabs.projectNavMenuItems);
     const currentActivatedNavItem = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
-    const knmListInfo = useSelector(state => state.knmMap.info);
+    const knmListInfo = useSelector(state => state.knmMap.knmList);
     // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:1000px)');
@@ -246,11 +247,6 @@ export const LeftDrawer = () => {
     const [openDialog, setOpenDialog] = useState(false);
     // knm List with detail info
     const [currentKnmList, setCurrentKnmList] = useState<any[]>([]);
-
-    // get current knm list: when drawer dom show
-    useEffect(() => {
-        dispatch(knmList({ jwt: jwt }));
-    }, []);
 
     // open add new knm dialog
     const handleOpenAddKNMDialog = () => {
@@ -289,42 +285,32 @@ export const LeftDrawer = () => {
             });
         });
         setCurrentKnmList(newList);
-        dispatch(updateSystemNavItem({
-            knmNavItems: knmListInfo,
-            currentOpenedTabs: alreadyOpenedTabs,
-            // currentActivatedTab: currentActivatedNavItem,
-        }));
     }, [knmListInfo]);
 
-    // handle open detail knm page
-    const handleOpenDetailKnmPage = async (knmId: string) => {
-        // check whether the knm nav had changed
-        await dispatch(knmList({ jwt: jwt }));    // change knmInfo
-        await dispatch(updateSystemNavItem({      // get new changed in the knmInfo and update the system nav
-            knmNavItems: knmListInfo,
-            currentOpenedTabs: alreadyOpenedTabs,
-            // currentActivatedTab: currentActivatedNavItem,
-        }));
-        // set open knm page
-        const openKnmPage = await dispatch(knmDetail({
-            knmId: knmId, jwt: jwt
-        }));
-        // open to page tab
-        dispatch(openItemToPageTab({
-            openItemName: openKnmPage['payload']['title'],
-            alreadyOpenedTabs: alreadyOpenedTabs,
-            projectNavMenuItems: currentSystemNavItems,
-        }));
-        history.push('/main/detail');
-    }
-
     // click nav item: Activate Left Drawer Nav Item
-    const handleClickNavItem = (title: string, router: string) => {
+    const getKnmAndGraphInfo  = async (id:string) => {
+        // 1. get knm detail
+        const result = await dispatch(getKnmDetail({
+            knmId: id, jwt: jwt, currentKnmList: knmListInfo
+        }));
+        const currentOpenMapId = result['payload']['_id'];
+        // 2. get the knm graph detail
+        await dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapId,
+            jwt: jwt,
+        }))
+    } 
+    const handleClickNavItem = (title: string, router: string, type: string, id: string) => {
         dispatch(openItemToPageTab({
             openItemName: title,
             alreadyOpenedTabs: alreadyOpenedTabs,
             projectNavMenuItems: currentSystemNavItems,
         }));
+        // if open knm, then should use map_id to set currentOpenMapInfo
+        if (type === 'UserKNMNavItems') {
+            // using async-await to get currentOpenMapInfo
+            getKnmAndGraphInfo(id);
+        }
         history.push(router);
     };
 
@@ -414,7 +400,7 @@ export const LeftDrawer = () => {
                                         key={`${item.id}-item`}
                                         className={classes.menuList}
                                         selected={currentActivatedNavItem.title === item.title ? true : false}
-                                        onClick={() => handleClickNavItem(item.title, item.router)}
+                                        onClick={() => handleClickNavItem(item.title, item.router, 'SystemNavItems', item.id)}
                                     >
                                         <ListItemIcon className={classes.menuMainIcon} key={`${item.id}-icon`}>
                                             {item.icon}
@@ -444,7 +430,8 @@ export const LeftDrawer = () => {
                                     key={`${item.id}-item`}
                                     className={classes.menuList}
                                     selected={currentActivatedNavItem.title === item.title ? true : false}
-                                    onClick={() => handleOpenDetailKnmPage(item.id)}
+                                    onClick={() => handleClickNavItem(item.title, '/main/detail', 'UserKNMNavItems', item.id)}
+                                    // onClick={() => handleOpenDetailKnmPage(item.id)}
                                 >
                                     <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
                                         <Emoji emoji={item.icon} set='twitter' size={20} />
@@ -543,7 +530,7 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
     const dispatch = useDispatch();
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const jwt = useSelector(state => state.user.token);
-    const currentKnmMaps = useSelector(state => state.knmMap.info);
+    const currentKnmList = useSelector(state => state.knmMap.knmList);
     // style
     const classes = useStyles();
     const [values, setValues] = useState<NewKNMInfoState>({
@@ -598,8 +585,9 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
     };
 
     const handleNewKNM = () => {
+        // create a new
         dispatch(knmCreate({
-            currentKnmMaps: currentKnmMaps,
+            currentKnmMaps: currentKnmList,
             jwt: jwt,
             title: values.title,
             tags: values.tags,

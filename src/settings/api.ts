@@ -4,5 +4,7 @@ export const API = {
         "register": "http://localhost:3001/user/register",
         "jwtVerify": "http://localhost:3001/user/jwt"
     },
-    "map": "http://localhost:3001/map"
+    "map": "http://localhost:3001/map",
+    "graph": "http://localhost:3001/map/:mapId/graph",
+    "node": "http://localhost:3001/graph/:graphId/node",
 }
