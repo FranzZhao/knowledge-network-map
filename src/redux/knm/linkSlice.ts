@@ -33,7 +33,7 @@ export const updateLinkInfo = createAsyncThunk(
                     }
                 },
             );
-            console.log(newLinkInfo);
+            // console.log(newLinkInfo);
         } catch (error) {
             return ThunkAPI.rejectWithValue(error);
         }

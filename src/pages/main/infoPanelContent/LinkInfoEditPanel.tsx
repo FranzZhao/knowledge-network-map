@@ -27,7 +27,7 @@ import { rows } from '../../../settings/mocks/DefaultNotebooks';
 // import redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { updateNodeInfo } from '../../../redux/knm/nodeSlice';
+import { updateLinkInfo } from '../../../redux/knm/linkSlice';
 import { getGraphDetail } from '../../../redux/knm/graphSlice';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
@@ -58,30 +58,30 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-interface NodeInfoEditPanelState {
-    nodeName: string;
+interface LinkInfoEditPanelState {
+    linkName: string;
     materialColor: any[];
 };
 
-interface NodeInfoState {
-    nodeId: string;
-    nodeName: string;
-    nodeTags: any[];
-    nodeIntro: string;
-    nodeSize: string;
-    nodeColor: string;
+interface LinkInfoState {
+    linkId: string;
+    linkName: string;
+    linkTags: any[];
+    linkIntro: string;
+    linkSource: string;
+    linkTarget: string;
 };
-export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
-    nodeName, materialColor
+export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
+    linkName, materialColor
 }) => {
     const classes = useStyles();
-    const [values, setValues] = useState<NodeInfoState>({
-        nodeId: '',
-        nodeName: nodeName,
-        nodeTags: [],
-        nodeIntro: '',
-        nodeSize: '',
-        nodeColor: materialColor[0],
+    const [values, setValues] = useState<LinkInfoState>({
+        linkId: '',
+        linkName: linkName,
+        linkTags: [],
+        linkIntro: '',
+        linkSource: '',
+        linkTarget: '',
     });
     const [alignment, setAlignment] = React.useState<string>('info');
     // redux
@@ -89,23 +89,37 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
     const jwt = useSelector(state => state.user.token);
     const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
-    const nodeLoading = useSelector(state => state.node.loading);
+    const [nodes, setNodes] = useState<string[]>([]);
+    const linkLoading = useSelector(state => state.link.loading);
 
+    // link info setting
     useEffect(() => {
         // get node info base nodeName
-        currentOpenGraphInfo['nodes'].map(node => {
-            if (node['name'] === nodeName) {
+        currentOpenGraphInfo['links'].map(link => {
+            if (link['name'] === linkName) {
                 setValues({
-                    nodeId: node["_id"],
-                    nodeName: node["name"],
-                    nodeTags: node["tags"],
-                    nodeIntro: node["introduction"],
-                    nodeSize: node["size"],
-                    nodeColor: node["color"],
+                    linkId: link['_id'],
+                    linkName: link['name'],
+                    linkTags: link['tags'],
+                    linkIntro: link['introduction'],
+                    linkSource: link['source'],
+                    linkTarget: link['target'],
                 });
             }
         });
-    }, [nodeName]);
+    }, [linkName]);
+
+    // get all nodes in the graph
+    useEffect(() => {
+        let graphNodes: any[] = [];
+        currentOpenGraphInfo['nodes'].map(node => {
+            graphNodes.push({
+                id: node['_id'],
+                name: node['name'],
+            });
+        });
+        setNodes(graphNodes);
+    }, [currentOpenGraphInfo]);
 
     const handleAlignment = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -114,7 +128,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
     };
 
     // text change
-    const handleChangeText = (prop: keyof NodeInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeText = (prop: keyof LinkInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({
             ...values,
             [prop]: event.target.value
@@ -122,34 +136,26 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
     }
 
     // node size select
-    const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setValues({
-            ...values,
-            nodeSize: event.target.value as string,
-        });
-    };
+    // const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
+    //     setValues({
+    //         ...values,
+    //         linkSize: event.target.value as string,
+    //     });
+    // };
 
-    // node color select
-    const handleChangeNodeColor = (newNodeColor, event) => {
-        setValues({
-            ...values,
-            nodeColor: newNodeColor.hex
-        });
-    };
 
     // handle click update node info
     const handleUpdateKnmInfo = () => {
-        // console.log(values);
-        // console.log(currentOpenGraphInfo);
-        dispatch(updateNodeInfo({
+        // update link info
+        dispatch(updateLinkInfo({
             jwt: jwt,
-            nodeInfo: values,
-            graphId: currentOpenGraphInfo["_id"],
-            nodeId: values.nodeId,
+            linkInfo: values,
+            graphId: currentOpenGraphInfo['_id'],
+            linkId: values.linkId,
         }));
         // update currentOpenGraphInfo
         dispatch(getGraphDetail({
-            currentOpenMapId: currentOpenMapInfo["_id"],
+            currentOpenMapId: currentOpenMapInfo['_id'],
             jwt: jwt,
         }));
     };
@@ -175,23 +181,23 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
             {
                 alignment === 'info' &&
                 <form className={classes.infoPanelForms} noValidate autoComplete="off">
-                    <div className={classes.panelSubTitle}>节点信息编辑</div>
+                    <div className={classes.panelSubTitle}>知识关联信息编辑</div>
                     <TextField
                         id="knm-node-name"
-                        label="知识节点名称"
+                        label="知识关联名称"
                         size="small"
-                        value={values.nodeName}
-                        onChange={handleChangeText('nodeName')}
+                        value={values.linkName}
+                        onChange={handleChangeText('linkName')}
                     />
                     <Autocomplete
                         multiple
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
-                        value={values.nodeTags}
+                        value={values.linkTags}
                         onChange={(event, newValue) => {
                             setValues({
                                 ...values,
-                                nodeTags: newValue
+                                linkTags: newValue
                             });
                         }}
                         renderTags={(value: string[], getTagProps) => (
@@ -208,41 +214,47 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                     />
                     <TextField
                         id="knm-node-intro"
-                        label="知识节点简介"
+                        label="知识关联简介"
                         size="small"
-                        value={values.nodeIntro}
-                        onChange={handleChangeText('nodeIntro')}
+                        value={values.linkIntro}
+                        onChange={handleChangeText('linkIntro')}
                         multiline
                     />
                     <FormControl>
-                        <InputLabel id="demo-simple-select-label">节点大小</InputLabel>
+                        <InputLabel id="demo-simple-select-label">起始节点</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={values.nodeSize}
-                            onChange={handleChangeNodeSize}
+                            value={values.linkSource}
+                        // onChange={handleChangeNodeSize}
                         >
-                            <MenuItem value={55}>小</MenuItem>
-                            <MenuItem value={64}>较小</MenuItem>
-                            <MenuItem value={76}>适中</MenuItem>
-                            <MenuItem value={88}>较大</MenuItem>
-                            <MenuItem value={100}>大</MenuItem>
+                            {
+                                nodes.map(node => {
+                                    return <MenuItem value={node['id']} key={node['id']}>{node['name']}</MenuItem>
+                                })
+                            }
                         </Select>
                     </FormControl>
-                    <div>节点颜色</div>
-                    <CirclePicker
-                        className={classes.colorPicker}
-                        color={values.nodeColor}
-                        onChangeComplete={handleChangeNodeColor}
-                        colors={materialColor}
-                        circleSize={20}
-                        width={'350px'}
-                    />
+                    <FormControl>
+                        <InputLabel id="demo-simple-select-label">目标节点</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select-1"
+                            value={values.linkTarget}
+                        // onChange={handleChangeNodeSize}
+                        >
+                            {
+                                nodes.map(node => {
+                                    return <MenuItem value={node['id']} key={node['id']}>{node['name']}</MenuItem>
+                                })
+                            }
+                        </Select>
+                    </FormControl>
                     <Button
                         variant="contained"
                         color="primary"
                         endIcon={
-                            nodeLoading ? (
+                            linkLoading ? (
                                 <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
                             ) : (
                                 <SaveIcon />
@@ -250,7 +262,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         }
                         onClick={handleUpdateKnmInfo}
                     >
-                        保存节点信息
+                        保存关联信息
                     </Button>
                 </form>
             }
@@ -264,7 +276,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         alignItems="center"
                     >
                         <Grid item>
-                            <div className={classes.panelSubTitle} style={{ marginBottom: 14, fontSize: 17 }}>知识节点笔记列表</div>
+                            <div className={classes.panelSubTitle} style={{ marginBottom: 14, fontSize: 17 }}>知识关联笔记列表</div>
                         </Grid>
                         <Grid item>
                             <Button variant="outlined" color="secondary" size="small">新建笔记</Button>

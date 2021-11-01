@@ -27,12 +27,15 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { CircularProgress } from '@material-ui/core';
 // import redux
 import { useSelector } from '../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { getGraphDetail, updateGraphTheme } from '../../redux/knm/graphSlice';
 // import mock data
 import { rows } from '../../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
 // import panel page
 import {
     NodeInfoEditPanel,
+    LinkInfoEditPanel,
     GraphBasicInfoEditPanel,
     AddNewNodePanel,
     AddNewLinkPanel,
@@ -168,6 +171,8 @@ export const KNMDetailPage: React.FC = () => {
     // component class style
     const classes = useStyles();
     // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
     const currentKnmMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const knmInfoLoading = useSelector(state => state.knmMap.loading);
     const currentTheme = useSelector(state => state.theme.currentTheme);
@@ -189,6 +194,7 @@ export const KNMDetailPage: React.FC = () => {
         addNewLinkPanel: false,
         modifyGraphThemePanel: false,
         nodeInfoEditPanel: false,
+        linkInfoEditPanel: false,
     });
     useEffect(() => {
         // each time when change currenOpenGraphInfo, close the info panel
@@ -297,6 +303,7 @@ export const KNMDetailPage: React.FC = () => {
             addNewLinkPanel: false,
             modifyGraphThemePanel: false,
             nodeInfoEditPanel: false,
+            linkInfoEditPanel: false,
         });
     };
 
@@ -309,6 +316,7 @@ export const KNMDetailPage: React.FC = () => {
             addNewLinkPanel: false,
             modifyGraphThemePanel: false,
             nodeInfoEditPanel: false,
+            linkInfoEditPanel: false,
         });
     };
 
@@ -321,6 +329,7 @@ export const KNMDetailPage: React.FC = () => {
             addNewLinkPanel: false,
             modifyGraphThemePanel: false,
             nodeInfoEditPanel: false,
+            linkInfoEditPanel: false,
         });
     };
 
@@ -333,6 +342,7 @@ export const KNMDetailPage: React.FC = () => {
             addNewLinkPanel: true,
             modifyGraphThemePanel: false,
             nodeInfoEditPanel: false,
+            linkInfoEditPanel: false,
         });
     };
 
@@ -345,6 +355,7 @@ export const KNMDetailPage: React.FC = () => {
             addNewLinkPanel: true,
             modifyGraphThemePanel: true,
             nodeInfoEditPanel: false,
+            linkInfoEditPanel: false,
         });
     };
 
@@ -360,6 +371,7 @@ export const KNMDetailPage: React.FC = () => {
                     addNewLinkPanel: false,
                     modifyGraphThemePanel: false,
                     nodeInfoEditPanel: true,
+                    linkInfoEditPanel: false,
                 });
             }
             if (e.dataType === 'edge') {
@@ -369,7 +381,8 @@ export const KNMDetailPage: React.FC = () => {
                     addNewNodePanel: false,
                     addNewLinkPanel: false,
                     modifyGraphThemePanel: false,
-                    nodeInfoEditPanel: true,
+                    nodeInfoEditPanel: false,
+                    linkInfoEditPanel: true,
                 });
             }
         }
@@ -405,6 +418,22 @@ export const KNMDetailPage: React.FC = () => {
             ...graph,
             [target]: newValue
         });
+        // console.log(target,' => ',newValue);
+    };
+    // save the graph theme
+    const handleSaveGraphTheme = async () => {
+        // 1. update theme to server
+        await dispatch(updateGraphTheme({
+            jwt: jwt,
+            currentOpenMapId: currentKnmMapInfo['_id'],
+            currentGraphId: currentOpenGraphInfo['_id'],
+            newGraphTheme: graph,
+        }));
+        // 2. get new knm graph detail
+        dispatch(getGraphDetail({
+            currentOpenMapId: currentKnmMapInfo['_id'],
+            jwt: jwt,
+        }))
     };
 
     return (
@@ -738,6 +767,20 @@ export const KNMDetailPage: React.FC = () => {
                                 }
                             />
                         }
+                        {/* node info edit panel */}
+                        {
+                            openInfoPanel.linkInfoEditPanel &&
+                            <InfoPanel
+                                title={'知识关联 | 信息编辑'}
+                                handleClosePanel={handleCloseInfoPanel}
+                                contain={
+                                    <LinkInfoEditPanel
+                                        linkName={nodeName}
+                                        materialColor={materialColor}
+                                    />
+                                }
+                            />
+                        }
                         {/* graph info edit panel */}
                         {
                             openInfoPanel.graphBasicInfoEditPanel &&
@@ -788,6 +831,7 @@ export const KNMDetailPage: React.FC = () => {
                                         graphColorTheme={graphColorTheme}
                                         lineColor={lineColor}
                                         handleModifyGraph={handleModifyGraph}
+                                        handleSaveGraphTheme={handleSaveGraphTheme}
                                     />
                                 }
                             />

@@ -19,8 +19,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import Button from '@material-ui/core/Button';
 import SaveIcon from '@material-ui/icons/Save';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // import react-color
 import { CirclePicker } from 'react-color';
+// redux
+import { useSelector } from '../../../redux/hooks';
+
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     panelTitle: {
@@ -418,12 +422,13 @@ interface ModifyGraphThemePanelState {
     graphColorTheme: string[];
     lineColor: string[];
     handleModifyGraph: (target: string, newValue: any) => void;
+    handleSaveGraphTheme: () => void;
 }
 export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanelState> = ({
-    currentGraphThemeOption, graphColorTheme, lineColor, handleModifyGraph
+    currentGraphThemeOption, graphColorTheme, lineColor, handleModifyGraph, handleSaveGraphTheme
 }) => {
     const classes = useStyles();
-
+    const graphLoading = useSelector(state => state.graph.loading);
     const [alignment, setAlignment] = React.useState<string>('theme');
 
     const handleAlignment = (event, newAlignment) => {
@@ -506,11 +511,18 @@ export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanelState> = ({
                 <Button
                     variant="contained"
                     color="primary"
-                    startIcon={<SaveIcon />}
+                    endIcon={
+                        graphLoading ? (
+                            <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                        ) : (
+                            <SaveIcon />
+                        )
+                    }
+                    onClick={handleSaveGraphTheme}
                 >
                     保存当前主题样式
                 </Button>
             </form>
-        </React.Fragment>
+        </React.Fragment >
     );
 };

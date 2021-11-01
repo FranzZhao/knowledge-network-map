@@ -21,7 +21,7 @@ export const getGraphDetail = createAsyncThunk(
     'graph/detail',
     async (params: { currentOpenMapId: string, jwt: string | null }, ThunkAPI) => {
         try {
-            const apiGetGraph = API.graph.replace(':mapId',params.currentOpenMapId);
+            const apiGetGraph = API.graph.replace(':mapId', params.currentOpenMapId);
             // console.log('api => ',apiGetGraph);
             const currentOpenGraphInfo = await axios.get(
                 apiGetGraph,
@@ -37,6 +37,42 @@ export const getGraphDetail = createAsyncThunk(
             }
         } catch (error) {
             return ThunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+// action : update graph theme
+export const updateGraphTheme = createAsyncThunk(
+    'graph/update',
+    async (params: {
+        jwt: string | null, currentOpenMapId: string, currentGraphId: string, newGraphTheme: {}
+    }, ThunkAPI) => {
+        try {
+            const apiGetGraph = `${API.graph.replace(':mapId', params.currentOpenMapId)}/${params.currentGraphId}`;
+            const newGraph = await axios.patch(
+                apiGetGraph,
+                {
+                    themeColor: params.newGraphTheme['themeColor'], // 主题颜色
+                    lineStyleType: params.newGraphTheme['lineStyleType'],   //关联线样式
+                    lineStyleColor: params.newGraphTheme['lineStyleColor'],     // 关联线颜色
+                    lineStyleWidth: params.newGraphTheme['lineStyleWidth'],     // 关联线宽度
+                    lineStyleOpacity: params.newGraphTheme['lineStyleOpacity'],   // 关联线透明度
+                    lineStyleCurveness: params.newGraphTheme['lineStyleCurveness'], // 关联线曲度
+                    labelFontSize: params.newGraphTheme['labelFontSize'],         //节点标签字体大小
+                    labelPosition: params.newGraphTheme['labelPosition'],
+                    edgeLabelFontSize: params.newGraphTheme['edgeLabelFontSize'],
+                    layout: params.newGraphTheme['layout'],
+                    forcePower: params.newGraphTheme['forcePower'],
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // console.log(newGraph);
+        } catch (error) {
+            ThunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -58,6 +94,19 @@ export const GraphSlice = createSlice({
             state.error = null;
         },
         [getGraphDetail.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // graph update
+        [updateGraphTheme.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [updateGraphTheme.fulfilled.type]: (state, action) => {
+            // state.currentOpenGraphInfo = action.payload.currentOpenGraphInfo;
+            state.loading = false;
+            state.error = null;
+        },
+        [updateGraphTheme.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
