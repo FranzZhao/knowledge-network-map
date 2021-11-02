@@ -10,6 +10,7 @@ export const API = {
     "link": "http://localhost:3001/graph/:graphId/link",
     "notebook": {
         "all": "http://localhost:3001/graph/:graphId/allNotebook",
+        "normal": "http://localhost:3001/graph/:graphId/:target/:targetId/notebook",
         "node": "http://localhost:3001/graph/:graphId/node/:nodeId/notebook",
         "link": "http://localhost:3001/graph/:graphId/link/:linkId/notebook",
     }

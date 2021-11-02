@@ -25,6 +25,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { Chip, CircularProgress } from '@material-ui/core';
+import Skeleton from '@material-ui/lab/Skeleton';
 // import redux
 import { useSelector } from '../../redux/hooks';
 import { useDispatch } from 'react-redux';
@@ -41,13 +42,18 @@ import {
     AddNewNodePanel,
     AddNewLinkPanel,
     ModifyGraphThemePanel,
-} from './infoPanelContent';
-// import notebook edit
-import { NewNoteBookView } from './newNotebookView';
+} from './knmDetailSubPage/infoPanelContent';
+// import graph view
+import {
+    GraphView,
+    NotebookListView,
+    NewNoteBookView,
+} from './knmDetailSubPage';
 // import emoji
 import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import Skeleton from '@material-ui/lab/Skeleton';
+import { findAllMapLinks } from '../../redux/knm/linkSlice';
+import { findAllMapNodes } from '../../redux/knm/nodeSlice';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -180,8 +186,7 @@ export const KNMDetailPage: React.FC = () => {
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
-    const currentMapNotebooks = useSelector(state => state.notebook.currentNotebooksList);
-    const notebooksLoading = useSelector(state => state.notebook.loading);
+    // const currentMapNotebooks = useSelector(state => state.notebook.currentNotebooksList);
     // media query
     const mediaWidth = useMediaQuery('(min-width:1050px)');
     /**
@@ -206,8 +211,7 @@ export const KNMDetailPage: React.FC = () => {
     }, [currentActivatedTab]);
     // node name show in InfoPanel
     const [nodeName, setNodeName] = useState('');
-    // graph notebooks values
-    const [notebooks, setNotebooks] = useState<any[]>([]);
+
     // Graph state
     const [graph, setGraph] = useState<KnowledgeGraphState>({
         node: [],
@@ -289,46 +293,52 @@ export const KNMDetailPage: React.FC = () => {
     }, [currentKnmMapInfo]);
 
     // switch view -> graph edit tool bar: three view - graphView & notebookListView & newNotebookView
-    const handleSwitchViews = (newView) => {
+    const handleSwitchViews = async (newView) => {
         if (newView !== null) {
             setViews(newView);
             setOpenHiddenToolBar(false);
-            if (newView === 'notebookListView') {
-                dispatch(getMapNotebooks({
-                    jwt: jwt, graphId: currentOpenGraphInfo['_id']
-                }));
-            }
+            // if (newView === 'notebookListView') {
+            //     await dispatch(getMapNotebooks({
+            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
+            //     }));
+            //     await dispatch(findAllMapNodes({
+            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
+            //     }));
+            //     await dispatch(findAllMapLinks({
+            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
+            //     }));
+            // }
         }
     };
 
     // when switch to notebooks list view -> get notebook from current node
-    useEffect(() => {
-        let newNotebooks: any[] = [];
-        currentMapNotebooks.map(note => {
-            // tags with Clips
-            let tagsText: string[] = note['tags'];
-            let tags = (
-                <React.Fragment>
-                    {
-                        tagsText.map((tag, index) => (
-                            <React.Fragment key={`tag-${index}`}>
-                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
-                            </React.Fragment>
-                        ))
-                    }
-                </React.Fragment>
-            );
-            let updateTime = new Date(note['updatedAt']).toLocaleString();
-            // push into newNotebooks
-            newNotebooks.push([
-                note['title'],
-                note['quotes'],
-                tags,
-                updateTime,
-            ]);
-        });
-        setNotebooks(newNotebooks);
-    }, [currentMapNotebooks]);
+    // useEffect(() => {
+    //     let newNotebooks: any[] = [];
+    //     currentMapNotebooks.map(note => {
+    //         // tags with Clips
+    //         let tagsText: string[] = note['tags'];
+    //         let tags = (
+    //             <React.Fragment>
+    //                 {
+    //                     tagsText.map((tag, index) => (
+    //                         <React.Fragment key={`tag-${index}`}>
+    //                             <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+    //                         </React.Fragment>
+    //                     ))
+    //                 }
+    //             </React.Fragment>
+    //         );
+    //         let updateTime = new Date(note['updatedAt']).toLocaleString();
+    //         // push into newNotebooks
+    //         newNotebooks.push([
+    //             note['title'],
+    //             note['quotes'],
+    //             tags,
+    //             updateTime,
+    //         ]);
+    //     });
+    //     setNotebooks(newNotebooks);
+    // }, [currentMapNotebooks]);
 
     // open hidden tool bar when media width less than 950px
     const handleToolBarOpen = () => {
@@ -428,7 +438,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     // add graph node
-    const handleAddNode = (newNode) => {
+    const handleAddNode = (newNode: any) => {
         // 将原本的数组深拷贝到新的数组中, 防止useState无法检测数组内容的变化
         let nodes = graph.node.concat();
         nodes.push(newNode);
@@ -439,7 +449,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     // add graph link & relation
-    const handleAddNewLink = (newLink, newRelation) => {
+    const handleAddNewLink = (newLink: any, newRelation: any) => {
         let link = graph.link.concat();
         link.push(newLink);
         let relations = graph.relations.concat();
@@ -452,7 +462,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     // modify graph theme style
-    const handleModifyGraph = (target, newValue) => {
+    const handleModifyGraph = (target: string, newValue: any) => {
         setGraph({
             ...graph,
             [target]: newValue
@@ -476,7 +486,7 @@ export const KNMDetailPage: React.FC = () => {
     };
 
     return (
-        <>
+        <React.Fragment>
             {/* tool bar button */}
             <Paper className={classes.toolBarPaper}>
                 {
@@ -770,136 +780,33 @@ export const KNMDetailPage: React.FC = () => {
                     )
                 }
             </Paper >
-            {/* graph */}
+            {/* main content */}
             <div style={{ backgroundColor: currentTheme === 'light' ? '#f7f7f7' : '#1f2733' }}>
                 {
                     views === 'graphView' &&
-                    <>
-                        <KnowledgeGraph
-                            nodeData={graph.node}
-                            linkData={graph.link}
-                            relations={graph.relations}
-                            themeColor={graph.themeColor}
-                            lineStyleType={graph.lineStyleType}
-                            lineStyleColor={graph.lineStyleColor}
-                            lineStyleWidth={graph.lineStyleWidth}
-                            lineStyleOpacity={graph.lineStyleOpacity}
-                            lineStyleCurveness={graph.lineStyleCurveness}
-                            labelFontSize={graph.labelFontSize}
-                            labelPosition={graph.labelPosition}
-                            edgeLabelFontSize={graph.edgeLabelFontSize}
-                            layout={graph.layout}
-                            forcePower={graph.forcePower}
+                    <div>
+                        <GraphView
+                            graph={graph}
                             echartsClick={echartsClick}
+                            openInfoPanel={openInfoPanel}
+                            nodeName={nodeName}
+                            materialColor={materialColor}
+                            graphColorTheme={graphColorTheme}
+                            lineColor={lineColor}
+                            handleCloseInfoPanel={handleCloseInfoPanel}
+                            handleAddNode={handleAddNode}
+                            handleAddNewLink={handleAddNewLink}
+                            handleModifyGraph={handleModifyGraph}
+                            handleSaveGraphTheme={handleSaveGraphTheme}
                         />
-                        {/* node info edit panel */}
-                        {
-                            openInfoPanel.nodeInfoEditPanel &&
-                            <InfoPanel
-                                title={'知识节点 | 信息编辑'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <NodeInfoEditPanel
-                                        nodeName={nodeName}
-                                        materialColor={materialColor}
-                                    />
-                                }
-                            />
-                        }
-                        {/* node info edit panel */}
-                        {
-                            openInfoPanel.linkInfoEditPanel &&
-                            <InfoPanel
-                                title={'知识关联 | 信息编辑'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <LinkInfoEditPanel
-                                        linkName={nodeName}
-                                        materialColor={materialColor}
-                                    />
-                                }
-                            />
-                        }
-                        {/* graph info edit panel */}
-                        {
-                            openInfoPanel.graphBasicInfoEditPanel &&
-                            <InfoPanel
-                                title={'知识笔记 | 基础信息'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <GraphBasicInfoEditPanel />
-                                }
-                            />
-                        }
-                        {/* add new node panel */}
-                        {
-                            openInfoPanel.addNewNodePanel &&
-                            <InfoPanel
-                                title={'知识笔记 | 新增知识节点'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <AddNewNodePanel
-                                        materialColor={materialColor}
-                                        handleAddNode={handleAddNode}
-                                    />
-                                }
-                            />
-                        }
-                        {/* add new link panel */}
-                        {
-                            openInfoPanel.addNewLinkPanel &&
-                            <InfoPanel
-                                title={'知识笔记 | 新增知识关联'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <AddNewLinkPanel
-                                        handleAddNewLink={handleAddNewLink}
-                                    />
-                                }
-                            />
-                        }
-                        {/* modify graph theme panel */}
-                        {
-                            openInfoPanel.modifyGraphThemePanel &&
-                            <InfoPanel
-                                title={'知识笔记 | 修改主题样式'}
-                                handleClosePanel={handleCloseInfoPanel}
-                                contain={
-                                    <ModifyGraphThemePanel
-                                        currentGraphThemeOption={graph}
-                                        graphColorTheme={graphColorTheme}
-                                        lineColor={lineColor}
-                                        handleModifyGraph={handleModifyGraph}
-                                        handleSaveGraphTheme={handleSaveGraphTheme}
-                                    />
-                                }
-                            />
-                        }
-                    </>
+                    </div>
                 }
                 {
                     views === 'notebookListView' &&
                     <div style={{ padding: '10px 30px' }}>
-                        <h1>知识地图信息列表</h1>
-                        <FormControl component="fieldset" style={{ marginBottom: 20 }}>
-                            <RadioGroup row aria-label="position" name="position" defaultValue="all-notebook">
-                                <FormControlLabel value="all-notebook" control={<Radio color="primary" />} label="知识笔记列表" />
-                                <FormControlLabel value="all-node" control={<Radio color="primary" />} label="知识节点列表" />
-                                <FormControlLabel value="all-link" control={<Radio color="primary" />} label="知识关联列表" />
-                            </RadioGroup>
-                        </FormControl>
-                        {
-                            notebooksLoading ? (
-                                <Skeleton variant="rect" width={'100%'} height={250} style={{opacity: 0.3}} />
-                            ) : (
-                                <PaginationDataTable
-                                    header={["笔记标题", "引用", "标签", "时间", "操作"]}
-                                    rows={notebooks}
-                                    buttons={["查看"]}
-                                    actions={[() => { alert('查看'); }]}
-                                />
-                            )
-                        }
+                        <NotebookListView
+                            // notebooks={notebooks}
+                        />
                     </div>
                 }
                 {
@@ -909,6 +816,6 @@ export const KNMDetailPage: React.FC = () => {
                     </div>
                 }
             </div>
-        </>
+        </React.Fragment>
     )
 }

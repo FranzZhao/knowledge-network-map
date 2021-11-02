@@ -5,11 +5,13 @@ import { API } from "../../settings/api";
 interface NodeState {
     loading: boolean;
     error: string | null;
+    currentNodesList: [];
 };
 
 const initialNodeState: NodeState = {
     loading: false,
     error: null,
+    currentNodesList: [],
 };
 
 // action: update node info
@@ -68,6 +70,31 @@ export const createNode = createAsyncThunk(
     }
 );
 
+// action: get all node from specific map
+export const findAllMapNodes = createAsyncThunk(
+    'node/findAll',
+    async (params: {
+        jwt: string | null, graphId: string
+    }, ThunkAPI) => {
+        try {
+            const apiFindNodes = API.node.replace(':graphId', params.graphId);
+            const mapNodes = await axios.get(
+                apiFindNodes,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // console.log(mapNodes);
+            return {
+                currentNodesList: mapNodes.data
+            };
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
+    }
+);
 
 // slice
 export const NodeSlice = createSlice({
@@ -84,6 +111,7 @@ export const NodeSlice = createSlice({
             state.error = null;
         },
         [createNode.rejected.type]: (state, action) => {
+            state.currentNodesList = [];
             state.loading = false;
             state.error = action.payload;
         },
@@ -92,10 +120,24 @@ export const NodeSlice = createSlice({
             state.loading = true;
         },
         [updateNodeInfo.fulfilled.type]: (state, action) => {
+            state.currentNodesList = [];
             state.loading = false;
             state.error = null;
         },
         [updateNodeInfo.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // find all node
+        [findAllMapNodes.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [findAllMapNodes.fulfilled.type]: (state, action) => {
+            state.currentNodesList = action.payload.currentNodesList;
+            state.loading = false;
+            state.error = null;
+        },
+        [findAllMapNodes.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

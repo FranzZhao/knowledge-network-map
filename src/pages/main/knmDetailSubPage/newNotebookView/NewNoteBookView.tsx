@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import customize components
-import { TinyMCE } from '../../../components/common';
+import { TinyMCE } from '../../../../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -22,10 +22,14 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import { Tooltip } from '@material-ui/core';
 // import mock data
-import { mockTags } from '../../../settings/mocks/DefaultTags';
-import { relations, nodeData } from '../../../settings/mocks/DefaultGraph';
-
-
+import { mockTags } from '../../../../settings/mocks/DefaultTags';
+import { relations, nodeData } from '../../../../settings/mocks/DefaultGraph';
+// redux
+import { useDispatch } from 'react-redux';
+import { useSelector } from '../../../../redux/hooks';
+import { findAllMapNodes } from '../../../../redux/knm/nodeSlice';
+import { findAllMapLinks } from '../../../../redux/knm/linkSlice';
+import { createMapNotebook } from '../../../../redux/knm/notebookSlice';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -98,6 +102,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 interface NotebookState {
     title: string;
+    relationType: 'node' | 'link';
+    relationId: string;
     tags: any[];
     quote: string;
     intro: string;
@@ -106,17 +112,72 @@ interface NotebookState {
     text: string;
 }
 
+// interface NewNotebookViewState {
+
+// }
 export const NewNoteBookView = () => {
     const classes = useStyles();
+    // notebook value
     const [values, setValues] = useState<NotebookState>({
         title: '',
-        tags: [mockTags[1].title],
+        relationType: 'node',
+        relationId: '',
+        tags: [],
         quote: '',
         intro: '',
         selfDefineTitle: [],
         selfDefineContain: [],
         text: '',
     });
+    // all node & link
+    const [nodes, setNodes] = useState<any[]>([]);
+    const [links, setLinks] = useState<any[]>([]);
+    // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenGraphId = useSelector(state => state.graph.currentOpenGraphInfo)['_id'];
+
+    // get all nodes
+    const handleFindMapNodes = async () => {
+        const res = await dispatch(findAllMapNodes({
+            jwt: jwt, graphId: currentOpenGraphId
+        }));
+        return res['payload'];
+    }
+
+    // get all links
+    const handleFindMapLinks = async () => {
+        const res = await dispatch(findAllMapLinks({
+            jwt: jwt, graphId: currentOpenGraphId
+        }));
+        return res['payload'];
+    }
+
+    // get all notebook from current map
+    useEffect(() => {
+        handleFindMapNodes().then(res => {
+            let allNodes: any[] = [];
+            res['currentNodesList'].map(node => {
+                allNodes.push({
+                    id: node['_id'],
+                    name: node['name'],
+                });
+            });
+            // console.log(allNodes);
+            setNodes(allNodes);
+        });
+        handleFindMapLinks().then(res => {
+            let allLinks: any[] = [];
+            res['currentLinksList'].map(link => {
+                allLinks.push({
+                    id: link['_id'],
+                    name: link['name'],
+                });
+            });
+            // console.log(allLinks);
+            setLinks(allLinks);
+        });
+    }, []);
 
     // change notebook values
     const handleChangeText = (prop: keyof NotebookState) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +186,24 @@ export const NewNoteBookView = () => {
             [prop]: event.target.value,
         });
     };
+
+    // change notebook relation
+    const handleChangeRelation = (event: React.ChangeEvent<{ value: unknown }>) => {
+        // const relationType 
+        const relationId = event.target.value as string;
+        let relationType: 'node' | 'link' = 'node';
+        links.map(link => {
+            if (link.id === relationId){
+                relationType = 'link';
+            }
+        });
+        console.log(relationType);
+        setValues({
+            ...values,
+            relationType: relationType,
+            relationId: relationId,
+        });
+    }
 
     // change self defined title
     const handleChangeSelfDefinedTitle = (index) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,8 +261,13 @@ export const NewNoteBookView = () => {
         });
     }
 
-    const handleOutput = () => {
-        console.log(values);
+    const handleSaveNotebook = () => {
+        // console.log(values);
+        dispatch(createMapNotebook({
+            jwt: jwt, graphId: currentOpenGraphId, 
+            target: values.relationType, targetId: values.relationId,
+            notebookValues: values
+        }));
     };
 
 
@@ -204,7 +288,7 @@ export const NewNoteBookView = () => {
                         variant="outlined"
                         color="primary"
                         startIcon={<SaveIcon />}
-                        onClick={handleOutput}
+                        onClick={handleSaveNotebook}
                     >保存笔记</Button>
                 </div>
             </div>
@@ -215,18 +299,24 @@ export const NewNoteBookView = () => {
                     <AccountTreeIcon fontSize="small" />
                     <p>关联节点</p>
                 </div>
-                <FormControl style={{width: '100%', flex: 1,}}>
+                <FormControl style={{ width: '100%', flex: 1, }}>
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        defaultValue={'导数的定义'}
-                        // value={values.nodeSize}
-                        // onChange={handleChangeNodeSize}
+                        value={values.relationId}
+                        onChange={handleChangeRelation}
                     >
                         {
-                            nodeData.map((node, index) => {
+                            nodes.map((node, index) => {
                                 return (
-                                    <MenuItem value={node.name} key={`${node.name}-${index}`}>{node.name}</MenuItem>
+                                    <MenuItem value={node.id} key={node.id}>{node.name}</MenuItem>
+                                );
+                            })
+                        }
+                        {
+                            links.map((link, index) => {
+                                return (
+                                    <MenuItem value={link.id} key={link.id}>{link.name}</MenuItem>
                                 );
                             })
                         }
@@ -308,9 +398,9 @@ export const NewNoteBookView = () => {
                             className={classes.notebookPropertyLeft}
                         >
                             <Tooltip title="删除字段" arrow>
-                                <RemoveCircleOutlineIcon 
-                                    fontSize="small" 
-                                    onClick={()=>handleDeleteSelfDefinedProperty(index)} 
+                                <RemoveCircleOutlineIcon
+                                    fontSize="small"
+                                    onClick={() => handleDeleteSelfDefinedProperty(index)}
                                 />
                             </Tooltip>
                             <TextField

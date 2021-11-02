@@ -23,8 +23,8 @@ export const getNodeNotebooks = createAsyncThunk(
         jwt: string | null, graphId: string, nodeId: string
     }, ThunkAPI) => {
         let apiNodeNotebooks = API.notebook.node;
-        apiNodeNotebooks = apiNodeNotebooks.replace(':graphId',params.graphId);
-        apiNodeNotebooks = apiNodeNotebooks.replace(':nodeId',params.nodeId);
+        apiNodeNotebooks = apiNodeNotebooks.replace(':graphId', params.graphId);
+        apiNodeNotebooks = apiNodeNotebooks.replace(':nodeId', params.nodeId);
 
         const nodeNotebooks = await axios.get(
             apiNodeNotebooks,
@@ -48,8 +48,8 @@ export const getLinkNotebooks = createAsyncThunk(
         jwt: string | null, graphId: string, linkId: string
     }, ThunkAPI) => {
         let apiLinkNotebooks = API.notebook.link;
-        apiLinkNotebooks = apiLinkNotebooks.replace(':graphId',params.graphId);
-        apiLinkNotebooks = apiLinkNotebooks.replace(':linkId',params.linkId);
+        apiLinkNotebooks = apiLinkNotebooks.replace(':graphId', params.graphId);
+        apiLinkNotebooks = apiLinkNotebooks.replace(':linkId', params.linkId);
 
         const linkNotebooks = await axios.get(
             apiLinkNotebooks,
@@ -73,7 +73,7 @@ export const getMapNotebooks = createAsyncThunk(
         jwt: string | null, graphId: string
     }, ThunkAPI) => {
         let apiMapNotebooks = API.notebook.all;
-        apiMapNotebooks = apiMapNotebooks.replace(':graphId',params.graphId);
+        apiMapNotebooks = apiMapNotebooks.replace(':graphId', params.graphId);
         const allNotebooks = await axios.get(
             apiMapNotebooks,
             {
@@ -82,9 +82,52 @@ export const getMapNotebooks = createAsyncThunk(
                 }
             },
         );
-        console.log(allNotebooks.data);
+        // console.log(allNotebooks.data);
         return {
             currentNotebooksList: allNotebooks.data
+        }
+    }
+);
+
+// action: create notebook
+export const createMapNotebook = createAsyncThunk(
+    'notebook/create',
+    async (params: {
+        jwt: string | null, graphId: string, target: 'node' | 'link', targetId: string,
+        notebookValues: any,
+    }, ThunkAPI) => {
+        try {
+            // 1. api format
+            let apiCreateNotebook = API.notebook.normal;
+            apiCreateNotebook = apiCreateNotebook.replace(':graphId', params.graphId);
+            apiCreateNotebook = apiCreateNotebook.replace(':target', params.target);
+            apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
+            console.log(params.notebookValues);
+            // 2. post request to create notebook
+            const newNotebook = await axios.post(
+                apiCreateNotebook,
+                {
+                    title: params.notebookValues.title,
+                    tags: params.notebookValues.tags,
+                    quotes: params.notebookValues.quote,
+                    introduction: params.notebookValues.intro,
+                    addPropertyName: params.notebookValues.selfDefineTitle,
+                    addPropertyContent: params.notebookValues.selfDefineContain,
+                    text: params.notebookValues.test,
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // 3. return result
+            return {
+                currentNotebookDetail: newNotebook
+            }
+
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
         }
     }
 );

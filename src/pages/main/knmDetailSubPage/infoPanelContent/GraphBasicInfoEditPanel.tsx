@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import SaveIcon from '@material-ui/icons/Save';
-import { mockTags } from '../../../settings/mocks/DefaultTags';
+import { mockTags } from '../../../../settings/mocks/DefaultTags';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -14,8 +14,8 @@ import { Skeleton } from '@material-ui/lab';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 // import redux
-import { useSelector } from '../../../redux/hooks';
-import { knmUpdate } from '../../../redux/knm/knmMapSlice';
+import { useSelector } from '../../../../redux/hooks';
+import { knmUpdate } from '../../../../redux/knm/knmMapSlice';
 import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

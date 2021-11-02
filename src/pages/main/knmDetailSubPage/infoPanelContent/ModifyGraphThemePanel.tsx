@@ -23,7 +23,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 // import react-color
 import { CirclePicker } from 'react-color';
 // redux
-import { useSelector } from '../../../redux/hooks';
+import { useSelector } from '../../../../redux/hooks';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

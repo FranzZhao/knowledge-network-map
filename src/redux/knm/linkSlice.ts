@@ -5,11 +5,13 @@ import { API } from "../../settings/api";
 interface LinkState {
     loading: boolean;
     error: string | null;
+    currentLinksList: [];
 };
 
 const initialLinkState: LinkState = {
     loading: false,
     error: null,
+    currentLinksList: [],
 };
 
 // action: update node info
@@ -68,6 +70,31 @@ export const createLink = createAsyncThunk(
     }
 );
 
+// action: get all links from specific map
+export const findAllMapLinks = createAsyncThunk(
+    'link/findAll',
+    async (params: {
+        jwt: string | null, graphId: string
+    }, ThunkAPI) => {
+        try {
+            const apiFindLinks = API.link.replace(':graphId', params.graphId);
+            const mapLinks = await axios.get(
+                apiFindLinks,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // console.log(mapLinks);
+            return {
+                currentLinksList: mapLinks.data
+            };
+        } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
+    }
+);
 
 // slice
 export const LinkSlice = createSlice({
@@ -75,11 +102,12 @@ export const LinkSlice = createSlice({
     initialState: initialLinkState,
     reducers: {},
     extraReducers: {
-        // create node
+        // create link
         [createLink.pending.type]: (state) => {
             state.loading = true;
         },
         [createLink.fulfilled.type]: (state, action) => {
+            state.currentLinksList = [];
             state.loading = false;
             state.error = null;
         },
@@ -87,15 +115,29 @@ export const LinkSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
-        // update node
+        // update link
         [updateLinkInfo.pending.type]: (state) => {
             state.loading = true;
         },
         [updateLinkInfo.fulfilled.type]: (state, action) => {
+            state.currentLinksList = [];
             state.loading = false;
             state.error = null;
         },
         [updateLinkInfo.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // find all links
+        [findAllMapLinks.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [findAllMapLinks.fulfilled.type]: (state, action) => {
+            state.currentLinksList = action.payload.currentLinksList;
+            state.loading = false;
+            state.error = null;
+        },
+        [findAllMapLinks.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

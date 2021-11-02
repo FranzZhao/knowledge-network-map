@@ -12,13 +12,13 @@ import Button from '@material-ui/core/Button';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 import { CircularProgress } from '@material-ui/core';
 // import mock data
-import { mockTags } from '../../../settings/mocks/DefaultTags';
-import { relations, nodeData } from '../../../settings/mocks/DefaultGraph';
+import { mockTags } from '../../../../settings/mocks/DefaultTags';
+import { relations, nodeData } from '../../../../settings/mocks/DefaultGraph';
 // redux
-import { useSelector } from '../../../redux/hooks';
+import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { createLink } from '../../../redux/knm/linkSlice';
-import { getGraphDetail } from '../../../redux/knm/graphSlice';
+import { createLink } from '../../../../redux/knm/linkSlice';
+import { getGraphDetail } from '../../../../redux/knm/graphSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {

@@ -14,12 +14,12 @@ import { CircularProgress } from '@material-ui/core';
 // import react-color
 import { CirclePicker } from 'react-color';
 // import mock data
-import { mockTags } from '../../../settings/mocks/DefaultTags';
+import { mockTags } from '../../../../settings/mocks/DefaultTags';
 // redux
-import { useSelector } from '../../../redux/hooks';
+import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { createNode } from '../../../redux/knm/nodeSlice';
-import { getGraphDetail } from '../../../redux/knm/graphSlice';
+import { createNode } from '../../../../redux/knm/nodeSlice';
+import { getGraphDetail } from '../../../../redux/knm/graphSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelForms: {
