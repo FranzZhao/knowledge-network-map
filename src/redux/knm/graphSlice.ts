@@ -19,7 +19,7 @@ const initialGraphState: GraphState = {
 // action: according current open knm map to get the detail info of the force graph
 export const getGraphDetail = createAsyncThunk(
     'graph/detail',
-    async (params: { currentOpenMapId: string, jwt: string | null }, ThunkAPI) => {
+    async (params: { currentOpenMapId: string, jwt: string | null }, thunkAPI) => {
         try {
             const apiGetGraph = API.graph.replace(':mapId', params.currentOpenMapId);
             // console.log('api => ',apiGetGraph);
@@ -36,7 +36,7 @@ export const getGraphDetail = createAsyncThunk(
                 currentOpenGraphInfo: currentOpenGraphInfo.data
             }
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -46,7 +46,7 @@ export const updateGraphTheme = createAsyncThunk(
     'graph/update',
     async (params: {
         jwt: string | null, currentOpenMapId: string, currentGraphId: string, newGraphTheme: {}
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             const apiGetGraph = `${API.graph.replace(':mapId', params.currentOpenMapId)}/${params.currentGraphId}`;
             const newGraph = await axios.patch(
@@ -72,7 +72,7 @@ export const updateGraphTheme = createAsyncThunk(
             );
             // console.log(newGraph);
         } catch (error) {
-            ThunkAPI.rejectWithValue(error);
+            thunkAPI.rejectWithValue(error);
         }
     }
 );

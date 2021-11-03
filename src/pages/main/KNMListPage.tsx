@@ -116,12 +116,17 @@ export const KNMListPage: React.FC = () => {
                 knmLoading ? (
                     <Skeleton variant="rect" width={'100%'} height={400} style={{ opacity: 0.3 }} />
                 ) : (
-                    <PaginationDataTable
-                        header={["知识地图标题", "标签", "作者", "更新时间", "操作"]}
-                        rows={currentKnmList}
-                    // buttons={['查看']}
-                    // actions={[sayHello]}
-                    />
+                    currentKnmList.length === 0 ? (
+                        <div style={{ display: 'flex', height: 'calc(100vh - 200px)', width: '100%' }}>
+                            <h1 style={{ textAlign: 'center', color: 'grey', margin: 'auto', userSelect: 'none', fontSize: 40 }}>暂无知识地图，请新建知识地图</h1>
+                        </div>
+                    ) : (
+                        <PaginationDataTable
+                            header={["知识地图标题", "标签", "作者", "更新时间", "操作"]}
+                            rows={currentKnmList}
+                        />
+                    )
+
                 )
             }
         </div>

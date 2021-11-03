@@ -17,7 +17,7 @@ const initialLinkState: LinkState = {
 // action: update node info
 export const updateLinkInfo = createAsyncThunk(
     'link/update',
-    async (params: { jwt: string | null, linkInfo: {}, graphId: string, linkId: string }, ThunkAPI) => {
+    async (params: { jwt: string | null, linkInfo: {}, graphId: string, linkId: string }, thunkAPI) => {
         try {
             const apiLinkUpdate = `${API.link.replace(':graphId', params.graphId)}/${params.linkId}`;
             const newLinkInfo = await axios.patch(
@@ -37,7 +37,7 @@ export const updateLinkInfo = createAsyncThunk(
             );
             // console.log(newLinkInfo);
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -45,7 +45,7 @@ export const updateLinkInfo = createAsyncThunk(
 // action: create a new node
 export const createLink = createAsyncThunk(
     'link/create',
-    async (params: { jwt: string | null, linkInfo: {}, graphId: string }, ThunkAPI) => {
+    async (params: { jwt: string | null, linkInfo: {}, graphId: string }, thunkAPI) => {
         try {
             const apiLinkCreate = API.link.replace(':graphId', params.graphId);
             const newNode = await axios.post(
@@ -65,7 +65,7 @@ export const createLink = createAsyncThunk(
             );
             // console.log("new node => ",newNode);
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -75,7 +75,7 @@ export const findAllMapLinks = createAsyncThunk(
     'link/findAll',
     async (params: {
         jwt: string | null, graphId: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             const apiFindLinks = API.link.replace(':graphId', params.graphId);
             const mapLinks = await axios.get(
@@ -91,7 +91,7 @@ export const findAllMapLinks = createAsyncThunk(
                 currentLinksList: mapLinks.data
             };
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );

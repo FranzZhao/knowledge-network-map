@@ -47,6 +47,10 @@ import jwt_decode, { JwtPayload as DefaultJwtPayload } from "jwt-decode";
 import { useSelector } from '../../redux/hooks';
 // import dropzone
 import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
+// import redux
+import { useDispatch } from 'react-redux';
+import { getUserAvatar, getUserStatics } from '../../redux/user/slice';
+
 
 echarts.use(
     [HeatmapChart, SVGRenderer]
@@ -172,7 +176,10 @@ export const UserSpacePage: React.FC = () => {
         userInfoSetting: false,
     });
     // redux
+    const dispatch = useDispatch();
     const jwt = useSelector(state => state.user.token);
+    const userAvatar = useSelector(state => state.user.userAvatar);
+    const userStatic = useSelector(state => state.user.userStatics);
     // show username
     const [username, setUsername] = useState("");
     // upload user avatar
@@ -182,10 +189,19 @@ export const UserSpacePage: React.FC = () => {
     useEffect(() => {
         // jwt发生编码且存在, 对jwt进行解码
         if (jwt) {
+            // 获取username
             const token = jwt_decode<JwtPayload>(jwt);
             setUsername(token.username);
+            // 获取用户头像
+            dispatch(getUserAvatar({ jwt: jwt }));
+            // 获取用户统计信息
+            dispatch(getUserStatics({jwt: jwt}));
         }
     }, [jwt]);
+
+    useEffect(()=>{
+        console.log(userStatic);
+    },[userStatic]);
 
     const handleOpenUploadDialog = () => {
         setOpenUploadDialog(!openUploadDialog);
@@ -232,7 +248,7 @@ export const UserSpacePage: React.FC = () => {
                         </Tooltip>
                     }
                 >
-                    <Avatar alt="Travis Howard" src={userImg} className={classes.userImg} />
+                    <Avatar alt="Travis Howard" src={userAvatar ? userAvatar : userImg} className={classes.userImg} />
                 </Badge>
                 {/* upload user avatar dialog */}
                 <UploadUserAvatar
@@ -266,7 +282,7 @@ export const UserSpacePage: React.FC = () => {
                                             >
                                                 <Grid item ><LanguageIcon /></Grid>
                                                 <Grid item >知识地图</Grid>
-                                                <Grid item >54</Grid>
+                                                <Grid item >{userStatic['knmNumbers']}</Grid>
                                             </Grid>
                                         </Grid>
                                         <Grid item >
@@ -278,7 +294,7 @@ export const UserSpacePage: React.FC = () => {
                                             >
                                                 <Grid item ><BubbleChartIcon /></Grid>
                                                 <Grid item>知识节点</Grid>
-                                                <Grid item>134</Grid>
+                                                <Grid item>{userStatic['nodeNumbers']}</Grid>
                                             </Grid>
                                         </Grid>
                                         <Grid item >
@@ -290,7 +306,7 @@ export const UserSpacePage: React.FC = () => {
                                             >
                                                 <Grid item ><BookIcon /></Grid>
                                                 <Grid item >知识笔记</Grid>
-                                                <Grid item >341</Grid>
+                                                <Grid item >{userStatic['notebookNumbers']}</Grid>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -444,70 +460,97 @@ interface UploadUserAvatarState {
 const UploadUserAvatar: React.FC<UploadUserAvatarState> = ({
     openDialog, handleOpenUploadDialog
 }) => {
+    // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
     // dropzone
     const [files, setFiles] = useState([]);
     const [imageSrc, setImageSrc] = useState(undefined);
+
+    // const updateFiles = (incommingFiles) => {
+    //     console.log("incomming files", incommingFiles);
+    //     setFiles(incommingFiles);
+    // };
+
     const updateFiles = (incommingFiles) => {
-        console.log("incomming files", incommingFiles);
+        // console.log("incomming files", incommingFiles);
         setFiles(incommingFiles);
     };
+
     const onDelete = (id) => {
         setFiles(files.filter((x) => x['id'] !== id));
     };
+
     const handleSee = (imageSource) => {
         setImageSrc(imageSource);
+    };
+
+    const handleGetNewAvatar = () => {
+        dispatch(getUserAvatar({
+            jwt: jwt
+        }));
+        handleOpenUploadDialog();
+        setFiles([]);
+        setImageSrc(undefined);
     };
 
     return (
         <DialogBox
             open={openDialog}
-            boxSize="lg"
+            boxSize="sm"
             title={'上传头像'}
             contain={
-                <Dropzone
-                    style={{ minWidth: "550px" }}
-                    //view={"list"}
-                    onChange={updateFiles}
-                    value={files}
-                    maxFiles={1}
-                    //header={false}
-                    // footer={false}
-                    maxFileSize={2998000}
-                    //label="Drag'n drop files here or click to browse"
-                    //label="Suleta tus archivos aquí"
-                    accept=".png,image/*"
-                    // uploadingMessage={"Uploading..."}
-                    url="http://ec2-99-99-9-9.compute-1.amazonaws.com:2800/upload-my-file"
-                    //of course this url doens´t work, is only to make upload button visible
-                    //uploadOnDrop
-                    //clickable={false}
-                    fakeUploading
-                //localization={"FR-fr"}
-                >
-                    {files.map((file) => (
-                        <FileItem
-                            {...file}
-                            key={file['id']}
-                            onDelete={onDelete}
-                            onSee={handleSee}
-                            //localization={"FR-fr"}
-                            //localization={"ES-es"}
-                            preview
-                            info
-                            hd
+                <>
+                    <div style={{ marginBottom: 10 }}>选择图片后，点击上方的"upload files"按钮即可上传头像，若成功将会查看到success信息提示！</div>
+                    <Dropzone
+                        style={{ minWidth: "100%" }}
+                        //view={"list"}
+                        onChange={updateFiles}
+                        value={files}
+                        maxFiles={1}
+                        //header={false}
+                        // footer={false}
+                        maxFileSize={2998000}
+                        label="点击或拖拽图片至此"
+                        //label="Suleta tus archivos aquí"
+                        accept=".png,image/*"
+                        uploadingMessage={"Uploading..."}
+                        url="http://localhost:3001/user/avatar"
+                        config={
+                            {
+                                headers: {
+                                    "content-type": "multipart/form-data;",
+                                    "Authorization": `bearer ${jwt}`
+                                },
+                            }
+                        }
+                        method="POST"
+                    >
+                        {files.map((file) => (
+                            <FileItem
+                                {...file}
+                                key={file['id']}
+                                onDelete={onDelete}
+                                onSee={handleSee}
+                                //localization={"FR-fr"}
+                                //localization={"ES-es"}
+                                preview
+                                info
+                                hd
+                            />
+                        ))}
+                        <FullScreenPreview
+                            imgSource={imageSrc}
+                            openImage={imageSrc}
+                            onClose={(e) => handleSee(undefined)}
                         />
-                    ))}
-                    <FullScreenPreview
-                        imgSource={imageSrc}
-                        openImage={imageSrc}
-                        onClose={(e) => handleSee(undefined)}
-                    />
-                </Dropzone>
+                    </Dropzone>
+                </>
             }
             actions={
                 <React.Fragment>
-                    <Button variant='text' color="primary" onClick={handleOpenUploadDialog}>取消</Button>
-                    <Button variant='text' color="secondary" onClick={handleOpenUploadDialog}>确认</Button>
+                    <Button variant='text' color="primary" onClick={handleOpenUploadDialog}>退出</Button>
+                    <Button variant='text' color="secondary" onClick={handleGetNewAvatar}>完成</Button>
                 </React.Fragment>
             }
         />
@@ -539,6 +582,7 @@ const KnowledgeStatic = () => {
     const optionBar = {
         // legend: {},
         // tooltip: {},
+        // darkMode: true,
         dataset: {
             source: [
                 ['product', '2012', '2013', '2014', '2015'],
@@ -579,7 +623,9 @@ const KnowledgeStatic = () => {
                 option={optionBar}
                 style={{ height: 500 }}
             />
-            <ReactECharts option={options} />
+            <ReactECharts 
+                option={options} 
+            />
         </React.Fragment>
     )
 }

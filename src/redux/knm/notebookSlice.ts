@@ -25,7 +25,7 @@ export const getNodeNotebooks = createAsyncThunk(
     'notebook/getNodeNotebooks',
     async (params: {
         jwt: string | null, graphId: string, nodeId: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         let apiNodeNotebooks = API.notebook.node;
         apiNodeNotebooks = apiNodeNotebooks.replace(':graphId', params.graphId);
         apiNodeNotebooks = apiNodeNotebooks.replace(':nodeId', params.nodeId);
@@ -50,7 +50,7 @@ export const getLinkNotebooks = createAsyncThunk(
     'notebook/getLinkNotebooks',
     async (params: {
         jwt: string | null, graphId: string, linkId: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         let apiLinkNotebooks = API.notebook.link;
         apiLinkNotebooks = apiLinkNotebooks.replace(':graphId', params.graphId);
         apiLinkNotebooks = apiLinkNotebooks.replace(':linkId', params.linkId);
@@ -75,7 +75,7 @@ export const getMapNotebooks = createAsyncThunk(
     'notebook/getMapNotebooks',
     async (params: {
         jwt: string | null, graphId: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         let apiMapNotebooks = API.notebook.all;
         apiMapNotebooks = apiMapNotebooks.replace(':graphId', params.graphId);
         const allNotebooks = await axios.get(
@@ -98,7 +98,7 @@ export const getNotebookDetail = createAsyncThunk(
     'notebook/getNotebookDetail',
     async (params:{
         jwt: string | null, graphId: string, target: string, targetId: string, notebookId: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             // 1. api format
             let apiCreateNotebook = API.notebook.normal;
@@ -119,7 +119,7 @@ export const getNotebookDetail = createAsyncThunk(
                 currentNotebookDetail: notebookDetail.data
             };
         } catch (error) { 
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -130,7 +130,7 @@ export const createMapNotebook = createAsyncThunk(
     async (params: {
         jwt: string | null, graphId: string, target: 'node' | 'link', targetId: string,
         notebookValues: any,
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             // 1. api format
             let apiCreateNotebook = API.notebook.normal;
@@ -161,7 +161,7 @@ export const createMapNotebook = createAsyncThunk(
             }
 
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -173,7 +173,7 @@ export const updateNotebookDetail = createAsyncThunk(
     async (params:{
         jwt: string | null, graphId: string, target: string, targetId: string, notebookId: string,
         notebookValues: any,
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             // 1. api format
             let apiCreateNotebook = API.notebook.normal;
@@ -204,7 +204,7 @@ export const updateNotebookDetail = createAsyncThunk(
                 currentNotebookDetail: notebookDetail.data
             };
         } catch (error) { 
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );

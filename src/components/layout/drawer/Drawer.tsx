@@ -37,7 +37,7 @@ import { openItemToPageTab, openUserSpace, updateSystemNavItem } from '../../../
 import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
-import { UserSlice } from '../../../redux/user/slice';
+import { getUserAvatar, UserSlice } from '../../../redux/user/slice';
 import { knmCreate, getKnmDetail } from '../../../redux/knm/knmMapSlice';
 import { getGraphDetail } from '../../../redux/knm/graphSlice';
 // import Router
@@ -246,6 +246,7 @@ export const LeftDrawer = () => {
     const currentActivatedNavItem = useSelector(state => state.pageTabs.leftDrawerActivatedItem);
     const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
     const knmListInfo = useSelector(state => state.knmMap.knmList);
+    const userAvatar = useSelector(state => state.user.userAvatar);
     // drawer open state & style
     const [open, setOpen] = useState(true);
     const matches = useMediaQuery('(min-width:1000px)');
@@ -261,8 +262,11 @@ export const LeftDrawer = () => {
     useEffect(() => {
         // jwt发生编码且存在, 对jwt进行解码
         if (jwt) {
+            // get user name
             const token = jwt_decode<JwtPayload>(jwt);
             setUsername(token.username);
+            // get user avatar
+            dispatch(getUserAvatar({jwt: jwt}));
         }
     }, [jwt]);
 
@@ -391,7 +395,7 @@ export const LeftDrawer = () => {
                 {/* user info */}
                 <div className={classes.toolbar}>
                     <Avatar
-                        alt="User Picture" src={userPicture} className={classes.userHeader}
+                        alt="User Picture" src={userAvatar?userAvatar:userPicture} className={classes.userHeader}
                     />
                     <IconButton
                         color="inherit"

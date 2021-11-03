@@ -2,16 +2,21 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 // axios
 import axios from 'axios';
 // api
-import {API} from '../../settings/api';
+import { API } from '../../settings/api';
+// const fs = require('fs');
 
 // User State
 interface UserState {
+    userAvatar: any;
+    userStatics: any;
     loading: boolean;
     error: string | null;
     token: string | null;
 };
 
 const initialUserState: UserState = {
+    userAvatar: null,
+    userStatics: null,
     loading: false,
     error: null,
     token: null
@@ -78,8 +83,75 @@ export const userJWTVerify = createAsyncThunk(
                         Authorization: `bearer ${params.jwt}`
                     }
                 },
-            );    
+            );
             return data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+// action: user upload user avatar
+export const uploadUserAvatar = createAsyncThunk(
+    'user/uploadAvatar',
+    async (params: { jwt: string | null, file: any }, thunkAPI) => {
+        const formData = new FormData();
+        console.log(params.file[0]);
+        formData.append('file', params.file[0], params.file[0].file.name);
+        const file = await axios.post(
+            'http://localhost:3001/user/avatar',
+            {
+                formData
+            },
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data; boundary=<calculated when request is sent>',
+                    Authorization: `bearer ${params.jwt}`,
+                }
+            },
+        );
+        console.log(file);
+    }
+);
+
+// get user avatar
+export const getUserAvatar = createAsyncThunk(
+    'user/getAvatar',
+    async (params: { jwt: string | null }, thunkAPI) => {
+        try {
+            const userAvatarUrl = await axios.get(
+                'http://localhost:3001/user/avatar',
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`,
+                    }
+                },
+            );
+            return { 
+                userAvatar: userAvatarUrl.data
+            };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+// get user statics
+export const getUserStatics = createAsyncThunk(
+    'user/getStatics',
+    async (params: { jwt: string | null }, thunkAPI) => {
+        try {
+            const userStatics = await axios.get(
+                'http://localhost:3001/user/statics',
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`,
+                    }
+                },
+            );
+            return { 
+                userStatics: userStatics.data
+            };
         } catch (error) {
             return thunkAPI.rejectWithValue(error);
         }
@@ -134,6 +206,32 @@ export const UserSlice = createSlice({
         [userJWTVerify.rejected.type]: (state, action) => {
             state.loading = false;
             state.token = null;     // 一定要把token清空! 要不会出大事!
+            state.error = action.payload;
+        },
+        // get user avatar
+        [getUserAvatar.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [getUserAvatar.fulfilled.type]: (state, action) => {
+            state.userAvatar = action.payload.userAvatar;
+            state.loading = false;
+            state.error = null;
+        },
+        [getUserAvatar.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // get user statics
+        [getUserStatics.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [getUserStatics.fulfilled.type]: (state, action) => {
+            state.userStatics = action.payload.userStatics;
+            state.loading = false;
+            state.error = null;
+        },
+        [getUserStatics.rejected.type]: (state, action) => {
+            state.loading = false;
             state.error = action.payload;
         },
     },

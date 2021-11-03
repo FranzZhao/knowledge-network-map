@@ -31,7 +31,7 @@ const initialKnmMapState: KnmMapState = {
  */
 export const getKnmList = createAsyncThunk(
     'knmMap/list',
-    async (params: { jwt: string | null }, ThunkAPI) => {
+    async (params: { jwt: string | null }, thunkAPI) => {
         try {
             const knmMapsList = await axios.get(
                 API.map,
@@ -43,8 +43,8 @@ export const getKnmList = createAsyncThunk(
             );
             return knmMapsList.data;
         } catch (error) {
-            console.log(ThunkAPI.rejectWithValue(error));
-            return ThunkAPI.rejectWithValue(error);
+            console.log(thunkAPI.rejectWithValue(error));
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -54,7 +54,7 @@ export const knmCreate = createAsyncThunk(
     'knmMap/create',
     async (params: {
         currentKnmMaps: [], jwt: string | null, title: string, tags: string[], introduction: string, emoji: string
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             const newKnm = await axios.post(
                 API.map,
@@ -77,7 +77,7 @@ export const knmCreate = createAsyncThunk(
             // console.log(newKnmMapsInfo);
             return newKnmMapsInfo;
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -85,7 +85,7 @@ export const knmCreate = createAsyncThunk(
 // action: get a detail knm map, with full info
 export const getKnmDetail = createAsyncThunk(
     'knmMap/detail',
-    async (params: { knmId: string, jwt: string | null, currentKnmList: [] }, ThunkAPI) => {
+    async (params: { knmId: string, jwt: string | null, currentKnmList: [] }, thunkAPI) => {
         try {
             const detailKnm = params.currentKnmList.find(knm => knm['_id']===params.knmId);
             return detailKnm; 
@@ -99,7 +99,7 @@ export const getKnmDetail = createAsyncThunk(
             // );
             // return detailKnm.data;
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -113,7 +113,7 @@ export const knmUpdate = createAsyncThunk(
         updateKnmInfo: any,
         knmList: [],
         currentOpenMapInfo: {},
-    }, ThunkAPI) => {
+    }, thunkAPI) => {
         try {
             // update current open map info
             const newKnmInfo = await axios.patch(
@@ -158,7 +158,7 @@ export const knmUpdate = createAsyncThunk(
                 currentOpenMapInfo: newCurrentOpenMap,
             });
         } catch (error) {
-            return ThunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
