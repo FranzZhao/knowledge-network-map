@@ -52,6 +52,11 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
         linkStart: '',
         linkEnd: '',
     });
+    // mark the name of linkStart & linkEnd (which are record the id of ndoe)
+    const [linkNodeName, setLinkNodeName] = useState({
+        linkStartName: '',
+        linkEndName: '',
+    });
     const [nodes, setNodes] = useState<any[]>([]);
     // redux
     const dispatch = useDispatch();
@@ -86,7 +91,6 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
     };
 
     const handleAddNewLinkClick = async () => {
-        // console.log(values);
         // create link to mongodb
         await dispatch(createLink({
             jwt: jwt,
@@ -106,6 +110,10 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
             linkStart: '',
             linkEnd: '',
         });
+        setLinkNodeName({
+            linkStartName: '',
+            linkEndName: '',
+        })
     };
 
     return (
@@ -124,6 +132,7 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
                     value={values.linkTags}
+                    freeSolo
                     onChange={(event, newValue) => {
                         setValues({
                             ...values,
@@ -142,21 +151,6 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                         />
                     )}
                 />
-                {/* <Autocomplete
-                    multiple
-                    id="tags-filled"
-                    options={mockTags.map((option) => option.title)}
-                    defaultValue={values.linkTags}
-                    freeSolo
-                    renderTags={(value: string[], getTagProps) =>
-                        value.map((option: string, index: number) => (
-                            <Chip variant="outlined" label={option} size="small" color="primary" {...getTagProps({ index })} />
-                        ))
-                    }
-                    renderInput={(params) => (
-                        <TextField {...params} label="知识关联标签" placeholder="选择或输入标签" />
-                    )}
-                /> */}
                 <TextField
                     id="knm-node-intro"
                     label="知识关联简介"
@@ -165,7 +159,54 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                     onChange={handleChangeText('linkIntro')}
                     multiline
                 />
-                <FormControl>
+
+                <Autocomplete
+                    value={linkNodeName.linkStartName}
+                    onChange={(event, newValue) => {
+                        nodes.map(node => {
+                            if (node.name === newValue) {
+                                setValues({
+                                    ...values,
+                                    linkStart: node.id
+                                });
+                                setLinkNodeName({
+                                    ...linkNodeName,
+                                    linkStartName: node.name
+                                });
+                            }
+                        });
+                    }}
+                    id="controllable-states-demo"
+                    options={nodes.map((option) => option.name)}
+                    style={{ width: '100%' }}
+                    renderInput={(params) => <TextField {...params} label="起始节点" variant="standard" />}
+                />
+
+                <Autocomplete
+                    value={linkNodeName.linkEndName}
+                    onChange={(event, newValue) => {
+                        nodes.map(node => {
+                            if (node.name === newValue) {
+                                setValues({
+                                    ...values,
+                                    linkEnd: node.id
+                                });
+                                setLinkNodeName({
+                                    ...linkNodeName,
+                                    linkEndName: node.name
+                                });
+                            }
+                        });
+                    }}
+                    id="controllable-states-demo"
+                    options={nodes.map((option) => option.name)}
+                    style={{ width: '100%' }}
+                    renderInput={(params) => <TextField {...params} label="目标节点" variant="standard" />}
+                />
+
+
+
+                {/* <FormControl>
                     <InputLabel id="demo-simple-select-label">起始节点</InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
@@ -198,7 +239,7 @@ export const AddNewLinkPanel: React.FC<AddNewLinkPanelState> = ({
                             })
                         }
                     </Select>
-                </FormControl>
+                </FormControl> */}
                 <Button
                     variant="contained"
                     color="primary"

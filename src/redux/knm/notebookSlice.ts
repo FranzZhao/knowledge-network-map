@@ -7,6 +7,8 @@ interface NotebookState {
     error: null | string;
     currentNotebooksList: [];
     currentNotebookDetail: {};
+    createSpecificNotebookRelationType: 'node' | 'link';
+    createSpecificNotebookRelationId: string | null;
 }
 
 const initialNotebookState: NotebookState = {
@@ -14,6 +16,8 @@ const initialNotebookState: NotebookState = {
     error: null,
     currentNotebooksList: [],
     currentNotebookDetail: {},
+    createSpecificNotebookRelationType: 'node',
+    createSpecificNotebookRelationId: null,
 }
 
 // action: 获取知识节点下的所有知识笔记
@@ -133,7 +137,6 @@ export const createMapNotebook = createAsyncThunk(
             apiCreateNotebook = apiCreateNotebook.replace(':graphId', params.graphId);
             apiCreateNotebook = apiCreateNotebook.replace(':target', params.target);
             apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
-            console.log(params.notebookValues);
             // 2. post request to create notebook
             const newNotebook = await axios.post(
                 apiCreateNotebook,
@@ -144,7 +147,7 @@ export const createMapNotebook = createAsyncThunk(
                     introduction: params.notebookValues.intro,
                     addPropertyName: params.notebookValues.selfDefineTitle,
                     addPropertyContent: params.notebookValues.selfDefineContain,
-                    text: params.notebookValues.test,
+                    text: params.notebookValues.text,
                 },
                 {
                     headers: {
@@ -179,6 +182,7 @@ export const updateNotebookDetail = createAsyncThunk(
             apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
             apiCreateNotebook = `${apiCreateNotebook}/${params.notebookId}`;
             // 2. get notebook detail
+            console.log();
             const notebookDetail = await axios.patch(
                 apiCreateNotebook,
                 {
@@ -188,7 +192,7 @@ export const updateNotebookDetail = createAsyncThunk(
                     introduction: params.notebookValues.intro,
                     addPropertyName: params.notebookValues.selfDefineTitle,
                     addPropertyContent: params.notebookValues.selfDefineContain,
-                    text: params.notebookValues.test,
+                    text: params.notebookValues.text,
                 },
                 {
                     headers: {
@@ -205,6 +209,14 @@ export const updateNotebookDetail = createAsyncThunk(
     }
 );
 
+// 针对已有的节点，直接创建新的笔记 -> 因此需要获得当前节点或关联的id
+// export const createSpecificNotebook = createAsyncThunk(
+//     'notebook/createSpecificNotebook',
+//     (params: {createSpecificNotebookRelationId: string}) => {
+//         return params.createSpecificNotebookRelationId;
+//     }
+// );
+
 // slice
 export const NotebookSlice = createSlice({
     name: 'notebook',
@@ -213,7 +225,11 @@ export const NotebookSlice = createSlice({
         // 清空currentNotebookDetail -> want to create a new notebook
         clearDetail: (state) => {
             state.currentNotebookDetail = {};
-        }
+        },
+        createSpecificNotebook: (state, action) => {
+            state.createSpecificNotebookRelationType = action.payload.createSpecificNotebookRelationType;
+            state.createSpecificNotebookRelationId = action.payload.createSpecificNotebookRelationId;
+        },
     },
     extraReducers: {
         // 获取知识地图下的所有知识笔记

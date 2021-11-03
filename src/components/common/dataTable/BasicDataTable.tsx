@@ -76,8 +76,8 @@ export const BasicDataTable: React.FC<DataTableState> = ({
                             <TableCell component="th" key={`${index}-number`} scope="row">{index + 1}</TableCell>
                             {/* main contain */}
                             {
-                                row.map((item) => (
-                                    <TableCell key={`${item}-${index + 1}`}>{item}</TableCell>
+                                row.map((item, index) => (
+                                    <TableCell key={`${item}-${index}`}>{item}</TableCell>
                                 ))
                             }
                             {/* table action */}

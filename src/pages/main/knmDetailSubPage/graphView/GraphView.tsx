@@ -41,12 +41,14 @@ interface GraphViewState {
     handleAddNewLink: (newLink: any, newRelation: any) => void;
     handleModifyGraph: (target: string, newValue: any) => void;
     handleSaveGraphTheme: () => {};
+    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean)=>void;
 };
 export const GraphView: React.FC<GraphViewState> = ({
     graph, echartsClick, openInfoPanel, nodeName,
     materialColor, graphColorTheme, lineColor,
     handleCloseInfoPanel, handleAddNode, handleAddNewLink,
     handleModifyGraph, handleSaveGraphTheme,
+    handleSwitchViews
 }) => {
     return (
         <React.Fragment>
@@ -77,6 +79,7 @@ export const GraphView: React.FC<GraphViewState> = ({
                         <NodeInfoEditPanel
                             nodeName={nodeName}
                             materialColor={materialColor}
+                            handleSwitchViews={handleSwitchViews}
                         />
                     }
                 />
@@ -91,6 +94,7 @@ export const GraphView: React.FC<GraphViewState> = ({
                         <LinkInfoEditPanel
                             linkName={nodeName}
                             materialColor={materialColor}
+                            handleSwitchViews={handleSwitchViews}
                         />
                     }
                 />

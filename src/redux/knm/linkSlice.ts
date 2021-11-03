@@ -26,8 +26,8 @@ export const updateLinkInfo = createAsyncThunk(
                     name: params.linkInfo['linkName'],
                     tags: params.linkInfo['linkTags'],
                     introduction: params.linkInfo['linkIntro'],
-                    source: params.linkInfo['linkStart'],
-                    target: params.linkInfo['linkEnd'],
+                    source: params.linkInfo['linkSource'],
+                    target: params.linkInfo['linkTarget'],
                 },
                 {
                     headers: {

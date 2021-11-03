@@ -31,7 +31,7 @@ import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { updateLinkInfo } from '../../../../redux/knm/linkSlice';
 import { getGraphDetail } from '../../../../redux/knm/graphSlice';
-import { getLinkNotebooks } from '../../../../redux/knm/notebookSlice';
+import { getLinkNotebooks, getNotebookDetail, NotebookSlice } from '../../../../redux/knm/notebookSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toggleBtn: {
@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface LinkInfoEditPanelState {
     linkName: string;
     materialColor: any[];
+    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean) => void;
 };
 
 interface LinkInfoState {
@@ -73,7 +74,7 @@ interface LinkInfoState {
     linkTarget: string;
 };
 export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
-    linkName, materialColor
+    linkName, materialColor, handleSwitchViews
 }) => {
     const classes = useStyles();
     const [values, setValues] = useState<LinkInfoState>({
@@ -83,6 +84,11 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
         linkIntro: '',
         linkSource: '',
         linkTarget: '',
+    });
+    // mark the name of linkStart & linkEnd (which are record the id of ndoe)
+    const [linkNodeName, setLinkNodeName] = useState({
+        linkStartName: '',
+        linkEndName: '',
     });
     const [notebooks, setNotebooks] = useState<any[]>([]);
     const [alignment, setAlignment] = React.useState<string>('info');
@@ -95,11 +101,40 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
     const linkLoading = useSelector(state => state.link.loading);
     const currentLinkNotebooksList = useSelector(state => state.notebook.currentNotebooksList);
 
+    // get all nodes in the graph
+    useEffect(() => {
+        let graphNodes: any[] = [];
+        currentOpenGraphInfo['nodes'].map(node => {
+            graphNodes.push({
+                id: node['_id'],
+                name: node['name'],
+            });
+        });
+        setNodes(graphNodes);
+    }, [currentOpenGraphInfo]);
+
     // link info setting
     useEffect(() => {
         // get node info base nodeName
         currentOpenGraphInfo['links'].map(link => {
+            // console.log(link);
             if (link['name'] === linkName) {
+                let sourceName = '';
+                let targetName = '';
+                currentOpenGraphInfo['nodes'].map(node => {
+                    if (node['_id'] === link['source']){
+                        // console.log("source:",node['name']);
+                        sourceName = node['name'];
+                    }
+                    if (node['_id'] === link['target']){
+                        // console.log("target:",node['name']);
+                        targetName = node['name'];
+                    }
+                });
+                setLinkNodeName({
+                    linkStartName: sourceName,
+                    linkEndName: targetName,
+                });
                 setValues({
                     linkId: link['_id'],
                     linkName: link['name'],
@@ -134,28 +169,39 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                 </React.Fragment>
             );
             // let updateTime = new Date(note['updatedAt']).toLocaleString();
+            // click button with much more func
+            const handleCheckNotebook = async () => {
+                // console.log(note);
+                let target;
+                let targetId;
+                if (note['relationNode']) {
+                    target = 'node';
+                    targetId = note['relationNode'];
+                }
+                if (note['relationLink']) {
+                    target = 'link';
+                    targetId = note['relationLink'];
+                }
+                // console.log(target,' => ',targetId);
+                await dispatch(getNotebookDetail({
+                    jwt: jwt, graphId: currentOpenGraphInfo['_id'],
+                    target: target, targetId: targetId,
+                    notebookId: note['_id'],
+                }));
+                //newView: string, isOpenSpecificNotebook?: boolean
+                handleSwitchViews('newNotebookView', true);
+            }
+            let button = <Button variant="outlined" color="secondary" size="small" onClick={handleCheckNotebook}>查看</Button>;
             // push into newNotebooks
             newNotebooks.push([
                 note['title'],
                 note['quotes'],
                 tags,
-                // updateTime,
+                button
             ]);
         });
         setNotebooks(newNotebooks);
     }, [currentLinkNotebooksList]);
-
-    // get all nodes in the graph
-    useEffect(() => {
-        let graphNodes: any[] = [];
-        currentOpenGraphInfo['nodes'].map(node => {
-            graphNodes.push({
-                id: node['_id'],
-                name: node['name'],
-            });
-        });
-        setNodes(graphNodes);
-    }, [currentOpenGraphInfo]);
 
     const handleAlignment = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -171,18 +217,11 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
         });
     }
 
-    // node size select
-    // const handleChangeNodeSize = (event: React.ChangeEvent<{ value: unknown }>) => {
-    //     setValues({
-    //         ...values,
-    //         linkSize: event.target.value as string,
-    //     });
-    // };
-
 
     // handle click update node info
     const handleUpdateKnmInfo = () => {
         // update link info
+        // console.log(values);
         dispatch(updateLinkInfo({
             jwt: jwt,
             linkInfo: values,
@@ -195,6 +234,16 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
             jwt: jwt,
         }));
     };
+
+    const handleNewLinkNotebook = () => {
+        // 新建知识笔记
+        dispatch(NotebookSlice.actions.createSpecificNotebook({
+            createSpecificNotebookRelationType: 'link',
+            createSpecificNotebookRelationId: values.linkId
+        }));
+        handleSwitchViews('newNotebookView');
+        // console.log(currentNodeNotebooksList);
+    }
 
     return (
         <React.Fragment>
@@ -230,6 +279,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
                         value={values.linkTags}
+                        freeSolo
                         onChange={(event, newValue) => {
                             setValues({
                                 ...values,
@@ -256,7 +306,50 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                         onChange={handleChangeText('linkIntro')}
                         multiline
                     />
-                    <FormControl>
+                    <Autocomplete
+                        value={linkNodeName.linkStartName}
+                        onChange={(event, newValue) => {
+                            nodes.map(node => {
+                                if (node['name'] === newValue) {
+                                    setValues({
+                                        ...values,
+                                        linkSource: node['id']
+                                    });
+                                    setLinkNodeName({
+                                        ...linkNodeName,
+                                        linkStartName: node['name']
+                                    });
+                                }
+                            });
+                        }}
+                        id="controllable-states-demo"
+                        options={nodes.map((option) => option['name'])}
+                        style={{ width: '100%' }}
+                        renderInput={(params) => <TextField {...params} label="起始节点" variant="standard" />}
+                    />
+
+                    <Autocomplete
+                        value={linkNodeName.linkEndName}
+                        onChange={(event, newValue) => {
+                            nodes.map(node => {
+                                if (node['name'] === newValue) {
+                                    setValues({
+                                        ...values,
+                                        linkTarget: node['id']
+                                    });
+                                    setLinkNodeName({
+                                        ...linkNodeName,
+                                        linkEndName: node['name']
+                                    });
+                                }
+                            });
+                        }}
+                        id="controllable-states-demo"
+                        options={nodes.map((option) => option['name'])}
+                        style={{ width: '100%' }}
+                        renderInput={(params) => <TextField {...params} label="目标节点" variant="standard" />}
+                    />
+                    {/* <FormControl>
                         <InputLabel id="demo-simple-select-label">起始节点</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
@@ -285,7 +378,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                                 })
                             }
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
                     <Button
                         variant="contained"
                         color="primary"
@@ -315,19 +408,19 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                             <div className={classes.panelSubTitle} style={{ marginBottom: 14, fontSize: 17 }}>{values.linkName} - 笔记列表</div>
                         </Grid>
                         <Grid item>
-                            <Button variant="outlined" color="secondary" size="small">新建笔记</Button>
+                            <Button variant="outlined" color="secondary" size="small" onClick={handleNewLinkNotebook}>新建笔记</Button>
                         </Grid>
                     </Grid>
                     {
                         notebooks.length === 0 ? (
-                            <h2 style={{textAlign: 'center', color: 'grey'}}>该知识节点暂无笔记&nbsp;&nbsp;请新建笔记</h2>
+                            <h2 style={{ textAlign: 'center', color: 'grey' }}>该知识节点暂无笔记&nbsp;&nbsp;请新建笔记</h2>
                         ) : (
                             <BasicDataTable
                                 isSmall={true}
                                 header={["笔记标题", "引用", "笔记标签", "操作"]}
                                 rows={notebooks}
-                                buttons={['查看']}
-                                actions={[() => { alert('查看笔记'); }]}
+                            // buttons={['查看']}
+                            // actions={[() => { alert('查看笔记'); }]}
                             />
                         )
                     }

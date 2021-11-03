@@ -31,7 +31,8 @@ import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { updateNodeInfo } from '../../../../redux/knm/nodeSlice';
 import { getGraphDetail } from '../../../../redux/knm/graphSlice';
-import { getNodeNotebooks } from '../../../../redux/knm/notebookSlice';
+import { getNodeNotebooks, getNotebookDetail } from '../../../../redux/knm/notebookSlice';
+import { NotebookSlice } from '../../../../redux/knm/notebookSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toggleBtn: {
@@ -62,6 +63,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface NodeInfoEditPanelState {
     nodeName: string;
     materialColor: any[];
+    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean)=>void;
 };
 
 interface NodeInfoState {
@@ -73,7 +75,7 @@ interface NodeInfoState {
     nodeColor: string;
 };
 export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
-    nodeName, materialColor
+    nodeName, materialColor, handleSwitchViews
 }) => {
     const classes = useStyles();
     const [values, setValues] = useState<NodeInfoState>({
@@ -132,20 +134,49 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                 </React.Fragment>
             );
             // let updateTime = new Date(note['updatedAt']).toLocaleString();
+            // click button with much more func
+            const handleCheckNotebook = async () => {
+                // console.log(note);
+                let target;
+                let targetId;
+                if (note['relationNode']) {
+                    target = 'node';
+                    targetId = note['relationNode'];
+                }
+                if (note['relationLink']) {
+                    target = 'link';
+                    targetId = note['relationLink'];
+                }
+                // console.log(target,' => ',targetId);
+                await dispatch(getNotebookDetail({
+                    jwt: jwt, graphId: currentOpenGraphInfo['_id'],
+                    target: target, targetId: targetId,
+                    notebookId: note['_id'],
+                }));
+                //newView: string, isOpenSpecificNotebook?: boolean
+                handleSwitchViews('newNotebookView', true);
+            }
+            let button = <Button key={note['_id']} variant="outlined" color="secondary" size="small" onClick={handleCheckNotebook}>查看</Button>;
+
             // push into newNotebooks
             newNotebooks.push([
                 note['title'],
                 note['quotes'],
                 tags,
-                // updateTime,
+                button
             ]);
         });
         setNotebooks(newNotebooks);
     }, [currentNodeNotebooksList]);
 
     // 新建知识笔记
-    const handleGetNodeNotebook = async () => {
-        console.log(currentNodeNotebooksList);
+    const handleNewNodeNotebook = async () => {
+        dispatch(NotebookSlice.actions.createSpecificNotebook({
+            createSpecificNotebookRelationType: 'node',
+            createSpecificNotebookRelationId: values.nodeId
+        }));
+        handleSwitchViews('newNotebookView');
+        // console.log(currentNodeNotebooksList);
     }
 
     const handleAlignment = (event, newAlignment) => {
@@ -229,6 +260,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
                         value={values.nodeTags}
+                        freeSolo
                         onChange={(event, newValue) => {
                             setValues({
                                 ...values,
@@ -312,7 +344,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                                 variant="outlined"
                                 color="secondary"
                                 size="small"
-                                onClick={handleGetNodeNotebook}
+                                onClick={handleNewNodeNotebook}
                             >新建笔记</Button>
                         </Grid>
                     </Grid>
@@ -324,8 +356,8 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                                 isSmall={true}
                                 header={["笔记标题", "引用", "笔记标签", "操作"]}
                                 rows={notebooks}
-                                buttons={['查看']}
-                                actions={[() => { alert('查看笔记'); }]}
+                                // buttons={['查看']}
+                                // actions={[() => { alert('查看笔记'); }]}
                             />
                         )
                     }

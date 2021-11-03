@@ -199,6 +199,7 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
                             id="tags-filled"
                             options={mockTags.map((option) => option.title)}
                             value={values.tags}
+                            freeSolo
                             onChange={(event, newValue) => {
                                 setValues({
                                     ...values,

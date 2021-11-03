@@ -26,6 +26,7 @@ import FormControl from '@material-ui/core/FormControl';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { Chip, CircularProgress } from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
+import ScatterPlotIcon from '@material-ui/icons/ScatterPlot';
 // import redux
 import { useSelector } from '../../redux/hooks';
 import { useDispatch } from 'react-redux';
@@ -368,7 +369,7 @@ export const KNMDetailPage: React.FC = () => {
         setOpenInfoPanel({
             graphBasicInfoEditPanel: false,
             addNewNodePanel: false,
-            addNewLinkPanel: true,
+            addNewLinkPanel: false,
             modifyGraphThemePanel: true,
             nodeInfoEditPanel: false,
             linkInfoEditPanel: false,
@@ -501,7 +502,8 @@ export const KNMDetailPage: React.FC = () => {
                                                         variant="contained"
                                                         onClick={() => handleSwitchViews('graphView')}
                                                     >
-                                                        <MapIcon />
+                                                        {/* <MapIcon /> */}
+                                                        <ScatterPlotIcon />
                                                     </Button>
                                                 ) : (
                                                     <Tooltip title='知识地图视图' arrow>
@@ -510,7 +512,8 @@ export const KNMDetailPage: React.FC = () => {
                                                             aria-label="centered"
                                                             onClick={() => handleSwitchViews('graphView')}
                                                         >
-                                                            <MapIcon />
+                                                            {/* <MapIcon /> */}
+                                                            <ScatterPlotIcon />
                                                         </Button>
                                                     </Tooltip>
                                                 )
@@ -556,7 +559,14 @@ export const KNMDetailPage: React.FC = () => {
                                                         <Button
                                                             value="newNotebookView"
                                                             aria-label="centered"
-                                                            onClick={() => handleSwitchViews('newNotebookView')}
+                                                            onClick={() => {
+                                                                // clear createSpecificNotebookId, means to create a new notebook by own choice
+                                                                dispatch(NotebookSlice.actions.createSpecificNotebook({
+                                                                    createSpecificNotebookRelationType: 'node',
+                                                                    createSpecificNotebookRelationId: null
+                                                                }));
+                                                                handleSwitchViews('newNotebookView')
+                                                            }}
                                                         >
                                                             <BookIcon />
                                                         </Button>
@@ -575,24 +585,64 @@ export const KNMDetailPage: React.FC = () => {
                                                     className={classes.toolBarButtons}
                                                 >
                                                     <Tooltip title="修改基本信息" arrow>
-                                                        <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
-                                                            <AssignmentIcon />
-                                                        </Button>
+                                                        {
+                                                            openInfoPanel.graphBasicInfoEditPanel ? (
+                                                                <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel} style={{ backgroundColor: '#757d873d' }}>
+                                                                    <AssignmentIcon />
+                                                                </Button>
+                                                            ) : (
+                                                                <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                                                    <AssignmentIcon />
+                                                                </Button>
+                                                            )
+                                                        }
                                                     </Tooltip>
                                                     <Tooltip title="添加知识节点" arrow>
-                                                        <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
-                                                            <AddCircleOutlineIcon />
-                                                        </Button>
+                                                        {
+                                                            openInfoPanel.addNewNodePanel ? (
+                                                                <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel} style={{ backgroundColor: '#757d873d' }}>
+                                                                    <AddCircleOutlineIcon />
+                                                                </Button>
+
+                                                            ) : (
+                                                                <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                                                    <AddCircleOutlineIcon />
+                                                                </Button>
+
+                                                            )
+                                                        }
                                                     </Tooltip>
                                                     <Tooltip title="添加节点关联" arrow>
-                                                        <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
-                                                            <AccountTreeIcon />
-                                                        </Button>
+                                                        {
+                                                            openInfoPanel.addNewLinkPanel ? (
+                                                                <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel} style={{ backgroundColor: '#757d873d' }}>
+                                                                    <AccountTreeIcon />
+                                                                </Button>
+
+                                                            ) : (
+                                                                <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
+                                                                    <AccountTreeIcon />
+                                                                </Button>
+
+                                                            )
+                                                        }
+
                                                     </Tooltip>
                                                     <Tooltip title="修改主题风格" arrow>
-                                                        <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
-                                                            <FormatColorFillIcon />
-                                                        </Button>
+                                                        {
+                                                            openInfoPanel.modifyGraphThemePanel ? (
+                                                                <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel} style={{ backgroundColor: '#757d873d' }}>
+                                                                    <FormatColorFillIcon />
+                                                                </Button>
+
+                                                            ) : (
+                                                                <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                                    <FormatColorFillIcon />
+                                                                </Button>
+
+                                                            )
+                                                        }
+
                                                     </Tooltip>
                                                 </ToggleButtonGroup>
                                             </>
@@ -646,7 +696,8 @@ export const KNMDetailPage: React.FC = () => {
                                                             variant="contained"
                                                             onClick={() => handleSwitchViews('graphView')}
                                                         >
-                                                            <MapIcon />
+                                                            {/* <MapIcon /> */}
+                                                            <ScatterPlotIcon />
                                                         </Button>
                                                     ) : (
                                                         <Tooltip title='知识地图视图' arrow>
@@ -655,7 +706,8 @@ export const KNMDetailPage: React.FC = () => {
                                                                 aria-label="centered"
                                                                 onClick={() => handleSwitchViews('graphView')}
                                                             >
-                                                                <MapIcon />
+                                                                {/* <MapIcon /> */}
+                                                                <ScatterPlotIcon />
                                                             </Button>
                                                         </Tooltip>
                                                     )
@@ -761,6 +813,7 @@ export const KNMDetailPage: React.FC = () => {
                             handleAddNewLink={handleAddNewLink}
                             handleModifyGraph={handleModifyGraph}
                             handleSaveGraphTheme={handleSaveGraphTheme}
+                            handleSwitchViews={handleSwitchViews}
                         />
                     </div>
                 }

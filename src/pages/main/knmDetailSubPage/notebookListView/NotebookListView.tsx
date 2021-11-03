@@ -103,7 +103,7 @@ export const NotebookListView: React.FC<NotebookListViewState> = ({
                         //newView: string, isOpenSpecificNotebook?: boolean
                         handleSwitchViews('newNotebookView', true);
                     }
-                    let button = <Button variant="outlined" color="secondary" onClick={handleCheckNotebook}>查看</Button>;
+                    let button = <Button size="small" variant="outlined" color="secondary" onClick={handleCheckNotebook}>查看</Button>;
                     // push into allNotebooks
                     allNotebooks.push([
                         note['title'],

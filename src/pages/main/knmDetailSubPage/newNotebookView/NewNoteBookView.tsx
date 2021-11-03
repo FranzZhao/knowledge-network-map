@@ -20,7 +20,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
-import { Tooltip } from '@material-ui/core';
+import { InputLabel, Tooltip, Typography } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 // import mock data
 import { mockTags } from '../../../../settings/mocks/DefaultTags';
 import { relations, nodeData } from '../../../../settings/mocks/DefaultGraph';
@@ -97,7 +98,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             cursor: 'pointer',
             borderRadius: '8px',
         }
-    }
+    },
+    searchSubTitle: {
+        marginLeft: 15,
+        lineHeight: '20px',
+        color: theme.palette.grey[500],
+        display: 'block',
+        marginTop: 5,
+    },
 }));
 
 interface NotebookState {
@@ -139,27 +147,45 @@ export const NewNoteBookView = () => {
     const jwt = useSelector(state => state.user.token);
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
     const currentNotebookDetail = useSelector(state => state.notebook.currentNotebookDetail);
+    const createSpecificNotebookRelationType = useSelector(state => state.notebook.createSpecificNotebookRelationType);
+    const createSpecificNotebookRelationId = useSelector(state => state.notebook.createSpecificNotebookRelationId);
+    const notebookLoading = useSelector(state => state.notebook.loading);
 
     useEffect(() => {
         if (Object.keys(currentNotebookDetail).length === 0) {
             // * open a new notebook page
             setIsNew(true);
-            setValues({
-                title: '',
-                relationType: 'node',
-                relationId: '',
-                tags: [],
-                quote: '',
-                intro: '',
-                selfDefineTitle: [],
-                selfDefineContain: [],
-                text: '',
-            });
+            if (createSpecificNotebookRelationId) {
+                // console.log(createSpecificNotebookRelationType);
+                // console.log(createSpecificNotebookRelationId);
+                // create a new notebook with specific node / link
+                setValues({
+                    title: '',
+                    relationType: createSpecificNotebookRelationType,
+                    relationId: createSpecificNotebookRelationId,
+                    tags: [],
+                    quote: '',
+                    intro: '',
+                    selfDefineTitle: [],
+                    selfDefineContain: [],
+                    text: '',
+                });
+            } else {
+                setValues({
+                    title: '',
+                    relationType: 'node',
+                    relationId: '0',
+                    tags: [],
+                    quote: '',
+                    intro: '',
+                    selfDefineTitle: [],
+                    selfDefineContain: [],
+                    text: '',
+                });
+            }
         } else {
             // * open specific notebook
             setIsNew(false);
-            console.log('here! to update!');
-            console.log('new notebook => ', currentNotebookDetail);
             let target;
             let targetId;
             if (currentNotebookDetail['relationNode']) {
@@ -209,6 +235,13 @@ export const NewNoteBookView = () => {
                     id: node['_id'],
                     name: node['name'],
                 });
+                // verify if createSpecificNotebookRelationId is a node notebook
+                // if (createSpecificNotebookRelationId === node['_id']){
+                //     setValues({
+                //         ...values,
+                //         relationType: 'node',
+                //     });
+                // }
             });
             // console.log(allNodes);
             setNodes(allNodes);
@@ -220,6 +253,13 @@ export const NewNoteBookView = () => {
                     id: link['_id'],
                     name: link['name'],
                 });
+                // verify if createSpecificNotebookRelationId is a link notebook
+                // if (createSpecificNotebookRelationId === link['_id']){
+                //     setValues({
+                //         ...values,
+                //         relationType: 'link',
+                //     });
+                // }
             });
             // console.log(allLinks);
             setLinks(allLinks);
@@ -311,7 +351,7 @@ export const NewNoteBookView = () => {
     const handleSaveNotebook = async () => {
         // is new? then create map
         if (isNew) {
-            console.log('create!');
+            // console.log('create!');
             await dispatch(createMapNotebook({
                 jwt: jwt, graphId: currentOpenGraphInfo['_id'],
                 target: values.relationType, targetId: values.relationId,
@@ -319,11 +359,11 @@ export const NewNoteBookView = () => {
             }));
             setIsNew(false);
         } else {
-            console.log('update!');
+            // console.log('update!');
             // not new? then update map
             dispatch(updateNotebookDetail({
                 jwt: jwt, graphId: currentOpenGraphInfo['_id'],
-                target: values.relationType, targetId: values.relationId, notebookId: currentNotebookDetail['_id'], 
+                target: values.relationType, targetId: values.relationId, notebookId: currentNotebookDetail['_id'],
                 notebookValues: values
             }));
         }
@@ -346,7 +386,13 @@ export const NewNoteBookView = () => {
                     <Button
                         variant="outlined"
                         color="primary"
-                        startIcon={<SaveIcon />}
+                        startIcon={
+                            notebookLoading ? (
+                                <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                            ) : (
+                                <SaveIcon />
+                            )
+                        }
                         onClick={handleSaveNotebook}
                     >保存笔记</Button>
                 </div>
@@ -356,7 +402,7 @@ export const NewNoteBookView = () => {
                     className={classes.notebookPropertyLeft}
                 >
                     <AccountTreeIcon fontSize="small" />
-                    <p>关联节点</p>
+                    <p>关联对象</p>
                 </div>
                 <FormControl style={{ width: '100%', flex: 1, }}>
                     <Select
@@ -365,6 +411,10 @@ export const NewNoteBookView = () => {
                         value={values.relationId}
                         onChange={handleChangeRelation}
                     >
+                        <MenuItem value='0' disabled>
+                            请选择该知识笔记所关联的知识节点/知识关联
+                        </MenuItem>
+                        <Typography variant="overline" className={classes.searchSubTitle}>知识节点</Typography>
                         {
                             nodes.map((node, index) => {
                                 return (
@@ -372,6 +422,7 @@ export const NewNoteBookView = () => {
                                 );
                             })
                         }
+                        <Typography variant="overline" className={classes.searchSubTitle}>知识关联</Typography>
                         {
                             links.map((link, index) => {
                                 return (
@@ -395,6 +446,7 @@ export const NewNoteBookView = () => {
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
                     value={values.tags}
+                    freeSolo
                     onChange={(event, newValue) => {
                         setValues({
                             ...values,

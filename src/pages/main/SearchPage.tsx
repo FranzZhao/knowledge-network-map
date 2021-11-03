@@ -130,7 +130,7 @@ export const SearchPage: React.FC = () => {
 
     return (
         <div style={{ padding: '10px 30px' }}>
-            <h1>知识地图与笔记搜索</h1>
+            <h1>知识地图与笔记搜索 - 暂不支持</h1>
             <Paper style={{ padding: '10px 30px', marginBottom: 20 }}>
                 <h3 style={{ padding: 0, marginTop: 10, marginBottom: 5, }}>检索条件编辑</h3>
                 {

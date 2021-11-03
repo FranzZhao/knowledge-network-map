@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import customize components
-import { TinyMCE, PaginationDataTable } from '../../components/common';
+import { TinyMCE, PaginationDataTable, DialogBox } from '../../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
@@ -41,6 +41,12 @@ import { SVGRenderer } from 'echarts/renderers';
 // get mock data
 import { DefaultDiary } from '../../settings/mocks/DefaultDiary';
 import { mockDiaryTags } from '../../settings/mocks/DefaultTags';
+// import jwt-decode
+import jwt_decode, { JwtPayload as DefaultJwtPayload } from "jwt-decode";
+// import redux
+import { useSelector } from '../../redux/hooks';
+// import dropzone
+import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 
 echarts.use(
     [HeatmapChart, SVGRenderer]
@@ -71,6 +77,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     userInfoBottom: {
         width: '100%',
         height: 100,
+        boxShadow: theme.palette.type === 'light' ? '0px 2px 1px #dcdbdb' : '0px 2px 1px #232323',
         backgroundColor: theme.palette.background.paper,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
@@ -145,6 +152,11 @@ const SmallAvatar = withStyles((theme: Theme) =>
     }),
 )(Avatar);
 
+// 自定义jwt的类型
+interface JwtPayload extends DefaultJwtPayload {
+    username: string
+}
+
 interface PageState {
     knowledgeStatic: boolean;
     diarySpace: boolean;
@@ -159,6 +171,25 @@ export const UserSpacePage: React.FC = () => {
         diarySpace: false,
         userInfoSetting: false,
     });
+    // redux
+    const jwt = useSelector(state => state.user.token);
+    // show username
+    const [username, setUsername] = useState("");
+    // upload user avatar
+    const [openUploadDialog, setOpenUploadDialog] = useState(false);
+
+    // get username
+    useEffect(() => {
+        // jwt发生编码且存在, 对jwt进行解码
+        if (jwt) {
+            const token = jwt_decode<JwtPayload>(jwt);
+            setUsername(token.username);
+        }
+    }, [jwt]);
+
+    const handleOpenUploadDialog = () => {
+        setOpenUploadDialog(!openUploadDialog);
+    }
 
     const handleOpenPage = (prop: keyof PageState) => {
         if (prop === 'diarySpace') {
@@ -195,7 +226,7 @@ export const UserSpacePage: React.FC = () => {
                     badgeContent={
                         // <SmallAvatar alt="Remy Sharp" src={userImg} />
                         <Tooltip title="更换头像" arrow>
-                            <SmallAvatar>
+                            <SmallAvatar onClick={handleOpenUploadDialog}>
                                 <CameraAltIcon fontSize="small" style={{ fontSize: 16, color: 'darkgreen' }} />
                             </SmallAvatar>
                         </Tooltip>
@@ -203,6 +234,11 @@ export const UserSpacePage: React.FC = () => {
                 >
                     <Avatar alt="Travis Howard" src={userImg} className={classes.userImg} />
                 </Badge>
+                {/* upload user avatar dialog */}
+                <UploadUserAvatar
+                    openDialog={openUploadDialog}
+                    handleOpenUploadDialog={handleOpenUploadDialog}
+                />
             </div>
             <div className={clsx({
                 [classes.userInfoBottom]: match,
@@ -259,7 +295,7 @@ export const UserSpacePage: React.FC = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                                <Grid item style={{ textAlign: 'center' }}><h2 style={{ paddingTop: 30 }}>Franz Zhao</h2></Grid>
+                                <Grid item style={{ textAlign: 'center' }}><h2 style={{ paddingTop: 30 }}>{username}</h2></Grid>
                                 <Grid item>
                                     <Grid container spacing={7}>
                                         <Grid item >
@@ -398,6 +434,84 @@ export const UserSpacePage: React.FC = () => {
             </Paper>
         </div>
     )
+}
+
+// Dialog Bos Component
+interface UploadUserAvatarState {
+    openDialog: boolean;
+    handleOpenUploadDialog: () => void;
+}
+const UploadUserAvatar: React.FC<UploadUserAvatarState> = ({
+    openDialog, handleOpenUploadDialog
+}) => {
+    // dropzone
+    const [files, setFiles] = useState([]);
+    const [imageSrc, setImageSrc] = useState(undefined);
+    const updateFiles = (incommingFiles) => {
+        console.log("incomming files", incommingFiles);
+        setFiles(incommingFiles);
+    };
+    const onDelete = (id) => {
+        setFiles(files.filter((x) => x['id'] !== id));
+    };
+    const handleSee = (imageSource) => {
+        setImageSrc(imageSource);
+    };
+
+    return (
+        <DialogBox
+            open={openDialog}
+            boxSize="lg"
+            title={'上传头像'}
+            contain={
+                <Dropzone
+                    style={{ minWidth: "550px" }}
+                    //view={"list"}
+                    onChange={updateFiles}
+                    value={files}
+                    maxFiles={1}
+                    //header={false}
+                    // footer={false}
+                    maxFileSize={2998000}
+                    //label="Drag'n drop files here or click to browse"
+                    //label="Suleta tus archivos aquí"
+                    accept=".png,image/*"
+                    // uploadingMessage={"Uploading..."}
+                    url="http://ec2-99-99-9-9.compute-1.amazonaws.com:2800/upload-my-file"
+                    //of course this url doens´t work, is only to make upload button visible
+                    //uploadOnDrop
+                    //clickable={false}
+                    fakeUploading
+                //localization={"FR-fr"}
+                >
+                    {files.map((file) => (
+                        <FileItem
+                            {...file}
+                            key={file['id']}
+                            onDelete={onDelete}
+                            onSee={handleSee}
+                            //localization={"FR-fr"}
+                            //localization={"ES-es"}
+                            preview
+                            info
+                            hd
+                        />
+                    ))}
+                    <FullScreenPreview
+                        imgSource={imageSrc}
+                        openImage={imageSrc}
+                        onClose={(e) => handleSee(undefined)}
+                    />
+                </Dropzone>
+            }
+            actions={
+                <React.Fragment>
+                    <Button variant='text' color="primary" onClick={handleOpenUploadDialog}>取消</Button>
+                    <Button variant='text' color="secondary" onClick={handleOpenUploadDialog}>确认</Button>
+                </React.Fragment>
+            }
+        />
+    );
 }
 
 const KnowledgeStatic = () => {

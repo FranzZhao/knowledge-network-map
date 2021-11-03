@@ -46,6 +46,8 @@ import { useHistory } from 'react-router-dom';
 import 'emoji-mart/css/emoji-mart.css';
 import { Emoji, Picker } from 'emoji-mart';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+// import jwt-decode
+import jwt_decode, {JwtPayload as DefaultJwtPayload} from "jwt-decode";
 
 // Current Page Style
 const drawerWidth = 240;
@@ -225,6 +227,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
+// 自定义jwt的类型
+interface JwtPayload extends DefaultJwtPayload {
+    username: string
+}
+
 export const LeftDrawer = () => {
     // style
     const classes = useStyles();
@@ -247,6 +254,17 @@ export const LeftDrawer = () => {
     const [openDialog, setOpenDialog] = useState(false);
     // knm List with detail info
     const [currentKnmList, setCurrentKnmList] = useState<any[]>([]);
+    // show username
+    const [username, setUsername] = useState("");
+
+    // get username
+    useEffect(() => {
+        // jwt发生编码且存在, 对jwt进行解码
+        if (jwt) {
+            const token = jwt_decode<JwtPayload>(jwt);
+            setUsername(token.username);
+        }
+    }, [jwt]);
 
     // open add new knm dialog
     const handleOpenAddKNMDialog = () => {
@@ -387,7 +405,7 @@ export const LeftDrawer = () => {
                     </IconButton>
                 </div>
                 <div className={clsx(classes.useNameBox, { [classes.hide]: !open })}>
-                    Franz Zhao
+                    {username}
                 </div>
                 {/* Project Nav Menu*/}
                 {

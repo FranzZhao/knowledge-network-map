@@ -125,6 +125,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                     id="tags-filled"
                     options={mockTags.map((option) => option.title)}
                     value={values.nodeTags}
+                    freeSolo
                     onChange={(event, newValue) => {
                         setValues({
                             ...values,
