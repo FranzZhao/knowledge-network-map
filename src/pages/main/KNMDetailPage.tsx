@@ -31,6 +31,7 @@ import { useSelector } from '../../redux/hooks';
 import { useDispatch } from 'react-redux';
 import { getGraphDetail, updateGraphTheme } from '../../redux/knm/graphSlice';
 import { getMapNotebooks } from '../../redux/knm/notebookSlice';
+import { NotebookSlice } from '../../redux/knm/notebookSlice';
 // import mock data
 import { rows } from '../../settings/mocks/DefaultNotebooks';
 import { nodeData, linkData, relations } from '../../settings/mocks/DefaultGraph';
@@ -182,7 +183,8 @@ export const KNMDetailPage: React.FC = () => {
     const dispatch = useDispatch();
     const jwt = useSelector(state => state.user.token);
     const currentKnmMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
-    const knmInfoLoading = useSelector(state => state.knmMap.loading);
+    // const knmInfoLoading = useSelector(state => state.knmMap.loading);
+    const graphLoading = useSelector(state => state.graph.loading);
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
     const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
@@ -293,52 +295,16 @@ export const KNMDetailPage: React.FC = () => {
     }, [currentKnmMapInfo]);
 
     // switch view -> graph edit tool bar: three view - graphView & notebookListView & newNotebookView
-    const handleSwitchViews = async (newView) => {
+    const handleSwitchViews = async (newView: string, isOpenSpecificNotebook: boolean = false) => {
         if (newView !== null) {
+            // if open neeNotebookView and is not open specific notebook, then means to create a new notebook
+            if (newView === 'newNotebookView' && !isOpenSpecificNotebook) {
+                await dispatch(NotebookSlice.actions.clearDetail());
+            }
             setViews(newView);
             setOpenHiddenToolBar(false);
-            // if (newView === 'notebookListView') {
-            //     await dispatch(getMapNotebooks({
-            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
-            //     }));
-            //     await dispatch(findAllMapNodes({
-            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
-            //     }));
-            //     await dispatch(findAllMapLinks({
-            //         jwt: jwt, graphId: currentOpenGraphInfo['_id']
-            //     }));
-            // }
         }
     };
-
-    // when switch to notebooks list view -> get notebook from current node
-    // useEffect(() => {
-    //     let newNotebooks: any[] = [];
-    //     currentMapNotebooks.map(note => {
-    //         // tags with Clips
-    //         let tagsText: string[] = note['tags'];
-    //         let tags = (
-    //             <React.Fragment>
-    //                 {
-    //                     tagsText.map((tag, index) => (
-    //                         <React.Fragment key={`tag-${index}`}>
-    //                             <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
-    //                         </React.Fragment>
-    //                     ))
-    //                 }
-    //             </React.Fragment>
-    //         );
-    //         let updateTime = new Date(note['updatedAt']).toLocaleString();
-    //         // push into newNotebooks
-    //         newNotebooks.push([
-    //             note['title'],
-    //             note['quotes'],
-    //             tags,
-    //             updateTime,
-    //         ]);
-    //     });
-    //     setNotebooks(newNotebooks);
-    // }, [currentMapNotebooks]);
 
     // open hidden tool bar when media width less than 950px
     const handleToolBarOpen = () => {
@@ -501,142 +467,139 @@ export const KNMDetailPage: React.FC = () => {
                             <Grid item>
                                 <Paper className={classes.paper}>
                                     <Grid container spacing={2} className={classes.graphTitle}>
-                                        {
-                                            knmInfoLoading ? (
-                                                <CircularProgress color="secondary" style={{ width: 30, height: 30, margin: '16px 10px' }} />
-                                            ) : (
-                                                <React.Fragment>
-                                                    <Grid item style={{ paddingTop: 14 }}>
-                                                        {
-                                                            (detailPageKnmInfo.icon && (typeof detailPageKnmInfo.icon !== 'object')) ? (
-                                                                <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={24} />
-                                                            ) : ''
-                                                        }
-                                                    </Grid>
-                                                    <Grid item>{detailPageKnmInfo.title}</Grid>
-                                                </React.Fragment>
-                                            )
-                                        }
+                                        <React.Fragment>
+                                            <Grid item style={{ paddingTop: 14 }}>
+                                                {
+                                                    (detailPageKnmInfo.icon && (typeof detailPageKnmInfo.icon !== 'object')) ? (
+                                                        <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={24} />
+                                                    ) : ''
+                                                }
+                                            </Grid>
+                                            <Grid item>{detailPageKnmInfo.title}</Grid>
+                                        </React.Fragment>
                                     </Grid>
                                 </Paper>
                             </Grid>
-                            <Grid item style={{ marginLeft: 20 }}>
-                                <Paper elevation={0} className={classes.paper}>
-                                    <Divider flexItem orientation="vertical" className={classes.divider} />
-                                    <ToggleButtonGroup
-                                        exclusive
-                                        aria-label="text alignment"
-                                        size="small"
-                                        className={clsx(classes.toolBarButtons, classes.viewButton)}
-                                    >
-                                        {
-                                            views === 'graphView' ? (
-                                                <Button
-                                                    className={classes.viewButtonSelected}
-                                                    value="graphView"
-                                                    aria-label="centered"
-                                                    disabled
-                                                    variant="contained"
-                                                    onClick={() => handleSwitchViews('graphView')}
-                                                >
-                                                    <MapIcon />
-                                                </Button>
-                                            ) : (
-                                                <Tooltip title='知识地图视图' arrow>
+                            {
+                                !graphLoading &&
+                                <Grid item style={{ marginLeft: 20 }}>
+                                    <Paper elevation={0} className={classes.paper}>
+                                        <Divider flexItem orientation="vertical" className={classes.divider} />
+                                        <ToggleButtonGroup
+                                            exclusive
+                                            aria-label="text alignment"
+                                            size="small"
+                                            className={clsx(classes.toolBarButtons, classes.viewButton)}
+                                        >
+                                            {
+                                                views === 'graphView' ? (
                                                     <Button
+                                                        className={classes.viewButtonSelected}
                                                         value="graphView"
                                                         aria-label="centered"
+                                                        disabled
+                                                        variant="contained"
                                                         onClick={() => handleSwitchViews('graphView')}
                                                     >
                                                         <MapIcon />
                                                     </Button>
-                                                </Tooltip>
-                                            )
-                                        }
-                                        {
-                                            views === 'notebookListView' ? (
-                                                <Button
-                                                    className={classes.viewButtonSelected}
-                                                    value="notebookListView"
-                                                    aria-label="centered"
-                                                    disabled
-                                                    variant="contained"
-                                                    onClick={() => handleSwitchViews('notebookListView')}
-                                                >
-                                                    <ListAltIcon />
-                                                </Button>
-                                            ) : (
-                                                <Tooltip title='知识列表视图' arrow>
+                                                ) : (
+                                                    <Tooltip title='知识地图视图' arrow>
+                                                        <Button
+                                                            value="graphView"
+                                                            aria-label="centered"
+                                                            onClick={() => handleSwitchViews('graphView')}
+                                                        >
+                                                            <MapIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                )
+                                            }
+                                            {
+                                                views === 'notebookListView' ? (
                                                     <Button
+                                                        className={classes.viewButtonSelected}
                                                         value="notebookListView"
                                                         aria-label="centered"
+                                                        disabled
+                                                        variant="contained"
                                                         onClick={() => handleSwitchViews('notebookListView')}
                                                     >
                                                         <ListAltIcon />
                                                     </Button>
-                                                </Tooltip>
-                                            )
-                                        }
-                                        {
-                                            views === 'newNotebookView' ? (
-                                                <Button
-                                                    className={classes.viewButtonSelected}
-                                                    value="newNotebookView"
-                                                    aria-label="centered"
-                                                    disabled
-                                                    variant="contained"
-                                                    onClick={() => handleSwitchViews('newNotebookView')}
-                                                >
-                                                    <BookIcon />
-                                                </Button>
-                                            ) : (
-                                                <Tooltip title='知识笔记视图' arrow>
+                                                ) : (
+                                                    <Tooltip title='知识列表视图' arrow>
+                                                        <Button
+                                                            value="notebookListView"
+                                                            aria-label="centered"
+                                                            onClick={() => handleSwitchViews('notebookListView')}
+                                                        >
+                                                            <ListAltIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                )
+                                            }
+                                            {
+                                                views === 'newNotebookView' ? (
                                                     <Button
+                                                        className={classes.viewButtonSelected}
                                                         value="newNotebookView"
                                                         aria-label="centered"
+                                                        disabled
+                                                        variant="contained"
                                                         onClick={() => handleSwitchViews('newNotebookView')}
                                                     >
                                                         <BookIcon />
                                                     </Button>
-                                                </Tooltip>
-                                            )
+                                                ) : (
+                                                    <Tooltip title='知识笔记视图' arrow>
+                                                        <Button
+                                                            value="newNotebookView"
+                                                            aria-label="centered"
+                                                            onClick={() => handleSwitchViews('newNotebookView')}
+                                                        >
+                                                            <BookIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                )
+                                            }
+                                        </ToggleButtonGroup>
+                                        {
+                                            views === 'graphView' &&
+                                            <>
+                                                <Divider flexItem orientation="vertical" className={classes.divider} />
+                                                <ToggleButtonGroup
+                                                    size="small"
+                                                    exclusive
+                                                    aria-label="text alignment"
+                                                    className={classes.toolBarButtons}
+                                                >
+                                                    <Tooltip title="修改基本信息" arrow>
+                                                        <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
+                                                            <AssignmentIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip title="添加知识节点" arrow>
+                                                        <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
+                                                            <AddCircleOutlineIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip title="添加节点关联" arrow>
+                                                        <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
+                                                            <AccountTreeIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip title="修改主题风格" arrow>
+                                                        <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
+                                                            <FormatColorFillIcon />
+                                                        </Button>
+                                                    </Tooltip>
+                                                </ToggleButtonGroup>
+                                            </>
                                         }
-                                    </ToggleButtonGroup>
-                                    {
-                                        views === 'graphView' &&
-                                        <>
-                                            <Divider flexItem orientation="vertical" className={classes.divider} />
-                                            <ToggleButtonGroup
-                                                size="small"
-                                                exclusive
-                                                aria-label="text alignment"
-                                                className={classes.toolBarButtons}
-                                            >
-                                                <Tooltip title="修改基本信息" arrow>
-                                                    <Button value="修改基本信息" aria-label="centered" onClick={handleOpenGraphBasicInfoEditPanel}>
-                                                        <AssignmentIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="添加知识节点" arrow>
-                                                    <Button value="添加知识节点" aria-label="centered" onClick={handleOpenAddNewNodePanel}>
-                                                        <AddCircleOutlineIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="添加节点关联" arrow>
-                                                    <Button value="添加节点关联" aria-label="right aligned" onClick={handleOpenAddNewLinkPanel}>
-                                                        <AccountTreeIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip title="修改主题风格" arrow>
-                                                    <Button value="修改主题风格" aria-label="centered" onClick={handleOpenModifyGraphThemePanel}>
-                                                        <FormatColorFillIcon />
-                                                    </Button>
-                                                </Tooltip>
-                                            </ToggleButtonGroup>
-                                        </>
-                                    }
-                                </Paper>
-                            </Grid>
+                                    </Paper>
+                                </Grid>
+                            }
                         </Grid>
                     ) : (
                         <Grid
@@ -805,7 +768,7 @@ export const KNMDetailPage: React.FC = () => {
                     views === 'notebookListView' &&
                     <div style={{ padding: '10px 30px' }}>
                         <NotebookListView
-                            // notebooks={notebooks}
+                            handleSwitchViews={handleSwitchViews}
                         />
                     </div>
                 }

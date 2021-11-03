@@ -6,6 +6,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Radio from '@material-ui/core/Radio';
 import Chip from '@material-ui/core/Chip';
+import Button from '@material-ui/core/Button';
 // import customize components
 import { PaginationDataTable } from '../../../../components/common';
 // import redux
@@ -14,12 +15,13 @@ import { useSelector } from '../../../../redux/hooks';
 import { findAllMapNodes } from '../../../../redux/knm/nodeSlice';
 import { findAllMapLinks } from '../../../../redux/knm/linkSlice';
 import { getMapNotebooks } from '../../../../redux/knm/notebookSlice';
+import { getNotebookDetail } from '../../../../redux/knm/notebookSlice';
 
 interface NotebookListViewState {
-    // notebooks: any[]
+    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean) => void;
 }
 export const NotebookListView: React.FC<NotebookListViewState> = ({
-    // notebooks
+    handleSwitchViews
 }) => {
     // redux
     const dispatch = useDispatch();
@@ -71,19 +73,44 @@ export const NotebookListView: React.FC<NotebookListViewState> = ({
                             {
                                 tagsText.map((tag, index) => (
                                     <React.Fragment key={`tag-${index}`}>
-                                        <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                                        <Chip label={tag} color="secondary" size="small" variant="default" />&nbsp;
                                     </React.Fragment>
                                 ))
                             }
                         </React.Fragment>
                     );
+                    // time format change
                     let updateTime = new Date(note['updatedAt']).toLocaleString();
+                    // click button with much more func
+                    const handleCheckNotebook = async () => {
+                        // console.log(note);
+                        let target;
+                        let targetId;
+                        if (note['relationNode']) {
+                            target = 'node';
+                            targetId = note['relationNode'];
+                        }
+                        if (note['relationLink']) {
+                            target = 'link';
+                            targetId = note['relationLink'];
+                        }
+                        // console.log(target,' => ',targetId);
+                        await dispatch(getNotebookDetail({
+                            jwt: jwt, graphId: currentOpenGraphId,
+                            target: target, targetId: targetId,
+                            notebookId: note['_id'],
+                        }));
+                        //newView: string, isOpenSpecificNotebook?: boolean
+                        handleSwitchViews('newNotebookView', true);
+                    }
+                    let button = <Button variant="outlined" color="secondary" onClick={handleCheckNotebook}>查看</Button>;
                     // push into allNotebooks
                     allNotebooks.push([
                         note['title'],
                         note['quotes'],
                         tags,
                         updateTime,
+                        button,
                     ]);
                 });
                 setNotebooks(allNotebooks);
@@ -180,8 +207,6 @@ export const NotebookListView: React.FC<NotebookListViewState> = ({
                             <PaginationDataTable
                                 header={["笔记标题", "引用", "标签", "更新时间", "操作"]}
                                 rows={notebooks}
-                                buttons={["查看"]}
-                                actions={[() => { alert('查看'); }]}
                             />
                         )
                     )

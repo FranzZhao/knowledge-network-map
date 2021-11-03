@@ -89,6 +89,37 @@ export const getMapNotebooks = createAsyncThunk(
     }
 );
 
+// 获取特定知识笔记的详细内容
+export const getNotebookDetail = createAsyncThunk(
+    'notebook/getNotebookDetail',
+    async (params:{
+        jwt: string | null, graphId: string, target: string, targetId: string, notebookId: string
+    }, ThunkAPI) => {
+        try {
+            // 1. api format
+            let apiCreateNotebook = API.notebook.normal;
+            apiCreateNotebook = apiCreateNotebook.replace(':graphId', params.graphId);
+            apiCreateNotebook = apiCreateNotebook.replace(':target', params.target);
+            apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
+            apiCreateNotebook = `${apiCreateNotebook}/${params.notebookId}`;
+            // 2. get notebook detail
+            const notebookDetail = await axios.get(
+                apiCreateNotebook,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            return {
+                currentNotebookDetail: notebookDetail.data
+            };
+        } catch (error) { 
+            return ThunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 // action: create notebook
 export const createMapNotebook = createAsyncThunk(
     'notebook/create',
@@ -123,10 +154,52 @@ export const createMapNotebook = createAsyncThunk(
             );
             // 3. return result
             return {
-                currentNotebookDetail: newNotebook
+                currentNotebookDetail: newNotebook.data
             }
 
         } catch (error) {
+            return ThunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+
+// update exist notebook detail
+export const updateNotebookDetail = createAsyncThunk(
+    'notebook/updateNotebook',
+    async (params:{
+        jwt: string | null, graphId: string, target: string, targetId: string, notebookId: string,
+        notebookValues: any,
+    }, ThunkAPI) => {
+        try {
+            // 1. api format
+            let apiCreateNotebook = API.notebook.normal;
+            apiCreateNotebook = apiCreateNotebook.replace(':graphId', params.graphId);
+            apiCreateNotebook = apiCreateNotebook.replace(':target', params.target);
+            apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
+            apiCreateNotebook = `${apiCreateNotebook}/${params.notebookId}`;
+            // 2. get notebook detail
+            const notebookDetail = await axios.patch(
+                apiCreateNotebook,
+                {
+                    title: params.notebookValues.title,
+                    tags: params.notebookValues.tags,
+                    quotes: params.notebookValues.quote,
+                    introduction: params.notebookValues.intro,
+                    addPropertyName: params.notebookValues.selfDefineTitle,
+                    addPropertyContent: params.notebookValues.selfDefineContain,
+                    text: params.notebookValues.test,
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            return {
+                currentNotebookDetail: notebookDetail.data
+            };
+        } catch (error) { 
             return ThunkAPI.rejectWithValue(error);
         }
     }
@@ -136,7 +209,12 @@ export const createMapNotebook = createAsyncThunk(
 export const NotebookSlice = createSlice({
     name: 'notebook',
     initialState: initialNotebookState,
-    reducers: {},
+    reducers: {
+        // 清空currentNotebookDetail -> want to create a new notebook
+        clearDetail: (state) => {
+            state.currentNotebookDetail = {};
+        }
+    },
     extraReducers: {
         // 获取知识地图下的所有知识笔记
         [getMapNotebooks.pending.type]: (state) => {
@@ -177,6 +255,45 @@ export const NotebookSlice = createSlice({
             state.error = null;
         },
         [getLinkNotebooks.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // 获取特定知识笔记
+        [getNotebookDetail.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [getNotebookDetail.fulfilled.type]: (state, action) => {
+            state.currentNotebookDetail = action.payload.currentNotebookDetail;
+            state.loading = false;
+            state.error = null;
+        },
+        [getNotebookDetail.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // 新建知识笔记
+        [createMapNotebook.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [createMapNotebook.fulfilled.type]: (state, action) => {
+            state.currentNotebookDetail = action.payload.currentNotebookDetail;
+            state.loading = false;
+            state.error = null;
+        },
+        [createMapNotebook.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // 更新特定知识笔记
+        [updateNotebookDetail.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [updateNotebookDetail.fulfilled.type]: (state, action) => {
+            state.currentNotebookDetail = action.payload.currentNotebookDetail;
+            state.loading = false;
+            state.error = null;
+        },
+        [updateNotebookDetail.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

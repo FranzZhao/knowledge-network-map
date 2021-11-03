@@ -30,7 +30,7 @@ import { useSelector } from '../../../../redux/hooks';
 import { findAllMapNodes } from '../../../../redux/knm/nodeSlice';
 import { findAllMapLinks } from '../../../../redux/knm/linkSlice';
 import { createMapNotebook } from '../../../../redux/knm/notebookSlice';
-
+import { updateNotebookDetail } from '../../../../redux/knm/notebookSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {
@@ -132,15 +132,62 @@ export const NewNoteBookView = () => {
     // all node & link
     const [nodes, setNodes] = useState<any[]>([]);
     const [links, setLinks] = useState<any[]>([]);
+    // whether new notebook or update notebook
+    const [isNew, setIsNew] = useState(true);
     // redux
     const dispatch = useDispatch();
     const jwt = useSelector(state => state.user.token);
-    const currentOpenGraphId = useSelector(state => state.graph.currentOpenGraphInfo)['_id'];
+    const currentOpenGraphInfo = useSelector(state => state.graph.currentOpenGraphInfo);
+    const currentNotebookDetail = useSelector(state => state.notebook.currentNotebookDetail);
+
+    useEffect(() => {
+        if (Object.keys(currentNotebookDetail).length === 0) {
+            // * open a new notebook page
+            setIsNew(true);
+            setValues({
+                title: '',
+                relationType: 'node',
+                relationId: '',
+                tags: [],
+                quote: '',
+                intro: '',
+                selfDefineTitle: [],
+                selfDefineContain: [],
+                text: '',
+            });
+        } else {
+            // * open specific notebook
+            setIsNew(false);
+            console.log('here! to update!');
+            console.log('new notebook => ', currentNotebookDetail);
+            let target;
+            let targetId;
+            if (currentNotebookDetail['relationNode']) {
+                target = 'node';
+                targetId = currentNotebookDetail['relationNode'];
+            }
+            if (currentNotebookDetail['relationLink']) {
+                target = 'link';
+                targetId = currentNotebookDetail['relationLink'];
+            }
+            setValues({
+                title: currentNotebookDetail['title'],
+                relationType: target,
+                relationId: targetId,
+                tags: currentNotebookDetail['tags'],
+                quote: currentNotebookDetail['quotes'],
+                intro: currentNotebookDetail['introduction'],
+                selfDefineTitle: currentNotebookDetail['addPropertyName'],
+                selfDefineContain: currentNotebookDetail['addPropertyContent'],
+                text: currentNotebookDetail['text'],
+            });
+        }
+    }, [currentNotebookDetail]);
 
     // get all nodes
     const handleFindMapNodes = async () => {
         const res = await dispatch(findAllMapNodes({
-            jwt: jwt, graphId: currentOpenGraphId
+            jwt: jwt, graphId: currentOpenGraphInfo['_id']
         }));
         return res['payload'];
     }
@@ -148,7 +195,7 @@ export const NewNoteBookView = () => {
     // get all links
     const handleFindMapLinks = async () => {
         const res = await dispatch(findAllMapLinks({
-            jwt: jwt, graphId: currentOpenGraphId
+            jwt: jwt, graphId: currentOpenGraphInfo['_id']
         }));
         return res['payload'];
     }
@@ -177,7 +224,7 @@ export const NewNoteBookView = () => {
             // console.log(allLinks);
             setLinks(allLinks);
         });
-    }, []);
+    }, [currentOpenGraphInfo]);
 
     // change notebook values
     const handleChangeText = (prop: keyof NotebookState) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,11 +240,11 @@ export const NewNoteBookView = () => {
         const relationId = event.target.value as string;
         let relationType: 'node' | 'link' = 'node';
         links.map(link => {
-            if (link.id === relationId){
+            if (link.id === relationId) {
                 relationType = 'link';
             }
         });
-        console.log(relationType);
+        // console.log(relationType);
         setValues({
             ...values,
             relationType: relationType,
@@ -229,8 +276,8 @@ export const NewNoteBookView = () => {
 
     // add new property
     const handleAddNewProperty = () => {
-        let newTitles = values.selfDefineTitle;
-        let newContains = values.selfDefineContain;
+        let newTitles = [...values.selfDefineTitle];
+        let newContains = [...values.selfDefineContain];
         newTitles.push('');
         newContains.push('');
         setValues({
@@ -242,8 +289,8 @@ export const NewNoteBookView = () => {
 
     // delete self defined property
     const handleDeleteSelfDefinedProperty = (index) => {
-        let newTitle = values.selfDefineTitle;
-        let newContain = values.selfDefineContain;
+        let newTitle = [...values.selfDefineTitle];
+        let newContain = [...values.selfDefineContain];
         newTitle.splice(index, 1);
         newContain.splice(index, 1);
         setValues({
@@ -261,13 +308,25 @@ export const NewNoteBookView = () => {
         });
     }
 
-    const handleSaveNotebook = () => {
-        // console.log(values);
-        dispatch(createMapNotebook({
-            jwt: jwt, graphId: currentOpenGraphId, 
-            target: values.relationType, targetId: values.relationId,
-            notebookValues: values
-        }));
+    const handleSaveNotebook = async () => {
+        // is new? then create map
+        if (isNew) {
+            console.log('create!');
+            await dispatch(createMapNotebook({
+                jwt: jwt, graphId: currentOpenGraphInfo['_id'],
+                target: values.relationType, targetId: values.relationId,
+                notebookValues: values
+            }));
+            setIsNew(false);
+        } else {
+            console.log('update!');
+            // not new? then update map
+            dispatch(updateNotebookDetail({
+                jwt: jwt, graphId: currentOpenGraphInfo['_id'],
+                target: values.relationType, targetId: values.relationId, notebookId: currentNotebookDetail['_id'], 
+                notebookValues: values
+            }));
+        }
     };
 
 
