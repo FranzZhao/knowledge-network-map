@@ -153,6 +153,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: theme.spacing(6),
         height: theme.spacing(6),
         boxShadow: '0px 0px 20px #294761',
+        backgroundColor: theme.palette.secondary.main,
+        fontWeight: 'bolder',
+        fontSize: 18,
+        color: theme.palette.common.white,
+        textTransform:  'capitalize',
     },
     useNameBox: {
         background: '#00000099',
@@ -395,7 +400,7 @@ export const LeftDrawer = () => {
                 {/* user info */}
                 <div className={classes.toolbar}>
                     <Avatar
-                        alt="User Picture" src={userAvatar?userAvatar:userPicture} className={classes.userHeader}
+                        alt={username} src={userAvatar} className={classes.userHeader}
                     />
                     <IconButton
                         color="inherit"

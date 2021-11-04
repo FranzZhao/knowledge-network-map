@@ -76,7 +76,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     userImg: {
         width: theme.spacing(12),
         height: theme.spacing(12),
-        // borderRadius: `2px solid white`,
+        backgroundColor: theme.palette.secondary.main,
+        fontWeight: 'bolder',
+        fontSize: 40,
+        color: theme.palette.common.white,
+        textTransform:  'capitalize',
     },
     userInfoBottom: {
         width: '100%',
@@ -199,9 +203,9 @@ export const UserSpacePage: React.FC = () => {
         }
     }, [jwt]);
 
-    useEffect(()=>{
-        console.log(userStatic);
-    },[userStatic]);
+    // useEffect(()=>{
+    //     console.log(userStatic);
+    // },[userStatic]);
 
     const handleOpenUploadDialog = () => {
         setOpenUploadDialog(!openUploadDialog);
@@ -248,10 +252,10 @@ export const UserSpacePage: React.FC = () => {
                         </Tooltip>
                     }
                 >
-                    <Avatar alt="Travis Howard" src={userAvatar ? userAvatar : userImg} className={classes.userImg} />
+                    <Avatar alt={username} src={userAvatar} className={classes.userImg} />
                 </Badge>
                 {/* upload user avatar dialog */}
-                <UploadUserAvatar
+                <UploadUserAvatarDialog
                     openDialog={openUploadDialog}
                     handleOpenUploadDialog={handleOpenUploadDialog}
                 />
@@ -453,11 +457,11 @@ export const UserSpacePage: React.FC = () => {
 }
 
 // Dialog Bos Component
-interface UploadUserAvatarState {
+interface UploadUserAvatarDialogState {
     openDialog: boolean;
     handleOpenUploadDialog: () => void;
 }
-const UploadUserAvatar: React.FC<UploadUserAvatarState> = ({
+const UploadUserAvatarDialog: React.FC<UploadUserAvatarDialogState> = ({
     openDialog, handleOpenUploadDialog
 }) => {
     // redux
@@ -501,7 +505,7 @@ const UploadUserAvatar: React.FC<UploadUserAvatarState> = ({
             title={'上传头像'}
             contain={
                 <>
-                    <div style={{ marginBottom: 10 }}>选择图片后，点击上方的"upload files"按钮即可上传头像，若成功将会查看到success信息提示！</div>
+                    <div style={{ marginBottom: 10, fontSize: 16 }}>选择图片后，点击上方的<b style={{color:'orange'}}>"upload files"按钮</b>即可上传头像，若成功将会查看到success信息提示！</div>
                     <Dropzone
                         style={{ minWidth: "100%" }}
                         //view={"list"}
