@@ -4,7 +4,7 @@ import { TinyMCE, PaginationDataTable, DialogBox } from '../../components/common
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
-import { Paper, TextField, useMediaQuery } from '@material-ui/core';
+import { LinearProgress, Paper, TextField, useMediaQuery } from '@material-ui/core';
 import Badge from '@material-ui/core/Badge';
 import Avatar from '@material-ui/core/Avatar';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
@@ -35,6 +35,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 // echarts
 import ReactECharts from 'echarts-for-react';
 import { HeatmapChart, } from 'echarts/charts';
+// echarts theme
+import shineDark from '../../components/common/echartsComponents/theme/shine-dark';
+import shineLight from '../../components/common/echartsComponents/theme/shine';
 // import { LegendComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
@@ -49,12 +52,16 @@ import { useSelector } from '../../redux/hooks';
 import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 // import redux
 import { useDispatch } from 'react-redux';
-import { getUserAvatar, getUserStatics } from '../../redux/user/slice';
-
+import { getUserAvatar, getUserStatics, userInfoUpdate, userPasswordVerify, UserSlice } from '../../redux/user/slice';
+// router
+import { useHistory } from 'react-router-dom';
 
 echarts.use(
     [HeatmapChart, SVGRenderer]
 );
+// echarts theme
+echarts.registerTheme('shineDark', shineDark);
+echarts.registerTheme('shineLight', shineLight);
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -80,7 +87,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         fontWeight: 'bolder',
         fontSize: 40,
         color: theme.palette.common.white,
-        textTransform:  'capitalize',
+        textTransform: 'capitalize',
     },
     userInfoBottom: {
         width: '100%',
@@ -199,7 +206,7 @@ export const UserSpacePage: React.FC = () => {
             // 获取用户头像
             dispatch(getUserAvatar({ jwt: jwt }));
             // 获取用户统计信息
-            dispatch(getUserStatics({jwt: jwt}));
+            dispatch(getUserStatics({ jwt: jwt }));
         }
     }, [jwt]);
 
@@ -470,6 +477,16 @@ const UploadUserAvatarDialog: React.FC<UploadUserAvatarDialogState> = ({
     // dropzone
     const [files, setFiles] = useState([]);
     const [imageSrc, setImageSrc] = useState(undefined);
+    // confirm upload
+    const [confirmUpload, setConfirmUpload] = useState(false);
+
+    useEffect(() => {
+        if (openDialog) {
+            setConfirmUpload(false);
+        } else {
+            setConfirmUpload(true);
+        }
+    }, [openDialog]);
 
     // const updateFiles = (incommingFiles) => {
     //     console.log("incomming files", incommingFiles);
@@ -505,7 +522,7 @@ const UploadUserAvatarDialog: React.FC<UploadUserAvatarDialogState> = ({
             title={'上传头像'}
             contain={
                 <>
-                    <div style={{ marginBottom: 10, fontSize: 16 }}>选择图片后，点击上方的<b style={{color:'orange'}}>"upload files"按钮</b>即可上传头像，若成功将会查看到success信息提示！</div>
+                    <div style={{ marginBottom: 10, fontSize: 16 }}>选择图片后，点击上方的<b style={{ color: 'orange' }}>"upload files"按钮</b>即可上传头像，若成功将会查看到success信息提示！</div>
                     <Dropzone
                         style={{ minWidth: "100%" }}
                         //view={"list"}
@@ -549,70 +566,129 @@ const UploadUserAvatarDialog: React.FC<UploadUserAvatarDialogState> = ({
                             onClose={(e) => handleSee(undefined)}
                         />
                     </Dropzone>
+                    {
+                        confirmUpload &&
+                        <div style={{ marginTop: 10, fontSize: 16, color: 'red', fontWeight: 'bold' }}>请再次确认是否上传（点击Upload files并提示success），若已完成则点击 “确认完成”</div>
+                    }
                 </>
             }
             actions={
                 <React.Fragment>
                     <Button variant='text' color="primary" onClick={handleOpenUploadDialog}>退出</Button>
-                    <Button variant='text' color="secondary" onClick={handleGetNewAvatar}>完成</Button>
+                    {
+                        confirmUpload ? (
+                            <Button variant='text' color="secondary" onClick={handleGetNewAvatar}>确认完成</Button>
+                        ) : (
+                            <Button variant='text' color="secondary" onClick={() => { setConfirmUpload(true) }}>完成</Button>
+                        )
+                    }
                 </React.Fragment>
             }
         />
     );
 }
 
-const KnowledgeStatic = () => {
-    const options = {
-        grid: { top: 8, right: 8, bottom: 24, left: 36 },
-        xAxis: {
-            type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+const initBarChartOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    legend: {},
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'value',
+        boundaryGap: [0, 0.01]
+    },
+    yAxis: {
+        type: 'category',
+        data: []
+    },
+    series: [
+        {
+            name: '知识节点数量',
+            type: 'bar',
+            data: []
         },
-        yAxis: {
-            type: 'value',
+        {
+            name: '知识关联数量',
+            type: 'bar',
+            data: []
         },
-        series: [
-            {
-                data: [820, 932, 901, 934, 1290, 1330, 1320],
-                type: 'line',
-                smooth: true,
-            },
-        ],
-        tooltip: {
-            trigger: 'axis',
-        },
-    };
+        {
+            name: '知识笔记数量',
+            type: 'bar',
+            data: []
+        }
+    ]
+};
 
-    const optionBar = {
-        // legend: {},
-        // tooltip: {},
-        // darkMode: true,
-        dataset: {
-            source: [
-                ['product', '2012', '2013', '2014', '2015'],
-                ['Matcha Latte', 41.1, 30.4, 65.1, 53.3],
-                ['Milk Tea', 86.5, 92.1, 85.7, 83.1],
-                ['Cheese Cocoa', 24.1, 67.2, 79.5, 86.4]
-            ]
-        },
-        xAxis: [
-            { type: 'category', gridIndex: 0 },
-            { type: 'category', gridIndex: 1 }
-        ],
-        yAxis: [{ gridIndex: 0 }, { gridIndex: 1 }],
-        grid: [{ bottom: '55%' }, { top: '55%' }],
-        series: [
-            // These series are in the first grid.
-            { type: 'bar', seriesLayoutBy: 'row' },
-            { type: 'bar', seriesLayoutBy: 'row' },
-            { type: 'bar', seriesLayoutBy: 'row' },
-            // These series are in the second grid.
-            { type: 'bar', xAxisIndex: 1, yAxisIndex: 1 },
-            { type: 'bar', xAxisIndex: 1, yAxisIndex: 1 },
-            { type: 'bar', xAxisIndex: 1, yAxisIndex: 1 },
-            { type: 'bar', xAxisIndex: 1, yAxisIndex: 1 }
-        ]
-    };
+
+const KnowledgeStatic = () => {
+    // redux
+    const currentTheme = useSelector(state => state.theme.currentTheme);
+    const userStatics = useSelector(state => state.user.userStatics);
+    // bar chart option state
+    const [barChartOption, setBarChartOption] = useState(initBarChartOption);
+
+    useEffect(() => {
+        // 1. 获取新的数值
+        let yAxisData: any = [];
+        let data: any[] = [
+            {
+                name: '知识节点数量',
+                type: 'bar',
+                data: []
+            },
+            {
+                name: '知识关联数量',
+                type: 'bar',
+                data: []
+            },
+            {
+                name: '知识笔记数量',
+                type: 'bar',
+                data: []
+            }
+        ];
+        userStatics['detail'].map((item: any[]) => {
+            yAxisData.push(item['knmName']);
+            data[0].data.push(item['nodesNum']);
+            data[1].data.push(item['linkNum']);
+            data[2].data.push(item['noteNum']);
+        });
+        // 2. 设定option
+        setBarChartOption({
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {},
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01]
+            },
+            yAxis: {
+                type: 'category',
+                data: yAxisData,
+            },
+            series: data,
+        });
+    }, [userStatics]);
 
 
     return (
@@ -624,11 +700,9 @@ const KnowledgeStatic = () => {
             */}
             <ReactECharts
                 echarts={echarts}
-                option={optionBar}
+                option={barChartOption}
                 style={{ height: 500 }}
-            />
-            <ReactECharts 
-                option={options} 
+                theme={currentTheme === 'light' ? 'shineLight' : 'shineDark'}
             />
         </React.Fragment>
     )
@@ -848,6 +922,156 @@ const DiarySpaceEditView = ({
 }
 
 const UserInfoSetting = () => {
+    // username & email
+    const jwt = useSelector(state => state.user.token);
+    const email = useSelector(state => state.user.email);
+    // user info state
+    interface UserInfoState {
+        username: string,
+        email: string,
+        password: string,
+    }
+    const [userInfo, setUserInfo] = useState<UserInfoState>({
+        username: '',
+        email: '',
+        password: '',
+    });
+    const [openDialog, setOpenDialog] = useState(false);
+
+
+    // get username
+    useEffect(() => {
+        // jwt发生编码且存在, 对jwt进行解码
+        if (jwt) {
+            // 获取username
+            const token = jwt_decode<JwtPayload>(jwt);
+            setUserInfo({
+                username: token.username,
+                email: email,
+                password: '',
+            });
+        }
+    }, [jwt]);
+
+    // change text
+    const handleChangeText = (prop: keyof UserInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUserInfo({
+            ...userInfo,
+            [prop]: event.target.value,
+        });
+    };
+
+    // handle open dialog
+    const handleOpenDialog = () => {
+        setOpenDialog(!openDialog);
+    }
+
+    // verify dialog
+    interface VerifyDialogState {
+        openDialog: boolean;
+        handleOpenDialog: () => void;
+    }
+    const VerifyDialog: React.FC<VerifyDialogState> = ({
+        openDialog, handleOpenDialog
+    }) => {
+        const [password, setPassword] = useState('');
+        const [verifyResult, setVerifyResult] = useState<'fail' | 'success' | null>(null);
+        const dispatch = useDispatch();
+        const history = useHistory();
+
+        const changePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+            setPassword(event.target.value);
+        }
+
+        const handleVerify = async () => {
+            const res = await dispatch(userPasswordVerify({
+                email: email,
+                password: password,
+                jwt: jwt,
+            }));
+            if (res['type'] === 'user/verifyPassword/fulfilled') {
+                setVerifyResult('success');
+                // update user info
+                // 使用ts中的？实现对象的动态属性 —— 只有用户修改了, 才会写入到newUserInfo中
+                interface NewUserInfoState {
+                    username?: any;
+                    email?: any;
+                    password?: any;
+                }
+                let newUserInfo: NewUserInfoState = {};
+                let oldUserName: string = '';
+                if (jwt) {
+                    oldUserName = jwt_decode<JwtPayload>(jwt).username;
+                }
+                if (userInfo.username !== oldUserName) {
+                    newUserInfo.username = userInfo.username;
+                }
+                if (userInfo.email !== email) {
+                    newUserInfo.email = userInfo.email;
+                }
+                if (userInfo.password !== '') {
+                    newUserInfo.password = userInfo.email;
+                }
+
+                const res = await dispatch(userInfoUpdate({
+                    jwt: jwt, userInfo: newUserInfo
+                }));
+                console.log(res);
+                if (res['type'] === 'user/userInfoUpdate/fulfilled') {
+                    handleOpenDialog();
+                    alert('您的用户信息已更新！请重新登陆！');
+                    dispatch(UserSlice.actions.logout());
+                    history.push('/user/login');
+                } else {
+                    handleOpenDialog();
+                    alert('用户信息更新失败！用户名或邮箱已被使用，请重新尝试！');
+                }
+            } else {
+                setVerifyResult('fail');
+                setPassword('');
+            }
+        }
+
+        return (
+            <DialogBox
+                open={openDialog}
+                title={'信息修改确认'}
+                boxSize="xs"
+                contain={
+                    <>
+                        <div>请确认是否要将原信息进行修改？若确认修改，请输入您原有的用户密码进行修改确认。</div>
+                        <TextField
+                            id="knm-node-intro"
+                            label="密码"
+                            size="small"
+                            value={password}
+                            onChange={changePassword}
+                            multiline
+                            style={{ width: '100%', marginTop: 10 }}
+                        />
+                        {
+                            verifyResult === 'fail' &&
+                            <div style={{ marginTop: 8, color: 'orange', fontWeight: 'bold' }}>密码验证错误！请重新输入密码！</div>
+                        }
+                        {
+                            verifyResult === 'success' &&
+                            <>
+                                <div style={{ marginTop: 8, color: 'orange', fontWeight: 'bold' }}>密码验证成功！正在为您更新用户信息！</div>
+                                <LinearProgress style={{ marginTop: 10 }} color="secondary" />
+                            </>
+                        }
+                    </>
+                }
+                actions={
+                    <>
+                        <Button variant="text" color="primary" onClick={handleOpenDialog}>取消</Button>
+                        <Button variant="text" color="secondary" onClick={handleVerify}>确认</Button>
+                    </>
+                }
+            />
+        );
+    }
+
     return (
         <React.Fragment>
             <h2>信息设置</h2>
@@ -857,8 +1081,8 @@ const UserInfoSetting = () => {
                         id="knm-node-intro"
                         label="用户名"
                         size="small"
-                        value={'Franz Zhao'}
-                        // onChange={handleChangeText('nodeIntro')}
+                        value={userInfo.username}
+                        onChange={handleChangeText('username')}
                         multiline
                         style={{ width: '100%' }}
                     />
@@ -868,8 +1092,8 @@ const UserInfoSetting = () => {
                         id="knm-node-intro"
                         label="邮箱"
                         size="small"
-                        value={'franzzhao97@gmail.com'}
-                        // onChange={handleChangeText('nodeIntro')}
+                        value={userInfo.email}
+                        onChange={handleChangeText('email')}
                         multiline
                         style={{ width: '100%' }}
                     />
@@ -879,14 +1103,25 @@ const UserInfoSetting = () => {
                         id="knm-node-intro"
                         label="重设密码"
                         size="small"
-                        // defaultValue={values.nodeIntro}
-                        // onChange={handleChangeText('nodeIntro')}
+                        value={userInfo.password}
+                        onChange={handleChangeText('password')}
                         multiline
                         style={{ width: '100%' }}
                     />
                 </Grid>
+                <VerifyDialog
+                    openDialog={openDialog}
+                    handleOpenDialog={handleOpenDialog}
+                />
             </Grid>
-            <Button variant="outlined" color="primary" style={{ marginTop: 30 }}>确认修改</Button>
+            <Button
+                variant="outlined"
+                color="primary"
+                style={{ marginTop: 30 }}
+                onClick={handleOpenDialog}
+            >
+                确认修改
+            </Button>
         </React.Fragment>
     );
 }

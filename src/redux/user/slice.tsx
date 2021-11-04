@@ -12,6 +12,7 @@ interface UserState {
     loading: boolean;
     error: string | null;
     token: string | null;
+    email: string;
 };
 
 const initialUserState: UserState = {
@@ -19,7 +20,8 @@ const initialUserState: UserState = {
     userStatics: null,
     loading: false,
     error: null,
-    token: null
+    token: null,
+    email: '',
 };
 
 // action: login
@@ -40,6 +42,7 @@ export const userLogin = createAsyncThunk(
             return {
                 user: data.user,
                 token: data.token,
+                email: params.email,
             };
         } catch (error) {
             // get the error msg return from the server
@@ -158,6 +161,55 @@ export const getUserStatics = createAsyncThunk(
     }
 );
 
+// action: 用户修改信息前的密码校验
+export const userPasswordVerify = createAsyncThunk(
+    'user/verifyPassword',
+    async (params: {
+        email: string, password: string, jwt: string | null,
+    }, thunkAPI) => {
+        try {
+            const data = await axios.post(
+                API.user.passwordVerify,
+                {
+                    e_mail: params.email,
+                    password: params.password,   
+                },
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`,
+                    }
+                },
+            );
+            return data;
+        } catch (error) {
+            // get the error msg return from the server
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+export const userInfoUpdate = createAsyncThunk(
+    'user/userInfoUpdate',
+    async (params: {
+        userInfo: any, jwt: string | null,
+    }, thunkAPI) => {
+        try {
+            const userNewInfo = await axios.patch(
+                API.user.update,
+                params.userInfo,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`,
+                    }
+                },
+            );
+            return userNewInfo.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 // slice
 export const UserSlice = createSlice({
     name: 'user',
@@ -176,6 +228,7 @@ export const UserSlice = createSlice({
         },
         [userLogin.fulfilled.type]: (state, action) => {
             state.token = action.payload.token;
+            state.email = action.payload.email;
             state.loading = false;
             state.error = null;
         },

@@ -101,7 +101,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
             jwt: jwt,
         }));
         // 清空表单内容
-        setValues({
+        await setValues({
             nodeName: '',
             nodeTags: [],
             nodeIntro: '',
