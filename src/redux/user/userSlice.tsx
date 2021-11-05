@@ -10,6 +10,7 @@ interface UserState {
     userAvatar: any;
     userStatics: any;
     loading: boolean;
+    staticsLoading: boolean;
     error: string | null;
     token: string | null;
     email: string;
@@ -19,6 +20,7 @@ const initialUserState: UserState = {
     userAvatar: null,
     userStatics: null,
     loading: false,
+    staticsLoading: false,
     error: null,
     token: null,
     email: '',
@@ -276,15 +278,15 @@ export const UserSlice = createSlice({
         },
         // get user statics
         [getUserStatics.pending.type]: (state) => {
-            state.loading = true;
+            state.staticsLoading = true;
         },
         [getUserStatics.fulfilled.type]: (state, action) => {
             state.userStatics = action.payload.userStatics;
-            state.loading = false;
+            state.staticsLoading = false;
             state.error = null;
         },
         [getUserStatics.rejected.type]: (state, action) => {
-            state.loading = false;
+            state.staticsLoading = false;
             state.error = action.payload;
         },
     },

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from '../../../redux/hooks';
 // echarts
 import ReactECharts from 'echarts-for-react';
@@ -7,6 +7,7 @@ import { SVGRenderer } from 'echarts/renderers';
 // echarts theme
 import shineDark from '../../../components/common/echartsComponents/theme/shine-dark';
 import shineLight from '../../../components/common/echartsComponents/theme/shine';
+import { Skeleton } from '@material-ui/lab';
 
 echarts.use(
     [SVGRenderer]
@@ -61,6 +62,7 @@ export const KnowledgeStatics: React.FC = () => {
     // redux
     const currentTheme = useSelector(state => state.theme.currentTheme);
     const userStatics = useSelector(state => state.user.userStatics);
+    const staticsLoading = useSelector(state => state.user.staticsLoading);
     // bar chart option state
     const [barChartOption, setBarChartOption] = useState(initBarChartOption);
 
@@ -121,16 +123,19 @@ export const KnowledgeStatics: React.FC = () => {
     return (
         <React.Fragment>
             <h2>知识统计</h2>
-            {/* 
-                知识标签统计: 柱状图
-                时间统计: 类似github的日历热力图或时序折线图, 如记录登录次数? 在线时长? 操作次数? 
-            */}
-            <ReactECharts
-                echarts={echarts}
-                option={barChartOption}
-                style={{ height: 500 }}
-                theme={currentTheme === 'light' ? 'shineLight' : 'shineDark'}
-            />
+            {
+                staticsLoading ? (
+                    <Skeleton variant="rect" width={'100%'} height={300} style={{ opacity: 0.3 }} />
+                ) : (
+                    <ReactECharts
+                        echarts={echarts}
+                        option={barChartOption}
+                        style={{ height: 500 }}
+                        theme={currentTheme === 'light' ? 'shineLight' : 'shineDark'}
+                    />
+                )
+            }
+
         </React.Fragment>
     )
 }

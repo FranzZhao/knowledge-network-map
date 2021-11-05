@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import customize components
-import { BasicDataTable } from '../../../../components/common';
+import { BasicDataTable, DialogBox } from '../../../../components/common';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -19,6 +19,8 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
+import DeleteIcon from '@material-ui/icons/Delete';
+
 // import Tooltip from '@material-ui/core/Tooltip';
 import FormatShapesIcon from '@material-ui/icons/FormatShapes';
 // import react-color
@@ -29,7 +31,7 @@ import { rows } from '../../../../settings/mocks/DefaultNotebooks';
 // import redux
 import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { updateLinkInfo } from '../../../../redux/knm/linkSlice';
+import { deleteLink, updateLinkInfo } from '../../../../redux/knm/linkSlice';
 import { getGraphDetail } from '../../../../redux/knm/graphSlice';
 import { getLinkNotebooks, getNotebookDetail, NotebookSlice } from '../../../../redux/knm/notebookSlice';
 
@@ -63,6 +65,7 @@ interface LinkInfoEditPanelState {
     linkName: string;
     materialColor: any[];
     handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean) => void;
+    handleCloseInfoPanel: ()=>void;
 };
 
 interface LinkInfoState {
@@ -74,7 +77,7 @@ interface LinkInfoState {
     linkTarget: string;
 };
 export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
-    linkName, materialColor, handleSwitchViews
+    linkName, materialColor, handleSwitchViews, handleCloseInfoPanel
 }) => {
     const classes = useStyles();
     const [values, setValues] = useState<LinkInfoState>({
@@ -99,6 +102,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
     const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const [nodes, setNodes] = useState<string[]>([]);
     const linkLoading = useSelector(state => state.link.loading);
+    const linkDeleteLoading = useSelector(state => state.link.linkDeleteLoading);
     const currentLinkNotebooksList = useSelector(state => state.notebook.currentNotebooksList);
 
     // get all nodes in the graph
@@ -122,11 +126,11 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                 let sourceName = '';
                 let targetName = '';
                 currentOpenGraphInfo['nodes'].map(node => {
-                    if (node['_id'] === link['source']){
+                    if (node['_id'] === link['source']) {
                         // console.log("source:",node['name']);
                         sourceName = node['name'];
                     }
-                    if (node['_id'] === link['target']){
+                    if (node['_id'] === link['target']) {
                         // console.log("target:",node['name']);
                         targetName = node['name'];
                     }
@@ -245,6 +249,48 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
         // console.log(currentNodeNotebooksList);
     }
 
+    const handleDeleteLink = async () => {
+        // close dialog
+        await setOpenDialog(false);
+        // delete node
+        await dispatch(deleteLink({
+            jwt: jwt, graphId: currentOpenGraphInfo["_id"], linkId: values.linkId,
+        }));
+        // close panel
+        handleCloseInfoPanel();
+        // renew currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            jwt: jwt,
+            currentOpenMapId: currentOpenMapInfo['_id']
+        }));
+    };
+
+    const [openDialog, setOpenDialog] = useState(false);
+    interface DeleteLinkState {
+        openDialog: boolean;
+        handleCloseDialog: () => void;
+    }
+    const DeleteLink: React.FC<DeleteLinkState> = ({
+        openDialog, handleCloseDialog
+    }) => {
+        return (
+            <DialogBox
+                boxSize="xs"
+                open={openDialog}
+                title={'删除知识关联'}
+                contain={
+                    <div>请确认是否删除该知识关联？注意！<b style={{ color: 'orange' }}>与该知识节点相关联的知识笔记，将在关联线删除后同时被删除！且删除后无法恢复！</b>若想要更改信息，建议更新知识关联信息。若确认删除，则点击“确认”按钮。</div>
+                }
+                actions={
+                    <>
+                        <Button size="small" variant="outlined" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                        <Button size="small" variant="text" color="primary" onClick={handleDeleteLink}>确认</Button>
+                    </>
+                }
+            />
+        );
+    }
+
     return (
         <React.Fragment>
             <ToggleButtonGroup
@@ -349,50 +395,43 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                         style={{ width: '100%' }}
                         renderInput={(params) => <TextField {...params} label="目标节点" variant="standard" />}
                     />
-                    {/* <FormControl>
-                        <InputLabel id="demo-simple-select-label">起始节点</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={values.linkSource}
-                        // onChange={handleChangeNodeSize}
-                        >
-                            {
-                                nodes.map(node => {
-                                    return <MenuItem value={node['id']} key={node['id']}>{node['name']}</MenuItem>
-                                })
+                    <div>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            style={{width: '48%'}}
+                            startIcon={
+                                linkLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                                ) : (
+                                    <SaveIcon />
+                                )
                             }
-                        </Select>
-                    </FormControl>
-                    <FormControl>
-                        <InputLabel id="demo-simple-select-label">目标节点</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select-1"
-                            value={values.linkTarget}
-                        // onChange={handleChangeNodeSize}
+                            onClick={handleUpdateKnmInfo}
                         >
-                            {
-                                nodes.map(node => {
-                                    return <MenuItem value={node['id']} key={node['id']}>{node['name']}</MenuItem>
-                                })
+                            保存关联信息
+                        </Button>
+                        &nbsp;&nbsp;&nbsp;
+                        <Button
+                            variant="text"
+                            color="secondary"
+                            endIcon={
+                                linkDeleteLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
+                                ) : (
+                                    <DeleteIcon />
+                                )
                             }
-                        </Select>
-                    </FormControl> */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={
-                            linkLoading ? (
-                                <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
-                            ) : (
-                                <SaveIcon />
-                            )
-                        }
-                        onClick={handleUpdateKnmInfo}
-                    >
-                        保存关联信息
-                    </Button>
+                            style={{ width: '48%' }}
+                            onClick={() => setOpenDialog(true)}
+                        >
+                            删除节点
+                        </Button>
+                        <DeleteLink
+                            openDialog={openDialog}
+                            handleCloseDialog={() => setOpenDialog(false)}
+                        />
+                    </div>
                 </form>
             }
             {

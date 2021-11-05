@@ -4,12 +4,14 @@ import { API } from "../../settings/api";
 
 interface LinkState {
     loading: boolean;
+    linkDeleteLoading: boolean;
     error: string | null;
     currentLinksList: [];
 };
 
 const initialLinkState: LinkState = {
     loading: false,
+    linkDeleteLoading: false,
     error: null,
     currentLinksList: [],
 };
@@ -96,6 +98,30 @@ export const findAllMapLinks = createAsyncThunk(
     }
 );
 
+// action: delete link
+export const deleteLink = createAsyncThunk(
+    'link/delete',
+    async (params: { jwt: string | null, graphId: string, linkId: string }, thunkAPI) => {
+        try {
+            const apiLinkUpdate = `${API.link.replace(':graphId', params.graphId)}/${params.linkId}`;
+            const newCurrentLinksList = await axios.delete(
+                apiLinkUpdate,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // console.log(newLinkInfo);
+            return {
+                currentLinksList: newCurrentLinksList
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 // slice
 export const LinkSlice = createSlice({
     name: 'link',
@@ -139,6 +165,19 @@ export const LinkSlice = createSlice({
         },
         [findAllMapLinks.rejected.type]: (state, action) => {
             state.loading = false;
+            state.error = action.payload;
+        },
+        // delete link
+        [deleteLink.pending.type]: (state) => {
+            state.linkDeleteLoading = true;
+        },
+        [deleteLink.fulfilled.type]: (state, action) => {
+            state.currentLinksList = action.payload.currentLinksList;
+            state.linkDeleteLoading = false;
+            state.error = null;
+        },
+        [deleteLink.rejected.type]: (state, action) => {
+            state.linkDeleteLoading = false;
             state.error = action.payload;
         },
     },
