@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
 import AllInboxIcon from '@material-ui/icons/AllInbox';
 import ControlPointIcon from '@material-ui/icons/ControlPoint';
-import { PaginationDataTable, TinyMCE } from '../../../components/common';
+import { DialogBox, PaginationDataTable, TinyMCE } from '../../../components/common';
 // get mock data
 import { DefaultDiary } from '../../../settings/mocks/DefaultDiary';
 import { mockDiaryTags } from '../../../settings/mocks/DefaultTags';
@@ -14,12 +14,14 @@ import SaveIcon from '@material-ui/icons/Save';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import Chip from '@material-ui/core/Chip';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import DeleteIcon from '@material-ui/icons/Delete';
 // import img
 import userHeaderBgImg from '../../../assets/image/loginBackground-1.jpg';
 // import redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { createNewDiary, DiarySlice, getDiaryDetail, getUserDiariesList, updateSpecificDiary } from '../../../redux/user/diarySlice';
+import { createNewDiary, deleteDiary, DiarySlice, getDiaryDetail, getUserDiariesList, updateSpecificDiary } from '../../../redux/user/diarySlice';
 import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -132,7 +134,7 @@ export const DiarySpace: React.FC = () => {
                     {
                         tagsText.map((tag, index) => (
                             <React.Fragment key={`tag-${index}`}>
-                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                                <Chip label={tag} color="secondary" size="small" variant="default" />&nbsp;
                             </React.Fragment>
                         ))
                     }
@@ -313,7 +315,8 @@ const DiarySpaceEditView = ({
     const dispatch = useDispatch();
     const jwt = useSelector(state => state.user.token);
     const currentOpenDiary = useSelector(state => state.diary.currentOpenDiary);
-    const diaryLoading = useSelector(state => state.diary.loading);
+    const saveDiaryLoading = useSelector(state => state.diary.saveDiaryLoading);
+    const deleteDiaryLoading = useSelector(state => state.diary.deleteDiaryLoading);
 
     useEffect(() => {
         if (currentOpenDiary) {
@@ -374,6 +377,42 @@ const DiarySpaceEditView = ({
         handleOpenListView();
     }
 
+    const handleDeleteDiary = async () => {
+        // delete diary
+        if (currentOpenDiary) {
+            setOpenDialog(false);
+            await dispatch(deleteDiary({
+                jwt: jwt, diaryId: currentOpenDiary['_id']
+            }));
+            handleReturnDiariesListView();
+        }
+    };
+
+    const [openDialog, setOpenDialog] = useState(false);
+    interface DeleteDiaryState {
+        openDialog: boolean;
+        handleCloseDialog: () => void;
+    }
+    const DeleteDiary: React.FC<DeleteDiaryState> = ({
+        openDialog, handleCloseDialog
+    }) => {
+        return (
+            <DialogBox
+                open={openDialog}
+                title={'删除日志'}
+                contain={
+                    <div>请确认是否删除该日志？注意！<b style={{ color: 'orange' }}>删除后无法恢复！</b></div>
+                }
+                actions={
+                    <>
+                        <Button size="small" variant="outlined" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                        <Button size="small" variant="text" color="primary" onClick={handleDeleteDiary}>确认</Button>
+                    </>
+                }
+            />
+        );
+    };
+
     return (
         <React.Fragment>
             <div className={classes.notebookProperty}>
@@ -391,14 +430,36 @@ const DiarySpaceEditView = ({
                         variant="text"
                         color="primary"
                         onClick={handleReturnDiariesListView}
-                        style={{marginRight: 10}}
+                        style={{ marginRight: 10 }}
+                        startIcon={<ExitToAppIcon />}
                     >返回列表</Button>
+                    &nbsp;
+                    {
+                        currentOpenDiary &&
+                        <Button
+                            variant="text"
+                            color="primary"
+                            onClick={() => setOpenDialog(true)}
+                            style={{ marginRight: 10 }}
+                            startIcon={
+                                deleteDiaryLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
+                                ) : (
+                                    <DeleteIcon />
+                                )
+                            }
+                        >删除日志</Button>
+                    }
+                    <DeleteDiary
+                        openDialog={openDialog}
+                        handleCloseDialog={() => setOpenDialog(false)}
+                    />
                     &nbsp;
                     <Button
                         variant="text"
                         color="secondary"
                         startIcon={
-                            diaryLoading ? (
+                            saveDiaryLoading ? (
                                 <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
                             ) : (
                                 <SaveIcon />

@@ -131,7 +131,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                     {
                         tagsText.map((tag, index) => (
                             <React.Fragment key={`tag-${index}`}>
-                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                                <Chip label={tag} color="secondary" size="small" variant="default" />&nbsp;
                             </React.Fragment>
                         ))
                     }

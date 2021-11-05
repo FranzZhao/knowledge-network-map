@@ -6,6 +6,8 @@ interface DiaryState {
     userDiariesList: [];
     currentOpenDiary: {} | null;
     loading: boolean;
+    saveDiaryLoading: boolean;
+    deleteDiaryLoading: boolean;
     error: string | null;
 }
 
@@ -13,6 +15,8 @@ const initialDiaryState: DiaryState = {
     userDiariesList: [],
     currentOpenDiary: null,
     loading: false,
+    saveDiaryLoading: false,
+    deleteDiaryLoading: false,
     error: null,
 };
 
@@ -120,6 +124,27 @@ export const updateSpecificDiary = createAsyncThunk(
     }
 );
 
+// action: delete diary
+export const deleteDiary = createAsyncThunk(
+    'diary/delete',
+    async (params: {
+        jwt: string | null, diaryId: string,
+    }, thunkAPI) => {
+        try {
+            await axios.delete(
+                `${API.user.diary}/${params.diaryId}`,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`,
+                    }
+                }
+            );
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 export const DiarySlice = createSlice({
     name: 'diary',
     initialState: initialDiaryState,
@@ -157,28 +182,41 @@ export const DiarySlice = createSlice({
         },
         // create a new diary
         [createNewDiary.pending.type]: (state) => {
-            state.loading = true;
+            state.saveDiaryLoading = true;
         },
         [createNewDiary.fulfilled.type]: (state, action) => {
             state.currentOpenDiary = action.payload.currentOpenDiary;
-            state.loading = false;
+            state.saveDiaryLoading = false;
             state.error = null;
         },
         [createNewDiary.rejected.type]: (state, action) => {
-            state.loading = false;
+            state.saveDiaryLoading = false;
             state.error = action.payload;
         },
         // update diary
         [updateSpecificDiary.pending.type]: (state) => {
-            state.loading = true;
+            state.saveDiaryLoading = true;
         },
         [updateSpecificDiary.fulfilled.type]: (state, action) => {
             state.currentOpenDiary = action.payload.currentOpenDiary;
-            state.loading = false;
+            state.saveDiaryLoading = false;
             state.error = null;
         },
         [updateSpecificDiary.rejected.type]: (state, action) => {
-            state.loading = false;
+            state.saveDiaryLoading = false;
+            state.error = action.payload;
+        },
+        // delete diary
+        [deleteDiary.pending.type]: (state) => {
+            state.deleteDiaryLoading = true;
+        },
+        [deleteDiary.fulfilled.type]: (state, action) => {
+            state.currentOpenDiary = null;
+            state.deleteDiaryLoading = false;
+            state.error = null;
+        },
+        [deleteDiary.rejected.type]: (state, action) => {
+            state.deleteDiaryLoading = false;
             state.error = action.payload;
         },
     },

@@ -233,6 +233,7 @@ export const KNMDetailPage: React.FC = () => {
         forcePower: currentOpenGraphInfo['forcePower'],
     });
     useEffect(() => {
+        setViews('graphView');
         // change the format to which echarts could read
         if (Object.keys(currentOpenGraphInfo).length !== 0) {
             let graphNode: any[] = [];
