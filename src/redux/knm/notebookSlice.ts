@@ -182,7 +182,6 @@ export const updateNotebookDetail = createAsyncThunk(
             apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
             apiCreateNotebook = `${apiCreateNotebook}/${params.notebookId}`;
             // 2. get notebook detail
-            console.log();
             const notebookDetail = await axios.patch(
                 apiCreateNotebook,
                 {
@@ -209,13 +208,33 @@ export const updateNotebookDetail = createAsyncThunk(
     }
 );
 
-// 针对已有的节点，直接创建新的笔记 -> 因此需要获得当前节点或关联的id
-// export const createSpecificNotebook = createAsyncThunk(
-//     'notebook/createSpecificNotebook',
-//     (params: {createSpecificNotebookRelationId: string}) => {
-//         return params.createSpecificNotebookRelationId;
-//     }
-// );
+// action: delete notebook
+export const deleteNotebook = createAsyncThunk(
+    'notebook/delete',
+    async (params: {
+        jwt: string | null, graphId: string, target: string, targetId: string, notebookId: string,
+    }, thunkAPI) => {
+        try {
+            // 1. api format
+            let apiCreateNotebook = API.notebook.normal;
+            apiCreateNotebook = apiCreateNotebook.replace(':graphId', params.graphId);
+            apiCreateNotebook = apiCreateNotebook.replace(':target', params.target);
+            apiCreateNotebook = apiCreateNotebook.replace(':targetId', params.targetId);
+            apiCreateNotebook = `${apiCreateNotebook}/${params.notebookId}`;
+            // 2. delete notebook
+            await axios.delete(
+                apiCreateNotebook,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
 
 // slice
 export const NotebookSlice = createSlice({
@@ -310,6 +329,19 @@ export const NotebookSlice = createSlice({
             state.error = null;
         },
         [updateNotebookDetail.rejected.type]: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        // delete notebook
+        [deleteNotebook.pending.type]: (state) => {
+            state.loading = true;
+        },
+        [deleteNotebook.fulfilled.type]: (state) => {
+            state.currentNotebookDetail = {};
+            state.loading = false;
+            state.error = null;
+        },
+        [deleteNotebook.rejected.type]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },

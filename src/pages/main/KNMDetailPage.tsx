@@ -304,6 +304,8 @@ export const KNMDetailPage: React.FC = () => {
             }
             setViews(newView);
             setOpenHiddenToolBar(false);
+            // close graph info edit panel
+            handleCloseInfoPanel();
         }
     };
 
@@ -828,7 +830,9 @@ export const KNMDetailPage: React.FC = () => {
                 {
                     views === 'newNotebookView' &&
                     <div style={{ padding: '10px 30px' }}>
-                        <NewNoteBookView />
+                        <NewNoteBookView
+                            handleSwitchViews={handleSwitchViews}
+                        />
                     </div>
                 }
             </div>

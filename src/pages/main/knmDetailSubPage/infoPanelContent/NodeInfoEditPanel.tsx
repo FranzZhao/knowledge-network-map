@@ -19,6 +19,8 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
+import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import DeleteIcon from '@material-ui/icons/Delete';
 // import Tooltip from '@material-ui/core/Tooltip';
 import FormatShapesIcon from '@material-ui/icons/FormatShapes';
 // import react-color
@@ -63,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface NodeInfoEditPanelState {
     nodeName: string;
     materialColor: any[];
-    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean)=>void;
+    handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean) => void;
 };
 
 interface NodeInfoState {
@@ -311,20 +313,28 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         circleSize={20}
                         width={'350px'}
                     />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={
-                            nodeLoading ? (
-                                <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
-                            ) : (
-                                <SaveIcon />
-                            )
-                        }
-                        onClick={handleUpdateKnmInfo}
-                    >
-                        保存节点信息
-                    </Button>
+                    <div>
+                        <Button variant="text" color="secondary" startIcon={<DeleteIcon />} style={{width: '49%'}}>
+                            删除节点
+                        </Button>
+                        &nbsp;
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            style={{width: '49%'}}
+                            endIcon={
+                                nodeLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                                ) : (
+                                    <SaveIcon />
+                                )
+                            }
+                            onClick={handleUpdateKnmInfo}
+                        >
+                            保存节点信息
+                        </Button>
+
+                    </div>
                 </form>
             }
             {
@@ -341,23 +351,24 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         </Grid>
                         <Grid item>
                             <Button
-                                variant="outlined"
+                                variant="text"
                                 color="secondary"
                                 size="small"
                                 onClick={handleNewNodeNotebook}
+                                startIcon={<NoteAddIcon />}
                             >新建笔记</Button>
                         </Grid>
                     </Grid>
                     {
                         notebooks.length === 0 ? (
-                            <h2 style={{textAlign: 'center', color: 'grey'}}>该知识节点暂无笔记&nbsp;&nbsp;请新建笔记</h2>
+                            <h2 style={{ textAlign: 'center', color: 'grey' }}>该知识节点暂无笔记&nbsp;&nbsp;请新建笔记</h2>
                         ) : (
                             <BasicDataTable
                                 isSmall={true}
                                 header={["笔记标题", "引用", "笔记标签", "操作"]}
                                 rows={notebooks}
-                                // buttons={['查看']}
-                                // actions={[() => { alert('查看笔记'); }]}
+                            // buttons={['查看']}
+                            // actions={[() => { alert('查看笔记'); }]}
                             />
                         )
                     }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import customize components
-import { TinyMCE } from '../../../../components/common';
+import { TinyMCE, DialogBox } from '../../../../components/common';
 // import MD
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -22,6 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import { InputLabel, Tooltip, Typography } from '@material-ui/core';
 import { CircularProgress } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 // import mock data
 import { mockTags } from '../../../../settings/mocks/DefaultTags';
 import { relations, nodeData } from '../../../../settings/mocks/DefaultGraph';
@@ -30,7 +31,7 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from '../../../../redux/hooks';
 import { findAllMapNodes } from '../../../../redux/knm/nodeSlice';
 import { findAllMapLinks } from '../../../../redux/knm/linkSlice';
-import { createMapNotebook } from '../../../../redux/knm/notebookSlice';
+import { createMapNotebook, deleteNotebook } from '../../../../redux/knm/notebookSlice';
 import { updateNotebookDetail } from '../../../../redux/knm/notebookSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -120,10 +121,12 @@ interface NotebookState {
     text: string;
 }
 
-// interface NewNotebookViewState {
-
-// }
-export const NewNoteBookView = () => {
+interface NewNotebookViewState {
+    handleSwitchViews: (newView: string)=>void;
+}
+export const NewNoteBookView:React.FC<NewNotebookViewState> = ({
+    handleSwitchViews
+}) => {
     const classes = useStyles();
     // notebook value
     const [values, setValues] = useState<NotebookState>({
@@ -142,6 +145,8 @@ export const NewNoteBookView = () => {
     const [links, setLinks] = useState<any[]>([]);
     // whether new notebook or update notebook
     const [isNew, setIsNew] = useState(true);
+    // open delete notebook dialog
+    const [openDialog, setOpenDialog] = useState(false);
     // redux
     const dispatch = useDispatch();
     const jwt = useSelector(state => state.user.token);
@@ -235,13 +240,6 @@ export const NewNoteBookView = () => {
                     id: node['_id'],
                     name: node['name'],
                 });
-                // verify if createSpecificNotebookRelationId is a node notebook
-                // if (createSpecificNotebookRelationId === node['_id']){
-                //     setValues({
-                //         ...values,
-                //         relationType: 'node',
-                //     });
-                // }
             });
             // console.log(allNodes);
             setNodes(allNodes);
@@ -253,13 +251,6 @@ export const NewNoteBookView = () => {
                     id: link['_id'],
                     name: link['name'],
                 });
-                // verify if createSpecificNotebookRelationId is a link notebook
-                // if (createSpecificNotebookRelationId === link['_id']){
-                //     setValues({
-                //         ...values,
-                //         relationType: 'link',
-                //     });
-                // }
             });
             // console.log(allLinks);
             setLinks(allLinks);
@@ -369,6 +360,41 @@ export const NewNoteBookView = () => {
         }
     };
 
+    // delete notebook 
+    const handleDeleteNotebook = () => {
+        // 1. send delete action to redux
+        dispatch(deleteNotebook({
+            jwt: jwt, graphId: currentOpenGraphInfo['_id'],
+                target: values.relationType, targetId: values.relationId, notebookId: currentNotebookDetail['_id'],
+        }));
+        // 2. back to notebook list view
+        setOpenDialog(false);
+        handleSwitchViews('graphView');
+    };
+
+    interface DeleteNoteDialogState {
+        openDialog: boolean;
+        handleCloseDialog: ()=>void;
+    }
+    const DeleteNoteDialog:React.FC<DeleteNoteDialogState> = ({
+        openDialog, handleCloseDialog
+    }) => {
+        return (
+            <DialogBox 
+                open={openDialog} 
+                title={'删除知识笔记'} 
+                contain={
+                    <div>请确认是否删除该知识笔记？注意！<b style={{color: 'orange'}}>删除后无法恢复！</b></div>
+                }
+                actions={
+                    <>
+                        <Button size="small" variant="outlined" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                        <Button size="small" variant="text" color="primary" onClick={handleDeleteNotebook}>确认</Button>
+                    </>
+                } 
+            />
+        );
+    }
 
     return (
         <React.Fragment>
@@ -383,6 +409,18 @@ export const NewNoteBookView = () => {
                     autoComplete="off"
                 />
                 <div>
+                    <Button
+                        variant="text"
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
+                        style={{marginRight: 10}}
+                        onClick={()=>setOpenDialog(true)}
+                    >删除笔记</Button>
+                    {/* delete notebook dialog */}
+                    <DeleteNoteDialog
+                        openDialog={openDialog}
+                        handleCloseDialog={()=>setOpenDialog(false)}
+                    />
                     <Button
                         variant="contained"
                         color="primary"
