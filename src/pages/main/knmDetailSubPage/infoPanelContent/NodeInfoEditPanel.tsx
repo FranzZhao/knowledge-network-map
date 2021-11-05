@@ -271,7 +271,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                 }
             />
         );
-    }
+    };
 
     return (
         <React.Fragment>

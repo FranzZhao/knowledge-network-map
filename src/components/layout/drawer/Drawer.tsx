@@ -47,7 +47,7 @@ import 'emoji-mart/css/emoji-mart.css';
 import { Emoji, Picker } from 'emoji-mart';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 // import jwt-decode
-import jwt_decode, {JwtPayload as DefaultJwtPayload} from "jwt-decode";
+import jwt_decode, { JwtPayload as DefaultJwtPayload } from "jwt-decode";
 
 // Current Page Style
 const drawerWidth = 240;
@@ -157,7 +157,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         fontWeight: 'bolder',
         fontSize: 18,
         color: theme.palette.common.white,
-        textTransform:  'capitalize',
+        textTransform: 'capitalize',
         filter: 'blur(18)',
     },
     useNameBox: {
@@ -272,7 +272,7 @@ export const LeftDrawer = () => {
             const token = jwt_decode<JwtPayload>(jwt);
             setUsername(token.username);
             // get user avatar
-            dispatch(getUserAvatar({jwt: jwt}));
+            dispatch(getUserAvatar({ jwt: jwt }));
         }
     }, [jwt]);
 
@@ -316,7 +316,7 @@ export const LeftDrawer = () => {
     }, [knmListInfo]);
 
     // click nav item: Activate Left Drawer Nav Item
-    const getKnmAndGraphInfo  = async (id:string) => {
+    const getKnmAndGraphInfo = async (id: string) => {
         // 1. get knm detail
         const result = await dispatch(getKnmDetail({
             knmId: id, jwt: jwt, currentKnmList: knmListInfo
@@ -327,7 +327,7 @@ export const LeftDrawer = () => {
             currentOpenMapId: currentOpenMapId,
             jwt: jwt,
         }))
-    } 
+    }
     const handleClickNavItem = (title: string, router: string, type: string, id: string) => {
         dispatch(openItemToPageTab({
             openItemName: title,
@@ -459,7 +459,7 @@ export const LeftDrawer = () => {
                                     className={classes.menuList}
                                     selected={currentActivatedNavItem.title === item.title ? true : false}
                                     onClick={() => handleClickNavItem(item.title, '/main/detail', 'UserKNMNavItems', item.id)}
-                                    // onClick={() => handleOpenDetailKnmPage(item.id)}
+                                // onClick={() => handleOpenDetailKnmPage(item.id)}
                                 >
                                     <ListItemIcon className={classes.menuIcon} key={`${item.id}-icon`}>
                                         <Emoji emoji={item.icon} set='twitter' size={20} />
@@ -597,6 +597,15 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
             6: '深肤色',
         },
     };
+
+    useEffect(() => {
+        setValues({
+            title: '',
+            tags: [mockTags[1].title],
+            intro: '',
+            emoji: 'books',
+        });
+    }, [openDialog]);
 
     const handleChangeValues = (prop: keyof NewKNMInfoState) => (event: React.ChangeEvent<HTMLInputElement>) => {
         setValues({

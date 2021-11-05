@@ -10,13 +10,18 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import Chip from '@material-ui/core/Chip';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Skeleton } from '@material-ui/lab';
+import DeleteIcon from '@material-ui/icons/Delete';
 // import emoji
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 // import redux
 import { useSelector } from '../../../../redux/hooks';
-import { knmUpdate } from '../../../../redux/knm/knmMapSlice';
+import { knmDelete, knmUpdate } from '../../../../redux/knm/knmMapSlice';
 import { useDispatch } from 'react-redux';
+import { DialogBox } from '../../../../components/common';
+import { closePageTab, updateSystemNavItem } from '../../../../redux/pageTabs/slice';
+// router
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     infoPanelTitle: {
@@ -78,12 +83,18 @@ interface GraphBasicInfoState {
 
 export const GraphBasicInfoEditPanel: React.FC = () => {
     const classes = useStyles();
+    // router
+    const history = useHistory();
     // redux
     const dispatch = useDispatch();
     const currentKnmList = useSelector(state => state.knmMap.knmList);
     const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const jwt = useSelector(state => state.user.token);
     const knmInfoLoading = useSelector(state => state.knmMap.loading);
+    const knmDeleteLoading = useSelector(state => state.knmMap.deleteLoading);
+    const alreadyOpenedTabs = useSelector(state => state.pageTabs.alreadyOpenedTabs);
+    const currentActivatedTab = useSelector(state => state.pageTabs.currentActivatedTab);
+
     const [isClick, setIsClick] = useState(false);
     // const currentTag = useSelector(state => state.openPage.currentActivatedTab);
     const currentTheme = useSelector(state => state.theme.currentTheme);
@@ -149,6 +160,46 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
             currentOpenMapInfo: currentOpenMapInfo,
         }));
         setIsClick(false);
+    };
+
+    // delete node
+    const handleDeleteKNM = async () => {
+        setOpenDialog(false);
+        // close this page
+        dispatch(closePageTab({
+            closeItemName: values.title,
+            alreadyOpenedTabs: alreadyOpenedTabs,
+            currentOpenedTab: currentActivatedTab,
+        }));
+        await dispatch(knmDelete({
+            jwt: jwt, knmId: currentOpenMapInfo["_id"]
+        }));
+    };
+
+    const [openDialog, setOpenDialog] = useState(false);
+    interface DeleteKNMState {
+        openDialog: boolean;
+        handleCloseDialog: () => void;
+    }
+    const DeleteKNM: React.FC<DeleteKNMState> = ({
+        openDialog, handleCloseDialog
+    }) => {
+        return (
+            <DialogBox
+                boxSize="xs"
+                open={openDialog}
+                title={'删除知识地图'}
+                contain={
+                    <div>请确认是否删除该知识地图？注意！<b style={{ color: 'orange' }}>该知识地图下得所有知识节点、知识关联和知识笔记，将在知识地图删除后同时被删除！且删除后无法恢复！</b>若确认删除，则点击“确认”按钮。</div>
+                }
+                actions={
+                    <>
+                        <Button size="small" variant="outlined" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                        <Button size="small" variant="text" color="primary" onClick={handleDeleteKNM}>确认</Button>
+                    </>
+                }
+            />
+        );
     };
 
     return (
@@ -233,20 +284,43 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
                             onChange={handleChange('intro')}
                             multiline
                         />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            endIcon={
-                                knmInfoLoading ? (
-                                    <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
-                                ) : (
-                                    <SaveIcon />
-                                )
-                            }
-                            onClick={handleUpdateKnmInfo}
-                        >
-                            保存基本信息
-                        </Button>
+                        <div>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                style={{ width: '48%' }}
+                                endIcon={
+                                    knmInfoLoading ? (
+                                        <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
+                                    ) : (
+                                        <SaveIcon />
+                                    )
+                                }
+                                onClick={handleUpdateKnmInfo}
+                            >
+                                保存基本信息
+                            </Button>
+                            &nbsp;&nbsp;&nbsp;
+                            <Button
+                                variant="text"
+                                color="secondary"
+                                endIcon={
+                                    knmDeleteLoading ? (
+                                        <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
+                                    ) : (
+                                        <DeleteIcon />
+                                    )
+                                }
+                                style={{ width: '48%' }}
+                                onClick={() => setOpenDialog(true)}
+                            >
+                                删除知识地图
+                            </Button>
+                            <DeleteKNM
+                                openDialog={openDialog}
+                                handleCloseDialog={() => setOpenDialog(false)}
+                            />
+                        </div>
                     </form>
                 )
             }

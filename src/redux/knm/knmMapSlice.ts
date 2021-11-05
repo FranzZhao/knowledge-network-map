@@ -9,6 +9,7 @@ import { API } from '../../settings/api';
 
 interface KnmMapState {
     loading: boolean;
+    deleteLoading: boolean;
     error: string | null;
     knmList: [];
     currentOpenMapInfo: {};
@@ -16,6 +17,7 @@ interface KnmMapState {
 
 const initialKnmMapState: KnmMapState = {
     loading: false,
+    deleteLoading: false,
     error: null,
     knmList: [],
     currentOpenMapInfo: {},
@@ -163,6 +165,31 @@ export const knmUpdate = createAsyncThunk(
     }
 );
 
+// action: update a knm map
+export const knmDelete = createAsyncThunk(
+    'knmMap/delete',
+    async (params: {
+        knmId: string, jwt: string | null,
+    }, thunkAPI) => {
+        try {
+            // update current open map info
+            const newKnmList = await axios.delete(
+                `${API.map}/${params.knmId}`,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                }
+            );
+            return ({
+                knmList: newKnmList.data,
+            });
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 // knm Map slice
 export const KnmMapSlice = createSlice({
     name: 'knmMap',
@@ -220,6 +247,20 @@ export const KnmMapSlice = createSlice({
         },
         [knmUpdate.rejected.type]: (state, action) => {
             state.loading = false;
+            state.error = action.payload;
+        },
+        // delete a knm map
+        [knmDelete.pending.type]: (state) => {
+            state.deleteLoading = true;
+        },
+        [knmDelete.fulfilled.type]: (state, action) => {
+            state.knmList = action.payload.knmList;
+            state.currentOpenMapInfo = {};
+            state.deleteLoading = false;
+            state.error = null;
+        },
+        [knmDelete.rejected.type]: (state, action) => {
+            state.deleteLoading = false;
             state.error = action.payload;
         },
     }
