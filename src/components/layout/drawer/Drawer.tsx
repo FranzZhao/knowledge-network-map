@@ -158,6 +158,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         fontSize: 18,
         color: theme.palette.common.white,
         textTransform:  'capitalize',
+        filter: 'blur(18)',
     },
     useNameBox: {
         background: '#00000099',
