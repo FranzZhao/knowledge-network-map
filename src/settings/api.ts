@@ -5,6 +5,7 @@ export const API = {
         "jwtVerify": "http://localhost:3001/user/jwt",
         "passwordVerify": "http://localhost:3001/user/verify",
         "update": "http://localhost:3001/user/",
+        "diary": "http://localhost:3001/user/diary",
     },
     "map": "http://localhost:3001/map",
     "graph": "http://localhost:3001/map/:mapId/graph",

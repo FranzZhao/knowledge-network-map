@@ -16,7 +16,7 @@ import { useKeyPress } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 // import redux
 import { useDispatch } from 'react-redux';
-import { userLogin } from '../../redux/user/slice';
+import { userLogin } from '../../redux/user/userSlice';
 import { useSelector } from '../../redux/hooks';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

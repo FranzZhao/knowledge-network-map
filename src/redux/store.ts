@@ -4,7 +4,7 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 // import Slice
-import { UserSlice } from './user/slice';
+import { UserSlice } from './user/userSlice';
 import { PageTabsSlice } from './pageTabs/slice';
 import { LeftDrawerSlice } from './leftDrawer/slice';
 import { ThemeSlice } from "./theme/slice";
@@ -14,6 +14,7 @@ import { GraphSlice } from "./knm/graphSlice";
 import { NodeSlice } from "./knm/nodeSlice";
 import { LinkSlice } from "./knm/linkSlice";
 import { NotebookSlice } from "./knm/notebookSlice";
+import { DiarySlice } from "./user/diarySlice";
 // import MiddleWare
 // import { actionLog } from './middleware/actionLog';
 
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
     node: NodeSlice.reducer,
     link: LinkSlice.reducer,
     notebook: NotebookSlice.reducer,
+    diary: DiarySlice.reducer,
 })
 
 // 将原有的reducer加强为可持续久化的

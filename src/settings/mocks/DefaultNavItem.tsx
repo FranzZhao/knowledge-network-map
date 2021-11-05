@@ -4,13 +4,6 @@ import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 
 export const SystemNavItems = [
     {
-        id: "userSpace",
-        title: "用户空间",
-        icon: <CloudQueueIcon />,
-        type: 'NavItemsBottom',
-        router: '/main/userSpace',
-    },
-    {
         id: "all-maps",
         title: "所有地图",
         icon: <ArtTrackIcon />,
@@ -18,17 +11,18 @@ export const SystemNavItems = [
         router: '/main/list'
     },
     {
-        id: "search",
-        title: "笔记检索",
-        icon: <SearchIcon />,
+        id: "userSpace",
+        title: "用户空间",
+        icon: <CloudQueueIcon />,
         type: 'SystemNavItems',
-        router: '/main/search',
+        router: '/main/userSpace',
     },
+    // TODO 暂不支持检索, V2.0后续可以考虑如何实现
     // {
-    //     id: 'knm1',
-    //     title: "学习科学地图",
-    //     icon: 'books',
-    //     type: 'UserKNMNavItems',
-    //     router: '/main/detail',
+    //     id: "search",
+    //     title: "笔记检索",
+    //     icon: <SearchIcon />,
+    //     type: 'SystemNavItems',
+    //     router: '/main/search',
     // },
 ];

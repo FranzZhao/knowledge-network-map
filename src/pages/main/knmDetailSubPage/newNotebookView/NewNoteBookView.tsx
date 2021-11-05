@@ -384,7 +384,7 @@ export const NewNoteBookView = () => {
                 />
                 <div>
                     <Button
-                        variant="outlined"
+                        variant="contained"
                         color="primary"
                         startIcon={
                             notebookLoading ? (

@@ -37,7 +37,7 @@ import { openItemToPageTab, openUserSpace, updateSystemNavItem } from '../../../
 import { leftDrawerStateChange } from '../../../redux/leftDrawer/slice';
 import { changeCurrentTheme } from '../../../redux/theme/slice';
 import { changeLanguage } from '../../../redux/language/slice';
-import { getUserAvatar, UserSlice } from '../../../redux/user/slice';
+import { getUserAvatar, UserSlice } from '../../../redux/user/userSlice';
 import { knmCreate, getKnmDetail } from '../../../redux/knm/knmMapSlice';
 import { getGraphDetail } from '../../../redux/knm/graphSlice';
 // import Router
@@ -498,14 +498,14 @@ export const LeftDrawer = () => {
                     [classes.hide]: !open
                 })}
             >
-                <Tooltip title="用户空间" arrow>
+                {/* <Tooltip title="用户空间" arrow>
                     <BottomNavigationAction
                         icon={<CloudQueueIcon />}
                         className={classes.bottomNavIcon}
                         key={'设置'}
                         onClick={handleClickUserSpace}
                     />
-                </Tooltip>
+                </Tooltip> */}
                 {
                     currentTheme === 'light' ? (
                         <Tooltip title='切换为深色模式' arrow>

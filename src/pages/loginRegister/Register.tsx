@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 // import redux
 import { useDispatch } from 'react-redux';
 import { useSelector } from '../../redux/hooks';
-import { userRegister } from '../../redux/user/slice';
+import { userRegister } from '../../redux/user/userSlice';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     layer: {

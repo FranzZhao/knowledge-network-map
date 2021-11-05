@@ -13,7 +13,7 @@ import { SingleTab } from './SingleTab';
 // import Redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { userJWTVerify } from '../../../redux/user/slice';
+import { userJWTVerify } from '../../../redux/user/userSlice';
 import { getKnmDetail } from '../../../redux/knm/knmMapSlice';
 import { getGraphDetail } from '../../../redux/knm/graphSlice';
 import {

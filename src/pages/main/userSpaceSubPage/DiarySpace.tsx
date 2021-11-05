@@ -5,7 +5,6 @@ import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/s
 import AllInboxIcon from '@material-ui/icons/AllInbox';
 import ControlPointIcon from '@material-ui/icons/ControlPoint';
 import { PaginationDataTable, TinyMCE } from '../../../components/common';
-
 // get mock data
 import { DefaultDiary } from '../../../settings/mocks/DefaultDiary';
 import { mockDiaryTags } from '../../../settings/mocks/DefaultTags';
@@ -17,6 +16,11 @@ import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import Chip from '@material-ui/core/Chip';
 // import img
 import userHeaderBgImg from '../../../assets/image/loginBackground-1.jpg';
+// import redux
+import { useSelector } from '../../../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { createNewDiary, DiarySlice, getDiaryDetail, getUserDiariesList, updateSpecificDiary } from '../../../redux/user/diarySlice';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -112,13 +116,81 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const DiarySpace: React.FC = () => {
     const classes = useStyles();
     const [openEditorView, setOpenEditorView] = useState(false);
+    const [diariesList, setDiariesList] = useState<any[]>([]);
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
+    const userDiariesList = useSelector(state => state.diary.userDiariesList);
+
+    useEffect(() => {
+        let diariesList: any[] = [];
+        // title, tags, text, updatedAt, id
+        userDiariesList.map(item => {
+            // * tags with Clips
+            let tagsText: string[] = item['tags'];
+            let tags = (
+                <React.Fragment>
+                    {
+                        tagsText.map((tag, index) => (
+                            <React.Fragment key={`tag-${index}`}>
+                                <Chip label={tag} color="secondary" size="small" variant="outlined" />&nbsp;
+                            </React.Fragment>
+                        ))
+                    }
+                </React.Fragment>
+            );
+            // * update time format
+            let updateTime = new Date(item['createdAt']).toLocaleString();
+            // * button
+            let button = (
+                <Button
+                    size="small"
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => handleCheckSpecificDiary(item['_id'])}
+                >
+                    查看
+                </Button>
+            );
+            // * push into diaries list
+            diariesList.push([
+                item['title'],
+                tags,
+                updateTime,
+                button
+            ]);
+        });
+        setDiariesList(diariesList);
+    }, [userDiariesList]);
+
+    const handleCheckSpecificDiary = async (id: string) => {
+        const diaryDetail = await dispatch(getDiaryDetail({
+            jwt: jwt, diaryId: id
+        }));
+        // console.log(diaryDetail['payload']);
+        setOpenEditorView(true);
+    }
+
+    const showDiaryList = async () => {
+        await dispatch(getUserDiariesList({
+            jwt: jwt
+        }));
+        setOpenEditorView(false)
+    }
+
+    const handleCreateNewDiary = async () => {
+        await dispatch(DiarySlice.actions.clearCurrentOpenDiary());
+        setOpenEditorView(true);
+    }
 
     return (
         <React.Fragment>
             <div style={{ display: 'flex' }}>
                 <div>
                     <h2>日志空间</h2>
-                    <div className={classes.notebookPropertyLeft} onClick={() => setOpenEditorView(false)}>
+                    <div
+                        className={classes.notebookPropertyLeft}
+                        onClick={showDiaryList}
+                    >
                         <AllInboxIcon fontSize="small" />
                         <p>所有日志</p>
                     </div>
@@ -134,7 +206,7 @@ export const DiarySpace: React.FC = () => {
                         <CameraIcon fontSize="small" />
                         <p>学习反思</p>
                     </div> */}
-                    <div className={classes.notebookPropertyLeft} style={{ color: 'grey' }} onClick={() => setOpenEditorView(true)}>
+                    <div className={classes.notebookPropertyLeft} style={{ color: 'grey' }} onClick={handleCreateNewDiary}>
                         <ControlPointIcon fontSize="small" />
                         <p>新建日志</p>
                     </div>
@@ -147,6 +219,7 @@ export const DiarySpace: React.FC = () => {
                             />
                         ) : (
                             <DiarySpaceListView
+                                diariesList={diariesList}
                                 handleOpenEditorView={() => { setOpenEditorView(true) }}
                             />
                         )
@@ -158,14 +231,12 @@ export const DiarySpace: React.FC = () => {
 }
 
 const DiarySpaceListView = ({
-    handleOpenEditorView
+    handleOpenEditorView, diariesList
 }) => {
     return (
         <PaginationDataTable
             header={["日志标题", "标签", "创建时间", "操作"]}
-            rows={DefaultDiary}
-            buttons={['查看']}
-            actions={[handleOpenEditorView]}
+            rows={diariesList}
         />
     );
 };
@@ -237,6 +308,30 @@ const DiarySpaceEditView = ({
         tags: [],
         text: '',
     });
+    const [isNewDiary, setIsNewDiary] = useState(true);
+    // redux
+    const dispatch = useDispatch();
+    const jwt = useSelector(state => state.user.token);
+    const currentOpenDiary = useSelector(state => state.diary.currentOpenDiary);
+    const diaryLoading = useSelector(state => state.diary.loading);
+
+    useEffect(() => {
+        if (currentOpenDiary) {
+            setIsNewDiary(false);
+            setValues({
+                title: currentOpenDiary['title'],
+                tags: currentOpenDiary['tags'],
+                text: currentOpenDiary['text']
+            });
+        } else {
+            setIsNewDiary(true);
+            setValues({
+                title: '',
+                tags: [],
+                text: '',
+            });
+        }
+    }, [currentOpenDiary]);
 
     // change notebook values
     const handleChangeText = (prop: keyof DiaryState) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,10 +349,30 @@ const DiarySpaceEditView = ({
         });
     }
 
-    const handleOutput = () => {
-        console.log(values);
-        // handleOpenListView();
+    const handleSaveDiary = async () => {
+        // create a new diary
+        if (isNewDiary) {
+            // console.log(values);
+            await dispatch(createNewDiary({
+                jwt: jwt, diaryInfo: values
+            }));
+        }
+        // update a exist diary
+        if (!isNewDiary && currentOpenDiary) {
+            await dispatch(updateSpecificDiary({
+                jwt: jwt, diaryId: currentOpenDiary['_id'], diaryInfo: values
+            }));
+        }
     };
+
+    const handleReturnDiariesListView = async () => {
+        // renew the userDiariesList
+        await dispatch(getUserDiariesList({
+            jwt: jwt
+        }));
+        // return to list view
+        handleOpenListView();
+    }
 
     return (
         <React.Fragment>
@@ -273,16 +388,23 @@ const DiarySpaceEditView = ({
                 />
                 <div>
                     <Button
-                        variant="outlined"
+                        variant="text"
                         color="primary"
-                        onClick={handleOpenListView}
+                        onClick={handleReturnDiariesListView}
+                        style={{marginRight: 10}}
                     >返回列表</Button>
                     &nbsp;
                     <Button
-                        variant="outlined"
-                        color="primary"
-                        startIcon={<SaveIcon />}
-                        onClick={handleOutput}
+                        variant="text"
+                        color="secondary"
+                        startIcon={
+                            diaryLoading ? (
+                                <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
+                            ) : (
+                                <SaveIcon />
+                            )
+                        }
+                        onClick={handleSaveDiary}
                     >保存日志</Button>
                 </div>
             </div>
@@ -299,6 +421,7 @@ const DiarySpaceEditView = ({
                     id="tags-filled"
                     options={mockDiaryTags.map((option) => option.title)}
                     value={values.tags}
+                    freeSolo
                     onChange={(event, newValue) => {
                         setValues({
                             ...values,

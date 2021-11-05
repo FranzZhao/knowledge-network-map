@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 // redux
 import { useSelector } from '../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { userInfoUpdate, userPasswordVerify, UserSlice } from '../../../redux/user/slice';
+import { userInfoUpdate, userPasswordVerify, UserSlice } from '../../../redux/user/userSlice';
 
 // 自定义jwt的类型
 interface JwtPayload extends DefaultJwtPayload {

@@ -27,9 +27,10 @@ import { useSelector } from '../../redux/hooks';
 import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 // import redux
 import { useDispatch } from 'react-redux';
-import { getUserAvatar, getUserStatics  } from '../../redux/user/slice';
+import { getUserAvatar, getUserStatics  } from '../../redux/user/userSlice';
 // import UserSpace page
 import {UserInfo, DiarySpace, KnowledgeStatics} from './userSpaceSubPage';
+import { getUserDiariesList } from '../../redux/user/diarySlice';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -189,11 +190,16 @@ export const UserSpacePage: React.FC = () => {
 
     const handleOpenPage = (prop: keyof PageState) => {
         if (prop === 'diarySpace') {
+            // open page
             setOpenPages({
                 diarySpace: true,
                 knowledgeStatic: false,
                 userInfoSetting: false,
             });
+            // get user diaries list
+            dispatch(getUserDiariesList({
+                jwt: jwt
+            }));
         } else if (prop === 'knowledgeStatic') {
             setOpenPages({
                 diarySpace: false,
