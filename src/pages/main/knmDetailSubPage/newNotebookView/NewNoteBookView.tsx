@@ -394,7 +394,7 @@ export const NewNoteBookView:React.FC<NewNotebookViewState> = ({
                 } 
             />
         );
-    }
+    };
 
     return (
         <React.Fragment>

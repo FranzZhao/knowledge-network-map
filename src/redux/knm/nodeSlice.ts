@@ -4,12 +4,14 @@ import { API } from "../../settings/api";
 
 interface NodeState {
     loading: boolean;
+    deleteLoading: boolean;
     error: string | null;
     currentNodesList: [];
 };
 
 const initialNodeState: NodeState = {
     loading: false,
+    deleteLoading: false,
     error: null,
     currentNodesList: [],
 };
@@ -96,6 +98,30 @@ export const findAllMapNodes = createAsyncThunk(
     }
 );
 
+// action: update node info
+export const deleteNode = createAsyncThunk(
+    'node/delete',
+    async (params: { jwt: string | null, graphId: string, nodeId: string }, thunkAPI) => {
+        try {
+            const apiNodeUpdate = `${API.node.replace(':graphId', params.graphId)}/${params.nodeId}`;
+            const newNodeList = await axios.delete(
+                apiNodeUpdate,
+                {
+                    headers: {
+                        Authorization: `bearer ${params.jwt}`
+                    }
+                },
+            );
+            // console.log(newNodeInfo);
+            return {
+                currentNodesList: newNodeList
+            };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
 // slice
 export const NodeSlice = createSlice({
     name: 'node',
@@ -139,6 +165,19 @@ export const NodeSlice = createSlice({
         },
         [findAllMapNodes.rejected.type]: (state, action) => {
             state.loading = false;
+            state.error = action.payload;
+        },
+        // delete node
+        [deleteNode.pending.type]: (state) => {
+            state.deleteLoading = true;
+        },
+        [deleteNode.fulfilled.type]: (state, action) => {
+            state.currentNodesList = action.payload.currentNodesList;
+            state.deleteLoading = false;
+            state.error = null;
+        },
+        [deleteNode.rejected.type]: (state, action) => {
+            state.deleteLoading = false;
             state.error = action.payload;
         },
     },

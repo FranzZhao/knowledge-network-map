@@ -80,6 +80,7 @@ export const GraphView: React.FC<GraphViewState> = ({
                             nodeName={nodeName}
                             materialColor={materialColor}
                             handleSwitchViews={handleSwitchViews}
+                            handleCloseInfoPanel={handleCloseInfoPanel}
                         />
                     }
                 />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import customize components
-import { BasicDataTable } from '../../../../components/common';
+import { BasicDataTable, DialogBox } from '../../../../components/common';
 // import MD
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -31,7 +31,7 @@ import { rows } from '../../../../settings/mocks/DefaultNotebooks';
 // import redux
 import { useSelector } from '../../../../redux/hooks';
 import { useDispatch } from 'react-redux';
-import { updateNodeInfo } from '../../../../redux/knm/nodeSlice';
+import { updateNodeInfo, deleteNode } from '../../../../redux/knm/nodeSlice';
 import { getGraphDetail } from '../../../../redux/knm/graphSlice';
 import { getNodeNotebooks, getNotebookDetail } from '../../../../redux/knm/notebookSlice';
 import { NotebookSlice } from '../../../../redux/knm/notebookSlice';
@@ -66,6 +66,7 @@ interface NodeInfoEditPanelState {
     nodeName: string;
     materialColor: any[];
     handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean) => void;
+    handleCloseInfoPanel: ()=>void;
 };
 
 interface NodeInfoState {
@@ -77,7 +78,7 @@ interface NodeInfoState {
     nodeColor: string;
 };
 export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
-    nodeName, materialColor, handleSwitchViews
+    nodeName, materialColor, handleSwitchViews, handleCloseInfoPanel
 }) => {
     const classes = useStyles();
     const [values, setValues] = useState<NodeInfoState>({
@@ -96,6 +97,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
     const jwt = useSelector(state => state.user.token);
     const currentOpenMapInfo = useSelector(state => state.knmMap.currentOpenMapInfo);
     const nodeLoading = useSelector(state => state.node.loading);
+    const nodeDeleteLoading = useSelector(state => state.node.deleteLoading);
     const currentNodeNotebooksList = useSelector(state => state.notebook.currentNotebooksList);
 
     // get current node info base nodeName
@@ -228,6 +230,49 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
         }));
     };
 
+    // delete node
+    const handleDeleteNode = async () => {
+        // close dialog
+        await setOpenDialog(false);
+        // delete node
+        await dispatch(deleteNode({
+            jwt: jwt, graphId: currentOpenGraphInfo["_id"], nodeId: values.nodeId,
+        }));
+        // close panel
+        handleCloseInfoPanel();
+        // renew currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            jwt: jwt,
+            currentOpenMapId: currentOpenMapInfo['_id']
+        }));
+    };
+
+    const [openDialog, setOpenDialog] = useState(false);
+    interface DeleteNodeState {
+        openDialog: boolean;
+        handleCloseDialog: () => void;
+    }
+    const DeleteNode: React.FC<DeleteNodeState> = ({
+        openDialog, handleCloseDialog
+    }) => {
+        return (
+            <DialogBox
+                boxSize="xs"
+                open={openDialog}
+                title={'删除知识节点'}
+                contain={
+                    <div>请确认是否删除该知识节点？注意！<b style={{ color: 'orange' }}>与该知识节点相关联的知识笔记和知识关联，将在节点删除后同时被删除！且删除后无法恢复！</b>若想要更改信息，建议更新节点信息。若确认删除，则点击“确认”按钮。</div>
+                }
+                actions={
+                    <>
+                        <Button size="small" variant="outlined" color="secondary" onClick={handleCloseDialog}>取消</Button>
+                        <Button size="small" variant="text" color="primary" onClick={handleDeleteNode}>确认</Button>
+                    </>
+                }
+            />
+        );
+    }
+
     return (
         <React.Fragment>
             <ToggleButtonGroup
@@ -314,15 +359,11 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         width={'350px'}
                     />
                     <div>
-                        <Button variant="text" color="secondary" startIcon={<DeleteIcon />} style={{width: '49%'}}>
-                            删除节点
-                        </Button>
-                        &nbsp;
                         <Button
                             variant="contained"
                             color="primary"
-                            style={{width: '49%'}}
-                            endIcon={
+                            style={{ width: '48%' }}
+                            startIcon={
                                 nodeLoading ? (
                                     <CircularProgress style={{ width: 20, height: 20, color: 'white' }} />
                                 ) : (
@@ -333,7 +374,26 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                         >
                             保存节点信息
                         </Button>
-
+                        &nbsp;&nbsp;&nbsp;
+                        <Button
+                            variant="text"
+                            color="secondary"
+                            endIcon={
+                                nodeDeleteLoading ? (
+                                    <CircularProgress style={{ width: 20, height: 20, color: 'orange' }} />
+                                ) : (
+                                    <DeleteIcon />
+                                )
+                            }
+                            style={{ width: '48%' }}
+                            onClick={() => setOpenDialog(true)}
+                        >
+                            删除节点
+                        </Button>
+                        <DeleteNode
+                            openDialog={openDialog}
+                            handleCloseDialog={() => setOpenDialog(false)}
+                        />
                     </div>
                 </form>
             }

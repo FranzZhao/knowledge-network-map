@@ -95,19 +95,19 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
             nodeInfo: values,
             graphId: currentOpenGraphInfo,
         }));
-        // update currentOpenGraphInfo
-        dispatch(getGraphDetail({
-            currentOpenMapId: currentOpenMapId,
-            jwt: jwt,
-        }));
         // 清空表单内容
-        await setValues({
+        setValues({
             nodeName: '',
             nodeTags: [],
             nodeIntro: '',
             nodeSize: '',
             nodeColor: materialColor[0],
         });
+        // update currentOpenGraphInfo
+        dispatch(getGraphDetail({
+            currentOpenMapId: currentOpenMapId,
+            jwt: jwt,
+        }));
     };
 
     return (
@@ -148,7 +148,7 @@ export const AddNewNodePanel: React.FC<AddNewNodePanelState> = ({
                     id="knm-node-intro"
                     label="知识节点简介"
                     size="small"
-                    defaultValue={values.nodeIntro}
+                    value={values.nodeIntro}
                     onChange={handleChangeText('nodeIntro')}
                     multiline
                 />
