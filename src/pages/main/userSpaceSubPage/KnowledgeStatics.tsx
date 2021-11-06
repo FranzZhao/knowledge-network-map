@@ -130,7 +130,7 @@ export const KnowledgeStatics: React.FC = () => {
                     <ReactECharts
                         echarts={echarts}
                         option={barChartOption}
-                        style={{ height: 500 }}
+                        // style={{ height: '200%' }}
                         theme={currentTheme === 'light' ? 'shineLight' : 'shineDark'}
                     />
                 )

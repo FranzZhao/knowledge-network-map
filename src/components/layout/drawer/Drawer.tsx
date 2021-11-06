@@ -655,6 +655,7 @@ const AddKNMDialog: React.FC<AddKNMDialogState> = ({
                         id="tags-filled"
                         options={mockTags.map((option) => option.title)}
                         value={values.tags}
+                        freeSolo
                         onChange={(event, newValue) => {
                             setValues({
                                 ...values,
