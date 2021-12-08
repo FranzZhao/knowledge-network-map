@@ -43,6 +43,7 @@ interface GraphViewState {
     handleSaveGraphTheme: () => {};
     handleSwitchViews: (newView: string, isOpenSpecificNotebook?: boolean)=>void;
 };
+
 export const GraphView: React.FC<GraphViewState> = ({
     graph, echartsClick, openInfoPanel, nodeName,
     materialColor, graphColorTheme, lineColor,
@@ -52,6 +53,7 @@ export const GraphView: React.FC<GraphViewState> = ({
 }) => {
     return (
         <React.Fragment>
+            {/* Graph */}
             <KnowledgeGraph
                 nodeData={graph.node}
                 linkData={graph.link}

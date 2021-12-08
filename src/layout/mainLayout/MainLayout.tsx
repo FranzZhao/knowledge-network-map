@@ -24,7 +24,7 @@ export const MainLayout: React.FC = ({ children }) => {
             <LeftDrawer />
             <div className={classes.main}>
                 <PageTabs />
-                <div style={{ marginTop: 50 }}>
+                <div style={{ marginTop: 45 }}>
                     {children}
                 </div>
             </div>

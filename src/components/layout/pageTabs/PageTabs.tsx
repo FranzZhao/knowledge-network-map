@@ -34,12 +34,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         // marginBottom: 20,
         // borderBottom: '1px solid #1e88e5',
         background: (theme.palette.type === "light" ? '#ececec' : '#222b3a'),
-        height: 50,
+        height: 45,
         position: 'fixed',
         zIndex: theme.zIndex.drawer - 5,
     },
     tabButtonGroup: {
-        height: 50,
+        height: 45,
     },
     tabUpDown: {
         backgroundColor: (theme.palette.type === "light" ? '#ececec' : '#222b3a'),

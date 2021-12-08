@@ -141,7 +141,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
             echarts={echarts}
             option={options}
             style={{
-                height: 'calc(100vh - 98px)',
+                height: 'calc(100vh - 86px)',
                 width: '100%',
             }}
             onEvents={echartsClick}
@@ -153,7 +153,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphState> = ({
         <React.Fragment>
             {
                 graphLoading ? (
-                    <div style={{ display: 'flex', height: 'calc(100vh - 97px)' }}>
+                    <div style={{ display: 'flex', height: 'calc(100vh - 85px)' }}>
                         <CircularProgress color="secondary" style={{ margin: 'auto', width: 60, height: 60 }} />
                     </div>
                 ) : (

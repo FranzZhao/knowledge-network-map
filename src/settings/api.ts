@@ -1,20 +1,26 @@
+const localURL = 'localhost:3001';
+const productURL = '47.107.34.33:3000';
+const currentEnv = localURL;
+
 export const API = {
     "user": {
-        "login": "http://localhost:3001/user/login",
-        "register": "http://localhost:3001/user/register",
-        "jwtVerify": "http://localhost:3001/user/jwt",
-        "passwordVerify": "http://localhost:3001/user/verify",
-        "update": "http://localhost:3001/user/",
-        "diary": "http://localhost:3001/user/diary",
+        "login": "http://"+currentEnv+"/user/login",
+        "register": "http://"+currentEnv+"/user/register",
+        "jwtVerify": "http://"+currentEnv+"/user/jwt",
+        "passwordVerify": "http://"+currentEnv+"/user/verify",
+        "update": "http://"+currentEnv+"/user/",
+        "diary": "http://"+currentEnv+"/user/diary",
+        "avatar": "http://"+currentEnv+"/user/avatar",
+        "statics": "http://"+currentEnv+"/user/statics",
     },
-    "map": "http://localhost:3001/map",
-    "graph": "http://localhost:3001/map/:mapId/graph",
-    "node": "http://localhost:3001/graph/:graphId/node",
-    "link": "http://localhost:3001/graph/:graphId/link",
+    "map": "http://"+currentEnv+"/map",
+    "graph": "http://"+currentEnv+"/map/:mapId/graph",
+    "node": "http://"+currentEnv+"/graph/:graphId/node",
+    "link": "http://"+currentEnv+"/graph/:graphId/link",
     "notebook": {
-        "all": "http://localhost:3001/graph/:graphId/allNotebook",
-        "normal": "http://localhost:3001/graph/:graphId/:target/:targetId/notebook",
-        "node": "http://localhost:3001/graph/:graphId/node/:nodeId/notebook",
-        "link": "http://localhost:3001/graph/:graphId/link/:linkId/notebook",
+        "all": "http://"+currentEnv+"/graph/:graphId/allNotebook",
+        "normal": "http://"+currentEnv+"/graph/:graphId/:target/:targetId/notebook",
+        "node": "http://"+currentEnv+"/graph/:graphId/node/:nodeId/notebook",
+        "link": "http://"+currentEnv+"/graph/:graphId/link/:linkId/notebook",
     }
 }

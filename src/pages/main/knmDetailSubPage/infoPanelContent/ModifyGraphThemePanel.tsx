@@ -520,7 +520,7 @@ export const ModifyGraphThemePanel: React.FC<ModifyGraphThemePanelState> = ({
                     }
                     onClick={handleSaveGraphTheme}
                 >
-                    保存当前主题样式
+                    更新主题样式
                 </Button>
             </form>
         </React.Fragment >

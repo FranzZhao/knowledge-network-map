@@ -57,20 +57,20 @@ import 'emoji-mart/css/emoji-mart.css';
 import { findAllMapLinks } from '../../redux/knm/linkSlice';
 import { findAllMapNodes } from '../../redux/knm/nodeSlice';
 
-
+const toolBarHigh = 40;
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolBarPaper: {
         borderRadius: 0,
     },
     toolBar: {
-        height: '47px',
+        height: toolBarHigh,
     },
     paper: {
         display: 'flex',
         flexWrap: 'wrap',
         borderRadius: 0,
-        height: '47px',
-        lineHeight: '47px',
+        height: toolBarHigh,
+        lineHeight: `${toolBarHigh}px`,
         boxShadow: 'none',
     },
     divider: {
@@ -78,12 +78,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     graphTitle: {
         paddingLeft: 20,
-        fontSize: 18,
+        fontSize: 16,
     },
     toolBarButtons: {
         "& > *": {
             color: theme.palette.type === 'light' ? theme.palette.grey[500] : theme.palette.grey[200],
-            minWidth: 50,
+            minWidth: 45,
         },
         " & > *:hover ": {
             borderRadius: 'none',
@@ -475,7 +475,7 @@ export const KNMDetailPage: React.FC = () => {
                                             <Grid item style={{ paddingTop: 14 }}>
                                                 {
                                                     (detailPageKnmInfo.icon && (typeof detailPageKnmInfo.icon !== 'object')) ? (
-                                                        <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={24} />
+                                                        <Emoji emoji={detailPageKnmInfo.icon as string} set='twitter' size={20} />
                                                     ) : ''
                                                 }
                                             </Grid>

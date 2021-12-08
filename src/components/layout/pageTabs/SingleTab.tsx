@@ -12,7 +12,7 @@ import { Emoji } from 'emoji-mart';
 
 const useStyle = makeStyles((theme: Theme) => createStyles({
     tabButton: {
-        width: 180,
+        width: 160,
         padding: '0 15px',
         border: '0px',
         borderRadius: '0px',
@@ -24,7 +24,7 @@ const useStyle = makeStyles((theme: Theme) => createStyles({
     },
     tabActive: {
         /* secondary:#ffb74d;  primary:#1e88e5 */
-        borderBottom: '3px solid #ffb74d !important',
+        borderBottom: '2px solid #ffb74d !important',
         marginTop: -3,
         // borderTop: (theme.palette.type === "light" ?
         //     '3px solid #ececec !important' : '3px solid #222b3a !important'),
@@ -72,7 +72,7 @@ export const SingleTab: React.FC<TabState> = (
                     }
                     <Grid item xs={10}>
                         <span>{
-                            title.length > 6 ? title.substring(0, 6) + '...' : title
+                            title.length > 6 ? title.substring(0, 5) + '...' : title
                         }</span>
                     </Grid>
                     <Grid item xs={1} style={{ paddingTop: 8 }}>

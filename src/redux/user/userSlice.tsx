@@ -104,7 +104,7 @@ export const uploadUserAvatar = createAsyncThunk(
         console.log(params.file[0]);
         formData.append('file', params.file[0], params.file[0].file.name);
         const file = await axios.post(
-            'http://localhost:3001/user/avatar',
+            API.user.avatar,
             {
                 formData
             },
@@ -125,7 +125,7 @@ export const getUserAvatar = createAsyncThunk(
     async (params: { jwt: string | null }, thunkAPI) => {
         try {
             const userAvatarUrl = await axios.get(
-                'http://localhost:3001/user/avatar',
+                API.user.avatar,
                 {
                     headers: {
                         Authorization: `bearer ${params.jwt}`,
@@ -147,7 +147,7 @@ export const getUserStatics = createAsyncThunk(
     async (params: { jwt: string | null }, thunkAPI) => {
         try {
             const userStatics = await axios.get(
-                'http://localhost:3001/user/statics',
+                API.user.statics,
                 {
                     headers: {
                         Authorization: `bearer ${params.jwt}`,

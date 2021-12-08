@@ -409,7 +409,7 @@ export const LinkInfoEditPanel: React.FC<LinkInfoEditPanelState> = ({
                             }
                             onClick={handleUpdateKnmInfo}
                         >
-                            保存关联信息
+                            更新关联信息
                         </Button>
                         &nbsp;&nbsp;&nbsp;
                         <Button

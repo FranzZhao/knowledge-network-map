@@ -372,7 +372,7 @@ export const NodeInfoEditPanel: React.FC<NodeInfoEditPanelState> = ({
                             }
                             onClick={handleUpdateKnmInfo}
                         >
-                            保存节点信息
+                            更新节点信息
                         </Button>
                         &nbsp;&nbsp;&nbsp;
                         <Button

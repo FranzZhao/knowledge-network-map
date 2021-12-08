@@ -50,7 +50,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import jwt_decode, { JwtPayload as DefaultJwtPayload } from "jwt-decode";
 
 // Current Page Style
-const drawerWidth = 240;
+const drawerWidth = 220;
 const useStyles = makeStyles((theme: Theme) => createStyles({
     toolbarHeader: {
         minHeight: '56px !important',
@@ -149,7 +149,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     userHeader: {
         marginTop: 25,
-        marginRight: 110,
+        marginRight: 90,
         width: theme.spacing(6),
         height: theme.spacing(6),
         boxShadow: '0px 0px 20px #294761',
@@ -182,7 +182,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         position: 'fixed',
         bottom: 0,
         zIndex: theme.zIndex.drawer + 1,
-        width: 240,
+        width: drawerWidth,
         backgroundColor: '#f3f2f2',
         "& .MuiBottomNavigationAction-root": {
             minWidth: 60,
@@ -193,7 +193,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         position: 'fixed',
         bottom: 0,
         zIndex: theme.zIndex.drawer + 1,
-        width: 240,
+        width: drawerWidth,
         color: theme.palette.common.white,
         backgroundColor: '#202b3b',
         "& .MuiBottomNavigationAction-root": {

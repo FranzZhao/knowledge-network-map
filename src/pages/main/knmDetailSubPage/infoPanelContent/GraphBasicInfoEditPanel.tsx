@@ -298,7 +298,7 @@ export const GraphBasicInfoEditPanel: React.FC = () => {
                                 }
                                 onClick={handleUpdateKnmInfo}
                             >
-                                保存基本信息
+                                更新基本信息
                             </Button>
                             &nbsp;&nbsp;&nbsp;
                             <Button

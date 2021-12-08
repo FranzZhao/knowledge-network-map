@@ -31,7 +31,8 @@ import { getUserAvatar, getUserStatics  } from '../../redux/user/userSlice';
 // import UserSpace page
 import {UserInfo, DiarySpace, KnowledgeStatics} from './userSpaceSubPage';
 import { getUserDiariesList } from '../../redux/user/diarySlice';
-
+// import API
+import { API } from '../../settings/api';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -511,7 +512,7 @@ const UploadUserAvatarDialog: React.FC<UploadUserAvatarDialogState> = ({
                         //label="Suleta tus archivos aquí"
                         accept=".png,image/*"
                         uploadingMessage={"Uploading..."}
-                        url="http://localhost:3001/user/avatar"
+                        url={API.user.avatar}
                         config={
                             {
                                 headers: {

@@ -15,7 +15,7 @@
 
 .tab-active {
     /* secondary:#ffb74d;  primary:#1e88e5 */
-    border-bottom: 3px solid #ffb74d !important;
+    border-bottom: 1px solid #ffb74d !important;
     border-top: 3px solid #e6e6e6 !important;
     color: #dc901f !important;
 }
@@ -39,7 +39,7 @@
     background-color: #ececec;
     position: fixed;
     left: 300;
-    height: 50px;
+    height: 40px;
     z-index: 2;
 }
 
@@ -51,7 +51,7 @@
     background-color: #ececec;
     position: fixed;
     right: 0;
-    height: 50px;
+    height: 40px;
     z-index: 2;
 }
 
